@@ -1,0 +1,754 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Property Details - National Housing Development Authority</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="../plugin/bootstrap/css/bootstrap.min.css"/>
+    <script src="../plugin/jquery/jquery.min.js"></script>
+    <script src="../plugin/bootstrap/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Merriweather:400,900,900i" rel="stylesheet">
+
+
+
+    <link rel="stylesheet" href="../style/common.css"/>
+    <script src="../script/common.bitproject.earth.lk.v1.js"></script>
+    <script src="../script/ui.bitproject.earth.lk.v1.js"></script>
+
+    <script type="text/javascript"
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5Jrp9PtHe0WapppUzxbIpMDWMAcV3qE4"></script>
+    <script src="https://unpkg.com/location-picker/dist/location-picker.min.js"></script>
+
+    <script type="text/javascript">var scrolltotop={setting:{startline:100,scrollto:0,scrollduration:1e3,fadeduration:[500,100]},controlHTML:'<img src="https://i1155.photobucket.com/albums/p559/scrolltotop/arrow59.png" />',controlattrs:{offsetx:5,offsety:5},anchorkeyword:"#top",state:{isvisible:!1,shouldvisible:!1},scrollup:function(){this.cssfixedsupport||this.$control.css({opacity:0});var t=isNaN(this.setting.scrollto)?this.setting.scrollto:parseInt(this.setting.scrollto);t="string"==typeof t&&1==jQuery("#"+t).length?jQuery("#"+t).offset().top:0,this.$body.animate({scrollTop:t},this.setting.scrollduration)},keepfixed:function(){var t=jQuery(window),o=t.scrollLeft()+t.width()-this.$control.width()-this.controlattrs.offsetx,s=t.scrollTop()+t.height()-this.$control.height()-this.controlattrs.offsety;this.$control.css({left:o+"px",top:s+"px"})},togglecontrol:function(){var t=jQuery(window).scrollTop();this.cssfixedsupport||this.keepfixed(),this.state.shouldvisible=t>=this.setting.startline?!0:!1,this.state.shouldvisible&&!this.state.isvisible?(this.$control.stop().animate({opacity:1},this.setting.fadeduration[0]),this.state.isvisible=!0):0==this.state.shouldvisible&&this.state.isvisible&&(this.$control.stop().animate({opacity:0},this.setting.fadeduration[1]),this.state.isvisible=!1)},init:function(){jQuery(document).ready(function(t){var o=scrolltotop,s=document.all;o.cssfixedsupport=!s||s&&"CSS1Compat"==document.compatMode&&window.XMLHttpRequest,o.$body=t(window.opera?"CSS1Compat"==document.compatMode?"html":"body":"html,body"),o.$control=t('<div id="topcontrol">'+o.controlHTML+"</div>").css({position:o.cssfixedsupport?"fixed":"absolute",bottom:o.controlattrs.offsety,right:o.controlattrs.offsetx,opacity:0,cursor:"pointer"}).attr({title:"Scroll to Top"}).click(function(){return o.scrollup(),!1}).appendTo("body"),document.all&&!window.XMLHttpRequest&&""!=o.$control.text()&&o.$control.css({width:o.$control.width()}),o.togglecontrol(),t('a[href="'+o.anchorkeyword+'"]').click(function(){return o.scrollup(),!1}),t(window).bind("scroll resize",function(t){o.togglecontrol()})})}};scrolltotop.init();</script>
+    <noscript>Not seeing a <a href="https://www.scrolltotop.com/">Scroll to Top Button</a>? Go to our FAQ page for more info.</noscript>
+
+
+    <script>
+
+        window.addEventListener("load", initialize);
+
+        //Initializing Functions
+
+        function initialize() {
+
+            btnAdd.addEventListener("click",btnAddMC);
+            btnClear.addEventListener("click",btnClearMC);
+            btnUpdate.addEventListener("click",btnUpdateMC);
+            btnDelete.addEventListener("click",btnDeleteMC);
+
+            btnSearch.addEventListener("click",btnSearchMC);
+            btnSearchClear.addEventListener("click",btnSearchClearMC);
+
+            confirmPosition.addEventListener("click",btnconfirmLocation);
+            txtLandSize.addEventListener("change",txtLandSizeCH);
+            txtHouseSize.addEventListener("change",txtHouseSizeCH);
+
+
+            privilages = httpRequest("../privilages?module=PROPERTY","GET");
+
+            regexes = httpRequest("../regexes/property","GET");
+            txtOwner.setAttribute("data-pattern",regexes.ownership.regex);
+            txtOwnAddress.setAttribute("data-pattern",regexes.ownaddress.regex);
+            txtLandAddress.setAttribute("data-pattern",regexes.landaddress.regex);
+
+            propertystatuses = httpRequest("../propertystatuses/list","GET");
+
+            valid = "lightgreen";
+            invalid = "pink";
+            initial = "white";
+            updated = "khaki";
+            active = "khaki";
+
+            loadView();
+            loadForm();
+
+
+        }
+
+        function loadView() {
+
+            //Search Area
+            txtSearchNumber.value="";
+            txtSearchNumber.style.background = "";
+            txtSearchOwner.value="";
+            txtSearchOwner.style.background = "";
+            cmbSearchPropertystatus.style.background = "";
+            fillCombo(cmbSearchPropertystatus,"Status",propertystatuses,"name","");
+
+            //Table Area
+            activerowno = "";
+            activepage = 1;
+            var query ="&number=&ownership=&propertystatusId=";
+            loadTable(1,cmbPageSize.value,query);
+        }
+
+        function loadTable(page,size,query) {
+            page = page - 1;
+            propertydetails = new Array();
+            var data = httpRequest("/propertydetails?page="+page+"&size="+size+query,"GET");
+            if(data.content!= undefined) propertydetails = data.content;
+            createPagination('pagination',data.totalPages, data.number+1,paginate);
+            fillTable('tblProperty',propertydetails,fillForm);
+            clearSelection(tblProperty);
+            if(activerowno!="")selectRow(tblProperty,activerowno,active);
+            window.location.href="#ui";
+        }
+
+        function paginate(page) {
+            var paginate;
+            if(oldproperty==null){
+                paginate=true;
+            }else{
+                if(getErrors()==''&&getUpdates()==''){
+                    paginate=true;
+                }else{
+                    paginate = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+            if(paginate) {
+                activepage=page;
+                activerowno=""
+                loadSearchedTable();
+                loadForm();
+            }
+
+        }
+
+        function loadForm() {
+            property = new Object();
+            oldproperty = null;
+
+            fillCombo(cmbPropertystatus, "Select Property status", propertystatuses, "name","Approval");
+            property.propertystatusId = JSON.parse(cmbPropertystatus.value);
+
+            pronum = httpRequest("../propertydetails/pronum","GET");
+            txtNumber.value = pronum.no;
+            property.number =  txtNumber.value;
+            txtNumber.disabled="disabled";
+
+
+            txtHouseSize.value = "";
+            txtLandSize.value = "";
+            txtLocation.value = "";
+            txtOwner.value = "";
+            txtOwnAddress.value = "";
+            txtLandAddress.value = "";
+            txtPName.value = "";
+            txtPRelation.value = "";
+            txtDeed.value = "";
+            removeFile('flePhoto');
+            txtDescription.value = "";
+
+
+            setStyle(initial);
+            cmbPropertystatus.style.background = valid;
+            txtNumber.style.background = valid;
+            disableButtons(false, true, true);
+        }
+
+        function setStyle(style) {
+
+            txtNumber.style.background = style;
+            txtHouseSize.style.background = style;
+            txtLandSize.style.background = style;
+            txtLocation.style.background = style;
+            txtOwner.style.background = style;
+            txtOwnAddress.style.background = style;
+            txtLandAddress.style.background = style;
+            txtPName.style.background = style;
+            txtPRelation.style.background = style;
+            txtDeed.style.background = style;
+            txtDescription.style.background = style;
+
+        }
+
+        function disableButtons(add, upd, del) {
+
+            if (add || !privilages.add) btnAdd.setAttribute("disabled", "disabled");
+            else btnAdd.removeAttribute("disabled");
+
+            if (upd || !privilages.update) btnUpdate.setAttribute("disabled", "disabled");
+            else btnUpdate.removeAttribute("disabled");
+
+            if (del || !privilages.delete) btnDelete.setAttribute("disabled", "disabled");
+            else btnDelete.removeAttribute("disabled");
+
+        }
+
+
+        // Binding and Validation Functions for Non-Regex-Based
+        // When Regex-Based default validation is used, programmers do not need to define these functions
+        // Default Validation and Binding is coded in "ui.js"
+
+
+        function btnconfirmLocation() {
+            //The geolocation property is not supported in IE8 and earlier versions.
+            $("#myModal").modal();
+
+            var lp = new locationPicker(map, {
+                setCurrentPosition: true, //  can omit this, defaults to true
+                lat:   6.930725783750102,
+                lng: 79.84674958368855
+            }, {
+                zoom: 15 // You can set any google map options here, zoom defaults to 15
+            });
+
+            google.maps.event.addListener(lp.map, 'idle', function (event) {
+                var location = lp.getMarkerPosition();
+                property.landlocation = 'Pointed location is ' + location.lat + ',' + location.lng;
+                txtLocation.value = property.landlocation;
+                txtLocation.style.background=valid;
+            });
+
+        }
+        function txtLandSizeCH() {
+           var house= parseFloat(txtHouseSize.value);
+           var land= parseFloat(txtLandSize.value);
+           if(house>land){
+               txtLandSize.style.background=invalid;
+              // txtHouseSize.style.background=invalid;
+           }else if(house<land){
+               txtLandSize.style.background=valid;
+             //  txtHouseSize.style.background=valid;
+           }
+        }
+        function txtHouseSizeCH() {
+            var house= parseFloat(txtHouseSize.value);
+            var land= parseFloat(txtLandSize.value);
+            if(house<land){
+                txtHouseSize.style.background=valid;
+              //  txtLandSize.style.background=invalid;
+            }else if(house>land){
+                txtHouseSize.style.background=invalid;
+              //  txtLandSize.style.background=valid;
+            }
+        }
+
+
+
+
+
+        //Form Operation Functions
+
+        function getErrors() {
+
+            var errors = "";
+
+            if (property.number == null)
+                errors = errors + "\n" + "Invalid number";
+
+            if (property.housesize == null)
+                errors = errors + "\n" + "Invalid House Size";
+
+            if (property.landsize == null)
+                errors = errors + "\n" + "Invalid Land Size";
+
+            if (property.landlocation == null)
+                errors = errors + "\n" + "Land Location is Empty";
+
+            if (property.photo == null)
+                errors = errors + "\n" +"Location Image is Empty";
+
+            if (property.ownership== null)
+                errors = errors + "\n" + regexes.ownership.message;
+
+            if (property.ownaddress == null)
+                errors = errors + "\n" + regexes.ownaddress.message;
+
+            if (property.landaddress == null  && txtLandAddress.value!="")
+                errors = errors + "\n" + regexes.landaddress.message;
+
+            if (property.deedno == null)
+                errors = errors + "\n" + "Invalid Deed Licence No";
+
+            if (property.partnername == null && txtPName.value!="")
+                errors = errors + "\n" + "Invalid Partner Name";
+
+            if (property.partnerrelation == null && txtPRelation.value!="")
+                errors = errors + "\n" + "Partner Relationship is Empty";
+
+            if (property.description == null && txtDescription.value!="")
+                errors = errors + "\n" + "Description is Empty";
+
+            return errors;
+
+        }
+
+        function btnAddMC() {
+
+            var errors = getErrors();
+
+           if(errors=="") {
+                var option = window.confirm("Are you sure to add following Property ?\n" +
+                    "\nNumber : " + property.number +
+                    "\nHouse Size : " + property.housesize +
+                    "\nLand Size : " + property.landsize +
+                    "\nLand Location : " + property.landlocation +
+                    "\nOwnership : " + property.ownership +
+                    "\nOwner Address : " + property.ownaddress +
+                    "\nLand Address : " + property.landaddress +
+                    "\nPartner Name : " + property.partnername +
+                    "\nPartner Realtionship : " + property.partnerrelation +
+                    "\nDeed licence No : " + property.deedno +
+                    "\nDescription : " + property.description +
+                    "\nProperty Status : " + property.propertystatusId.name );
+                if(option==true) {
+                  var response = httpRequest("/propertydetails","POST",property);
+                    if(response=="0"){
+                    toast("<strong>Success !</strong> Saved Successfully","success");
+                    loadForm();
+                    activerowno = 1;
+                    loadSearchedTable();
+                    }
+                    else window.alert("Failed to Add as \n\n"+response);
+                }
+          }
+          else
+           { window.alert("You have following Errors\n"+errors); }
+
+        }
+
+        function btnClearMC() {
+            //Get Cofirmation from the User window.confirm();
+
+            var clear;
+            if(oldproperty==null){
+                clear=true;
+            }else{
+                if(getErrors()==''&&getUpdates()==''){
+                    clear=true;
+                }else{
+                    clear = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+            if(clear) {
+                loadForm();
+                clearSelection(tblProperty);
+            }
+
+        }
+
+        function fillForm(prop,rowno){
+            activerowno = rowno;
+            var filling;
+            if(oldproperty==null){
+                filling=true;
+            }else{
+
+                if(getErrors()==''&&getUpdates()==''){
+                    filling=true;
+                }else{
+                    filling = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+
+            if(filling) {
+
+                    $('html, body').animate({
+                        scrollTop: $(".ui").offset().top
+                    }, 1000);
+
+
+               clearSelection(tblProperty);
+               selectRow(tblProperty,activerowno,active);
+
+                property = JSON.parse(JSON.stringify(prop));
+                oldproperty = JSON.parse(JSON.stringify(prop));
+
+                txtNumber.value = property.number;
+                txtHouseSize.value = property.housesize;
+                txtLandSize.value = property.landsize;
+                txtLocation.value = property.landlocation;
+                txtOwner.value = property.ownership;
+                txtOwnAddress.value = property.ownaddress;
+                txtLandAddress.value = property.landaddress;
+                txtPName.value = property.partnername;
+                txtPRelation.value = property.partnerrelation;
+                txtDeed.value = property.deedno;
+                txtDescription.value = property.description;
+                cmbPropertystatus.disabled = false;
+                fillCombo(cmbPropertystatus, "Select Property status", propertystatuses,"name",property.propertystatusId.name);
+                setDefaultFile('flePhoto', property.photo);
+
+                disableButtons(true, false, false);
+                setStyle(valid);
+            }
+
+        }
+
+        function getUpdates() {
+
+            var updates = "";
+
+            if(property!=null && oldproperty!=null) {
+
+
+                if (property.number != oldproperty.number)
+                    updates = updates + "\nNumber is Changed";
+
+                if (property.housesize != oldproperty.housesize)
+                    updates = updates + "\nHouse Size is Changed";
+
+                if (property.landsize != oldproperty.landsize)
+                    updates = updates + "\nLand Size is Changed";
+
+                if (property.landlocation != oldproperty.landlocation ){
+                    updates = updates + "\nLand Location is Changed to" +oldproperty.landlocation + " -> "
+                    +property.landlocation;}
+
+                if (property.photo != oldproperty.photo)
+                    updates = updates + "\nLand Image is Changed";
+
+                if (property.ownership != oldproperty.ownership)
+                    updates = updates + "\nOwner Name is Changed";
+
+                if (property.ownaddress != oldproperty.ownaddress)
+                    updates = updates + "\nOwner Address is Changed";
+
+                if (property.landaddress != oldproperty.landaddress)
+                    updates = updates + "\nLand Address is Changed";
+
+                if (property.partnername != oldproperty.partnername)
+                    updates = updates + "\nPartner Name is Changed";
+
+                if (property.partnerrelation != oldproperty.partnerrelation)
+                    updates = updates + "\nPartner Relationship is Changed";
+
+                if (property.deedno != oldproperty.deedno)
+                    updates = updates + "\nDeed Licence No of Assignment is Changed";
+
+                if (property.description != oldproperty.description)
+                    updates = updates + "\nDescription is Changed";
+
+                if (property.propertystatusId.name != oldproperty.propertystatusId.name)
+                    updates = updates + "\nProperty Status is Changed";
+
+            }
+
+            return updates;
+
+        }
+
+        function btnUpdateMC() {
+            var errors = getErrors();
+            if (errors == "") {
+                var updates = getUpdates();
+                if (updates == "") window.alert("Nothing Updated!");
+                else {
+
+                    var option = window.confirm("\n\nAre your sure to update followings ! \n\n" + updates);
+                    if(option==true) {
+                        var response = httpRequest("/propertydetails","PUT",property);
+                        if(response=="0"){
+                            toast("<strong>Success !</strong> Updated Successfully","success");
+                            loadForm();
+                            loadSearchedTable();
+
+                        }
+                        else window.alert("Failed to Update as \n\n"+response);
+                    }
+
+                }
+            }
+            else
+                window.alert("You have following errors in your form\n\n"+getErrors());
+        }
+
+        function btnDeleteMC() {
+
+
+            var option = window.confirm("\n\nAre your sure to delete following ! \n\n" +
+                "Id : " +property.id+ "\nNumber : " +property.number);
+
+            if(option==true) {
+                var response = httpRequest("/propertydetails","DELETE",property);
+                if(response=="0"){
+                    toast("<strong>Success !</strong> Deleted Successfully","success");
+                    loadForm();
+                    loadSearchedTable();
+
+                }
+                else window.alert("Failed to Delete as \n\n"+response);
+            }
+
+       }
+
+
+        //Search Functions
+
+        function loadSearchedTable() {
+            var number = txtSearchNumber.value;
+            var ownership = txtSearchOwner.value;
+            var propertystatus = cmbSearchPropertystatus.value;
+
+            var propertystatusId="";
+            if(propertystatus!="Status")
+            {  propertystatusId = JSON.parse(propertystatus).id;
+                cmbSearchPropertystatus.style.background = active; }
+
+            if(ownership!=""){  txtSearchOwner.style.background = active; }
+            if(number!=""){  txtSearchNumber.style.background = active; }
+
+            var query ="&number=&ownership=&propertystatusId=";
+
+            if(number!="" || ownership!="" ||  propertystatusId!="" )
+                query = "&number=" + number + "&ownership=" + ownership + "&propertystatusId=" + propertystatusId;
+
+            //window.alert(query);
+            loadTable(activepage, cmbPageSize.value, query);
+        }
+
+        function btnSearchMC(){
+            activepage=1;
+            loadSearchedTable();
+        }
+
+        function btnSearchClearMC(){
+               loadView();
+        }
+        // scroll to ID---------------------------------
+        $("a[href^='#']").click(function(e) {
+            e.preventDefault();
+
+            var position = $($(this).attr("href")).offset().top;
+
+            $("body, html").animate({
+                scrollTop: position
+            } /* speed */ );
+        });
+
+
+
+        // -----------------------------------------------
+
+
+    </script>
+
+    <style type="text/css">
+        #map {
+            width: 100%;
+            height: 450px;
+        }
+        body {overflow-x: hidden; }
+        div .panel-heading {
+            text-decoration: none;
+            background-color:#818181;
+            color: whitesmoke;
+            border-radius: 2%;
+        }
+    </style>
+
+</head>
+
+<body>
+<div class="container-fluid">
+
+    <div class="row" id="ui">
+        <div class="col-md-12">
+            <div class="panel">
+                <div class="panel-heading">
+                    <button class="btn btn-xs ui"> <a href="#ui"><h4>Add Property</h4></a></button>
+                    <button class="btn btn-xs "> <a href="#propertyview"><h4>View Property</h4></a></button>
+                    <h3 style=" float: left; text-align: center; margin: 20px; color: white">
+                        Property Management</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="row">
+                            <div class="col-md-9" id="form">
+
+                                <form class="form-horizontal" onsubmit="return false" id="propertyform" >
+                                    <legend>Borrower's Land/Property/House Information</legend>
+                                    <script>
+                                        // Defining UI-Componnets and Layouts
+                                        // Default UI-Componnets and Layouts is coded in "ui.js"
+
+                                        textField('propertyform','txtNumber','Number <span style="color:red;font-size:20px">*</span>','Enter Number Here','',4,"",'property','number','oldproperty');
+                                        textField('propertyform','txtLandSize','Land Size (perch) <span style="color:red;font-size:20px">*</span>','Enter Land Size (in Perches) Here Ex : 6.2','',4,"",'property','landsize','oldproperty');
+                                        textField('propertyform','txtHouseSize','House Size (perch) <span style="color:red;font-size:20px">*</span>','Enter House Size (in Perches) Here Ex : 5.7','',4,"",'property','housesize','oldproperty');
+                                        textField('propertyform','txtLocation','Location <span style="color:red;font-size:20px">*</span>','Click Confirm Location and point the location','',4,"",'property','landlocation','oldproperty');
+
+                                        // Custom UI-Componnets and Layouting
+                                    </script>
+                                    <!--<div class="form-group">-->
+                                        <!--<label class="control-label col-md-4" for="txtLat"></label>-->
+                                        <!--<div class="col-md-4">-->
+                                            <!--&lt;!&ndash;<input type="text" id="txtLat" placeholder="Enter Latitude Here" class="form-control"/>&ndash;&gt;-->
+                                            <!--<label class="form-control col-md-4" id="txtLat">-Latitude-</label>-->
+                                        <!--</div>-->
+                                        <!--<div class="col-md-4">-->
+                                            <!--&lt;!&ndash;<input type="text" id="txtLong" placeholder="Enter Longitude Here" class="form-control"/>&ndash;&gt;-->
+                                            <!--<label class="form-control col-md-4" id="txtLong">-Longitude-</label>-->
+                                        <!--</div>-->
+                                    <!--</div>-->
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4" for="confirmPosition"></label>
+                                        <div class="col-md-6">
+                                            <input class="btn btn-info btn-sm" type="button"
+                                                   id="confirmPosition" value="Confirm Location"/>
+                                        </div>
+                                    </div>
+                                    <script>
+                                        fileChooser('propertyform','flePhoto','Location Image <span style="color:red;font-size:20px">*</span>',4,['.jpg','.pdf','.png'],5,true,'property','photo','property');
+                                    </script>
+                                    <legend>Borrower's Ownership Information</legend>
+                                    <script>
+
+                                        textField('propertyform','txtOwner','Owner&#39;s Name <span style="color:red;font-size:20px">*</span>','Enter Owners Name Here','',4,"",'property','ownership','oldproperty');
+                                        textArea('propertyform','txtOwnAddress','Owner&#39;s Address <span style="color:red;font-size:20px">*</span>','Enter Owners Address Here','',4,"",'property','ownaddress','oldproperty');
+                                        textArea('propertyform','txtLandAddress','Land Address','Enter Land Address Here','',4,"",'property','landaddress','oldproperty');
+                                        textField('propertyform','txtDeed','Deed Licence No <span style="color:red;font-size:20px">*</span>','Enter Deed Licence No Here','',4,"",'property','deedno','oldproperty');
+                                        textField('propertyform','txtPName','Partner&#39;s Name','Enter Partner name Here','',4,"",'property','partnername','oldproperty');
+                                        textField('propertyform','txtPRelation','Partner&#39;s Relationship','Ex : Husband /Wife /Brother /Sister /Mother /Father /Uncle /Father-in-law','',4,"",'property','partnerrelation','oldproperty');
+                                        textArea('propertyform','txtDescription','Description','Enter Description Here','',4,"",'property','description','oldproperty');
+                                        comboBox('propertyform','cmbPropertystatus','Property Status <span style="color:red;font-size:20px">*</span>',4,'property','propertystatusId','oldproperty');
+
+                                    </script>
+
+
+                                    <div class="text-right" style="margin-bottom: 5px;">
+                                        <input class="btn btn-danger btn-sm" type="button" id="btnDelete" value="Delete" style="width: 15%"/>
+                                        <input class="btn btn-warning btn-sm" type="button" id="btnUpdate" value="Update" style="width: 15%"/>
+                                        <input class="btn btn-success btn-sm" type="button" id="btnAdd" value="Add" style="width: 17%"/>
+                                        <input class="btn btn-info btn-sm" type="button" id="btnClear" value="Clear" style="width: 15%"/>
+                                    </div>
+
+
+                                </form>
+
+                            </div>
+
+
+
+
+                        </div>
+                        <div id="myModal" class="modal fade" role="dialog">
+                            <div class="modal-dialog">
+
+                                <!-- Modal content-->
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div id="map"></div><!--for map-->
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+
+                    <div class="col-md-12" id="propertyview">
+                        <hr/>
+                        <h3>Search Content</h3>
+                        <form class="form-inline" onsubmit="return false">
+                            <div class="form-group form-group-sm">
+                                <input placeholder="Search By Number" class="form-control" type="text"
+                                       id="txtSearchNumber"/>
+                            </div>
+                            <div class="form-group form-group-sm">
+                                <input placeholder="Search By Ownership" class="form-control" type="text"
+                                       id="txtSearchOwner"/>
+                            </div>
+                            <div class="form-group form-group-sm">
+                                <select class="form-control" id="cmbSearchPropertystatus"></select>
+                            </div>
+                            <input type="button" class="btn btn-success btn-sm" value="Search" id="btnSearch"/>
+                            <input type="button" class="btn btn-info btn-sm" value="Clear" id="btnSearchClear"/>
+
+                        </form>
+                        <hr/>
+                        <h3>List of Property Details</h3>
+                        <div class="table-responsive" id="tableParent">
+
+                            <script>
+
+                                // function getNameColumn(ob) {
+                                //     return ob.assessmentno+"("+ob.id+")";
+                                // }
+
+                                var metadata = [
+                                    {name:'Number',search:true,datatype:'text',property:'number'},
+                                    {name:'House Size',search:true,datatype:'text',property:'housesize'},
+                                    {name:'Land Size',search:true,datatype:'text',property:'landsize'},
+                                    {name:'Land Location',search:true,datatype:'text',property:'landlocation'},
+                                    {name:'Photo',search:true,datatype:'photo',property:'photo'},
+                                    {name:'Owner Name',search:true,datatype:'text',property:'ownership'},
+                                    {name:'Owner Address',search:true,datatype:'text',property:'ownaddress'},
+                                    {name:'Land Address',search:true,datatype:'text',property:'landaddress'},
+                                    {name:'Partner Name',search:true,datatype:'text',property:'partnername'},
+                                    {name:'Partner Relationship',search:true,datatype:'text',property:'partnerrelation'},
+                                    {name:'Property Status',search:true,datatype:'text',property:'propertystatusId.name'},
+
+                                ];
+                                table("tableParent","tblProperty",metadata,[10,15,30,500,1000],btnSearchMC,true);
+
+                            </script>
+
+
+                        </div>
+                        <ul id="pagination" class="pagination"></ul>
+                    </div>
+                </div>
+                </div>
+                <div class="panel-footer"><div id="err" style="display: none"><h3>Error Log</h3></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    // Get element references
+    // var confirmBtn = document.getElementById('confirmPosition');
+    // var txtLocat = document.getElementById('txtLocation');
+    // var txtA = document.getElementById('txtA');
+    // var map = document.getElementById('map');
+
+    // Initialize LocationPicker plugin
+    // var lp = new locationPicker(map, {
+    //     setCurrentPosition: true, // You can omit this, defaults to true
+    //     lat:   6.930725783750102,
+    //     lng: 79.84674958368855
+    // }, {
+    //     zoom: 15 // You can set any google map options here, zoom defaults to 15
+    // });
+
+    // Listen to button onclick event
+    // confirmBtn.onclick = function () {
+    //     // Get current location and show it in HTML
+    //     var location = lp.getMarkerPosition();
+    //     txtLocat.innerHTML = 'Chosen location is ' + location.lat + ',' + location.lng;
+    //     property.landlocation=txtLocat.innerHTML;
+    // };
+
+    // Listen to map idle event, listening to idle event more accurate than listening to ondrag event
+//     google.maps.event.addListener(lp.map, 'idle', function (event) {
+//         // Get current location and show it in HTML
+//         var location = lp.getMarkerPosition();
+// console.log(location);
+// console.log(location.lat);
+// console.log(location.lng);
+// console.log(txtLocation);
+//
+//
+//         txtLocation.innerHTML = "Ha HA";
+       // txtLocat.innerHTML = 'Pointed location is ' + location.lat + ',' + location.lng;
+ //   });
+</script>
+<!---->
+</body>
+</html>

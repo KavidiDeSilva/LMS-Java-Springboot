@@ -1,0 +1,180 @@
+.home-card{
+	width: 100%;
+	height: 100px;
+	position: relative;
+	color: white;
+	margin-bottom: 10px;
+	cursor: pointer;
+	box-shadow: 1px 1px 10px #fff,-1px -1px 10px #fff,-1px 1px 10px #fff,1px -1px 10px #fff;
+}
+.home-card>*{
+	position: absolute;
+}
+
+.home-card>a{
+	top: 0px;
+	left:0px;
+	right: 0px;
+	bottom: 0px;
+	z-index: 1000;
+}
+
+.home-card>.glyphicon{
+	right: 10px;
+	top: 20px;
+	font-size: 50px;
+	transition: font-size 0.2s, text-shadow 1s;
+}
+.home-card>.bar{
+	right: 0px;
+	left: 0px;
+	bottom: 0px;
+	text-align: center;
+	background-color: rgba(0,0,0,0.3);
+	padding: 10px;
+	opacity: 0.9;
+	color: white;
+}
+.home-card>.home-card-title{
+	left: 10px;
+	bottom: 25px;
+	font-size: 14px;
+	opacity: 0.9;
+}
+.home-card>.home-card-num{
+	left: 10px;
+	top: 10px;
+	font-size: 30px;
+	font-weight: bold;
+	transition: font-size 0.2s, text-shadow 1s;
+}
+.home-title{
+	color: #555;
+	border-top:1px solid #ccc;
+	padding: 5px 0px;
+	margin-top: 40px;
+}
+
+
+
+.home-card:hover .home-card-num{
+	font-size: 35px;
+	text-shadow: 0px 0px 5px black;
+}
+.home-card:hover .glyphicon{
+	font-size: 55px;
+	text-shadow: 0px 0px 5px black;
+}
+
+.name-card{
+	position: relative;
+	width: 100%;
+	margin: 5px;
+	border:1px solid #ccc;
+	height: 138px;
+	box-sizing: content-box;
+	background-color: #efefef;
+}
+
+.name-card>*{
+	position: absolute;
+	margin: 0px;
+	text-shadow: 0px 0px 0.5px #555;
+}
+
+.name-card>img{
+	width: 138px;
+	height: 138px;
+	top: 0px;
+	left: 0px;
+}
+
+.name-card>h2{
+	top: 10px;
+	left: 160px;
+	color: #222;
+	line-height: 22px;
+	font-size: 1.75em;
+}
+
+.name-card>h2>small{
+	color: #777;
+}
+
+.name-card>span{
+	color: #111;
+	font-size: 30px;
+	bottom: 10px;
+	right: 10px;
+	line-height: 25px;
+	text-align: right;
+}
+
+.name-card>span>small{
+	color: #777;
+	font-size: 15px;
+}
+
+.notification-card{
+	border:1px solid #ccc;
+	padding: 4px;
+	cursor: pointer;
+	margin-bottom: 3px;
+	background-color: #fff;
+}
+
+.notification-card>*{
+	margin: 0px;
+}
+
+.notification-card>h3{
+	font-size: 18px;
+	color: #444;
+	font-weight: bold;
+	transition: color 0.5s;
+}
+
+.notification-card>p{
+	color: #666;
+}
+
+.notification-card:hover h3{
+	color:#222;
+}
+
+.panel{
+	border-radius: 0px;
+}
+
+.panel-body{
+	padding: 15px;
+	box-shadow: 0px 0px 5px black;
+}
+
+.item-box{
+	width: 100%;
+	margin-bottom: 5px;
+	padding: 5px;
+	border:1px solid #ccc;
+	background-color: white;
+	box-shadow: 0px 0px 5px black;
+}
+
+.item-box>img{
+	width: 100px;
+	display: block;
+	margin: auto;
+	margin-top: 5px;
+}
+
+.item-box>p{
+	text-align: center;
+	margin-top: 5px;
+}
+
+.item-box ins{
+	text-decoration: none;
+	color: red;
+	font-size: 105%;
+	font-weight: bold;
+}

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!---------------------------------------------------------------------->
+    <title>Criteria-National Housing Development Authority</title>
+    <!---------------------------------------------------------------------->
+    <link rel="stylesheet" href="../plugin/bootstrap/css/bootstrap.min.css"/>
+    <script src="../plugin/jquery/jquery.min.js"></script>
+    <script src="../plugin/bootstrap/js/bootstrap.min.js"></script>
+    <!---------------------------------------------------------------------->
+    <link rel="stylesheet" href="../style/common.css"/>
+    <script src="../script/common.bitproject.earth.lk.v1.js"></script>
+    <script src="../script/ui.bitproject.earth.lk.v1.js"></script>
+    <!---------------------------------------------------------------------->
+    <script>
+
+        window.addEventListener("load", initialize);
+
+        //Initializing Functions
+
+        function initialize() {
+
+            btnAdd.addEventListener("click",btnAddMC);
+            btnClear.addEventListener("click",btnClearMC);
+            btnUpdate.addEventListener("click",btnUpdateMC);
+            btnDelete.addEventListener("click",btnDeleteMC);
+            btnSearch.addEventListener("click",btnSearchMC);
+            btnSearchClear.addEventListener("click",btnSearchClearMC);
+
+
+            privilages = httpRequest("../privilages?module=CONSTRAINT","GET");
+            regexes = httpRequest("../regexes/criteria","GET");
+            txtName.setAttribute("data-pattern",regexes.name.regex);
+
+            constraints = httpRequest("../constraints/list","GET");
+            loantypes = httpRequest("../loantypes/list","GET");
+
+
+            valid = "lightgreen";
+            invalid = "pink";
+            initial = "white";
+            updated = "khaki";
+            active = "khaki";
+
+            loadView();
+            loadForm();
+
+
+        }
+
+        function loadView() {
+            //Search Area
+            txtSearchName.value="";
+            txtSearchName.style.background = "";
+
+            //Table Area
+            activerowno = "";
+            activepage = 1;
+            loadTable(1,cmbPageSize.value,"&name=");
+
+        }
+
+        function loadTable(page,size,query) {
+            page = page - 1;
+            users = new Array();
+            var data =  httpRequest("/criterias?page="+page+"&size="+size+query,"GET");
+            criterias = data.content;
+            createPagination('pagination',data.totalPages, data.number+1,paginate);
+            fillTable('tblCriteria',criterias,fillForm);
+            clearSelection(tblCriteria);
+            if(activerowno!="")selectRow(tblCriteria,activerowno,active);
+            window.location.href="#ui";
+        }
+
+        function paginate(page) {
+            var paginate;
+            if(oldcriteria==null){
+                paginate=true;
+            }else{
+                if(getErrors()==''&&getUpdates()==''){
+                    paginate=true;
+                }else{
+                    paginate = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+            if(paginate) {
+                activepage=page;
+                activerowno=""
+                loadSearchedTable();
+                loadForm();
+            }
+
+        }
+
+        function loadForm() {
+
+            criteria = new Object();
+            oldcriteria = null;
+
+            fillCombo(cmbConstraint,"Select Constraint",constraints,"name","");
+            fillCombo(cmbLoantype,"Select Loan Type",loantypes,"name","");
+            txtName.value = "";
+            txtValue.value = "";
+
+            setStyle(initial);
+            disableButtons(false, true, true);
+
+        }
+
+        function setStyle(style) {
+
+            txtName.style.background = style;
+            txtValue.style.background = style;
+            cmbConstraint.style.background = style;
+            cmbLoantype.style.background = style;
+
+
+        }
+
+        function disableButtons(add, upd, del) {
+
+            if (add || !privilages.add) btnAdd.setAttribute("disabled", "disabled");
+            else btnAdd.removeAttribute("disabled");
+
+            if (upd || !privilages.update) btnUpdate.setAttribute("disabled", "disabled");
+            else btnUpdate.removeAttribute("disabled");
+
+            if (del || !privilages.delete) btnDelete.setAttribute("disabled", "disabled");
+            else btnDelete.removeAttribute("disabled");
+
+        }
+
+
+        // Binding and Validation Functions for Non-Regex-Based
+        // When Regex-Based default validation is used, programmers do not need to define these functions
+        // Default Validation and Binding is coded in "ui.bitproject.earth.lk.js"
+
+
+
+
+        //Form Operation Functions
+
+        function getErrors() {
+
+            var errors = "";
+
+            if (criteria.name == null)
+                errors = errors + "\n" + "Criteria Name is Empty";
+
+            if (criteria.value == null)
+                errors = errors + "\n" + "Criteria Value is Empty";
+
+            if (criteria.constraintId == null)
+                errors = errors + "\n" + "Constraint is not Selected";
+
+            if (criteria.loantypeId == null)
+                errors = errors + "\n" + "Loan Type is not Selected";
+
+            return errors;
+
+        }
+
+        function btnAddMC(){
+
+            var errors = getErrors();
+
+            if(errors==""){
+
+               var option = window.confirm("Are you sure to add following Criteria ?\n" +
+                    "\nCriteria Name : " + criteria.name +
+                    "\nCriteria Value : " + criteria.value +
+                    "\nLoan Type : " + criteria.loantypeId.name +
+                    "\nConstraint : " + criteria.constraintId.name );
+                if(option==true) {
+                    var response = httpRequest("/criterias","POST",criteria);
+                    if(response=="0"){
+                        toast("<strong>Success !</strong> Saved Successfully","success");
+                        loadForm();
+                        activerowno = 1;
+                        loadView();
+                        //loadSearchedTable();
+                    }
+                    else window.alert("Failed to Add as \n\n"+response);
+                }
+
+            }
+            else
+            { window.alert("You have following Errors\n"+errors); }
+
+        }
+
+        function btnClearMC() {
+            //Get Cofirmation from the User window.confirm();
+
+            var clear;
+            if(oldcriteria==null){
+                clear=true;
+            }else{
+                if(getErrors()==''&&getUpdates()==''){
+                    clear=true;
+                }else{
+                    clear = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+            if(clear) {
+                loadForm();
+                clearSelection(tblCriteria);
+            }
+
+
+
+
+        }
+
+        function fillForm(cri,rowno){
+            activerowno = rowno;
+            var filling;
+            if(oldcriteria==null){
+                filling=true;
+            }else{
+
+                if(getErrors()==''&&getUpdates()==''){
+                    filling=true;
+                }else{
+                    filling = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+
+            if(filling) {
+
+                clearSelection(tblCriteria);
+                selectRow(tblCriteria,activerowno,active);
+
+                criteria = JSON.parse(JSON.stringify(cri));
+                oldcriteria = JSON.parse(JSON.stringify(cri));
+
+                txtName.value = criteria.name;
+                txtValue.value = criteria.value;
+                fillCombo(cmbConstraint, "Select Constraint", constraints, "name", criteria.constraintId.name);
+                fillCombo(cmbLoantype, "Select Loan Type", loantypes, "name", criteria.loantypeId.name);
+
+                disableButtons(true, false, false);
+                setStyle(valid);
+            }
+
+        }
+
+        function getUpdates() {
+
+            var updates = "";
+
+            if(criteria!=null && oldcriteria!=null) {
+
+
+                if (criteria.name != oldcriteria.name)
+                    updates = updates + "\nCriteria Name is Changed";
+
+                if (criteria.value != oldcriteria.value)
+                    updates = updates + "\nCriteria Value is Changed";
+
+                if (criteria.constraintId.name != oldcriteria.constraintId.name)
+                    updates = updates + "\nConstraint is Changed";
+
+                if (criteria.loantypeId.name != oldcriteria.loantypeId.name)
+                    updates = updates + "\nLoan Type is Changed";
+
+
+            }
+
+            return updates;
+
+        }
+
+        function btnUpdateMC() {
+            var errors = getErrors();
+            if (errors == "") {
+                var updates = getUpdates();
+                if (updates == "") window.alert("Nothing Updated!");
+                else {
+
+                    var option = window.confirm("\n\nAre your sure to update followings ! \n\n" + updates);
+                    if(option==true) {
+                        var response = httpRequest("/criterias","PUT",criteria);
+                        if(response=="0"){
+                            toast("<strong>Success !</strong> Updated Successfully","success");
+                            loadForm();
+                            loadSearchedTable();
+
+                        }
+                        else window.alert("Failed to Update as \n\n"+response);
+                    }
+
+
+                }
+            }
+            else
+                window.alert("You have following errors in your form\n\n"+getErrors());
+        }
+
+        function btnDeleteMC() {
+
+
+            var option = window.confirm("\n\nAre your sure to delete following ! \n\n" +
+                "Name : " +criteria.name);
+
+            if(option==true) {
+                var response = httpRequest("/criterias","DELETE",criteria);
+                if(response=="0"){
+                    toast("<strong>Success !</strong> Deleted Successfully","success");
+                    loadForm();
+                    loadSearchedTable();
+
+                }
+                else window.alert("Failed to Delete as \n\n"+response);
+            }
+
+        }
+
+
+        //Search Functions
+
+        function loadSearchedTable(){
+
+            var name = txtSearchName.value.trim();
+
+            if(name!=""){  txtSearchName.style.background = active; }
+
+            var query ="&name=";
+
+            if(name!="" )
+                query = "&name=" + name ;
+
+            //window.alert(query);
+            loadTable(activepage, cmbPageSize.value, query);
+
+        }
+
+        function btnSearchMC(){
+            activepage=1;
+            loadSearchedTable();
+        }
+
+        function btnSearchClearMC(){
+            loadView();
+        }
+
+
+    </script>
+
+
+    <style>
+        body {overflow-x: hidden; }
+        div .panel-heading {
+            text-decoration: none;
+            background-color:#818181;
+            color: whitesmoke;
+            border-radius: 2%;
+        }
+    </style>
+
+
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row" id="ui">
+        <div class="col-md-12">
+            <div class="panel">
+                <div class="panel-heading">
+            <h3>Criteria Management</h3>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+
+                <div class="col-md-4" id="form">
+                    <form class="form-horizontal" onsubmit="return false" id="criteriaform" >
+
+                        <script>
+
+                            // Defining UI-Componnets and Layouts
+                            // Default UI-Componnets and Layouts is coded in "ui.bitproject.earth.lk.js"
+
+
+                            textField('criteriaform','txtName','Name','Enter Criteria Name Here','',4,"",'criteria','name','oldcriteria');
+                            textField('criteriaform','txtValue','Value','Enter Criteria Value Here','',4,"",'criteria','value','oldcriteria');
+
+                            comboBox('criteriaform','cmbConstraint','Constraint',4,'criteria','constraintId','oldcriteria');
+                            comboBox('criteriaform','cmbLoantype','Loan Type',4,'criteria','loantypeId','oldcriteria');
+
+                            // Custom UI-Componnets and Layouting
+
+                        </script>
+
+
+
+
+                        <div class="text-right">
+                            <input class="btn btn-danger btn-sm" type="button" id="btnDelete" value="Delete" style="width: 15%"/>
+                            <input class="btn btn-warning btn-sm" type="button" id="btnUpdate" value="Update" style="width: 15%"/>
+                            <input class="btn btn-success btn-sm" type="button" id="btnAdd" value="Add" style="width: 17%"/>
+                            <input class="btn btn-info btn-sm" type="button" id="btnClear" value="Clear" style="width: 15%"/>
+                        </div>
+
+
+                    </form>
+                </div>
+
+                <div class="col-md-1"></div>
+                <div class="col-md-7" id="criteriaview">
+
+                    <form class="form-inline" onsubmit="return false">
+                        <div class="form-group form-group-sm">
+                            <input placeholder="Search By Name" class="form-control" type="text" id="txtSearchName"/>
+                        </div>
+
+                        <input type="button" class="btn btn-primary btn-sm" value="Search" id="btnSearch"/>
+                        <input type="button" class="btn btn-warning btn-sm" value="Clear Search" id="btnSearchClear"/>
+
+                    </form>
+                    <hr/>
+
+
+                    <div class="table-responsive" id="tableParent">
+
+                        <script>
+
+
+
+                            var metadata = [
+
+                                {name:'Name',search:true,datatype:'text',property:'name'},
+                                {name:'Value',search:true,datatype:'text',property:'value'},
+                                {name:'Constraint',search:true,datatype:'text',property:'constraintId.name'},
+                                {name:' Loan-Type ',search:true,datatype:'text',property:'loantypeId.name'}
+
+                            ];
+
+                            table("tableParent","tblCriteria",metadata,[10,15,30,500,1000],btnSearchMC);
+                        </script>
+
+
+                    </div>
+                    <ul id="pagination" class="pagination"></ul>
+
+                </div>
+                <div class="col-md-3"></div>
+            </div>
+        </div>
+
+        <div class="panel-footer"><div id="err" style="display: none"><h3>Error Log</h3></div></div>
+    </div>
+</div>
+    </div>
+</div>
+
+</body>
+</html>

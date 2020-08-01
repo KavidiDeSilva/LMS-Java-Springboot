@@ -1,0 +1,800 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Gurantor-National Housing Development Authority</title>
+
+    <link rel="stylesheet" href="../plugin/bootstrap/css/bootstrap.min.css"/>
+    <script src="../plugin/jquery/jquery.min.js"></script>
+    <script src="../plugin/bootstrap/js/bootstrap.min.js"></script>
+
+    <!--<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">-->
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>-->
+    <!--<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>-->
+
+
+    <link rel="stylesheet" href="../style/common.css"/>
+    <script src="../script/common.bitproject.earth.lk.v1.js"></script>
+    <script src="../script/ui.bitproject.earth.lk.v1.js"></script>
+
+
+    <script type="text/javascript">var scrolltotop={setting:{startline:100,scrollto:0,scrollduration:1e3,fadeduration:[500,100]},controlHTML:'<img src="https://i1155.photobucket.com/albums/p559/scrolltotop/arrow59.png" />',controlattrs:{offsetx:5,offsety:5},anchorkeyword:"#top",state:{isvisible:!1,shouldvisible:!1},scrollup:function(){this.cssfixedsupport||this.$control.css({opacity:0});var t=isNaN(this.setting.scrollto)?this.setting.scrollto:parseInt(this.setting.scrollto);t="string"==typeof t&&1==jQuery("#"+t).length?jQuery("#"+t).offset().top:0,this.$body.animate({scrollTop:t},this.setting.scrollduration)},keepfixed:function(){var t=jQuery(window),o=t.scrollLeft()+t.width()-this.$control.width()-this.controlattrs.offsetx,s=t.scrollTop()+t.height()-this.$control.height()-this.controlattrs.offsety;this.$control.css({left:o+"px",top:s+"px"})},togglecontrol:function(){var t=jQuery(window).scrollTop();this.cssfixedsupport||this.keepfixed(),this.state.shouldvisible=t>=this.setting.startline?!0:!1,this.state.shouldvisible&&!this.state.isvisible?(this.$control.stop().animate({opacity:1},this.setting.fadeduration[0]),this.state.isvisible=!0):0==this.state.shouldvisible&&this.state.isvisible&&(this.$control.stop().animate({opacity:0},this.setting.fadeduration[1]),this.state.isvisible=!1)},init:function(){jQuery(document).ready(function(t){var o=scrolltotop,s=document.all;o.cssfixedsupport=!s||s&&"CSS1Compat"==document.compatMode&&window.XMLHttpRequest,o.$body=t(window.opera?"CSS1Compat"==document.compatMode?"html":"body":"html,body"),o.$control=t('<div id="topcontrol">'+o.controlHTML+"</div>").css({position:o.cssfixedsupport?"fixed":"absolute",bottom:o.controlattrs.offsety,right:o.controlattrs.offsetx,opacity:0,cursor:"pointer"}).attr({title:"Scroll to Top"}).click(function(){return o.scrollup(),!1}).appendTo("body"),document.all&&!window.XMLHttpRequest&&""!=o.$control.text()&&o.$control.css({width:o.$control.width()}),o.togglecontrol(),t('a[href="'+o.anchorkeyword+'"]').click(function(){return o.scrollup(),!1}),t(window).bind("scroll resize",function(t){o.togglecontrol()})})}};scrolltotop.init();</script>
+    <noscript>Not seeing a <a href="https://www.scrolltotop.com/">Scroll to Top Button</a>? Go to our FAQ page for more info.</noscript>
+
+    <script>
+
+        window.addEventListener("load", initialize);
+
+        //Initializing Functions
+
+        function initialize() {
+
+            btnAdd.addEventListener("click",btnAddMC);
+            btnClear.addEventListener("click",btnClearMC);
+            btnUpdate.addEventListener("click",btnUpdateMC);
+            btnDelete.addEventListener("click",btnDeleteMC);
+            txtNIC.onfocusout=txtNICFL;
+            btnSearch.addEventListener("click",btnSearchMC);
+            btnSearchClear.addEventListener("click",btnSearchClearMC);
+
+            privilages = httpRequest("../privilages?module=GURANTOR","GET");
+
+            regexes = httpRequest("../regexes/gurantor","GET");
+          //  txtCode.setAttribute("data-pattern",regexes.code.regex);
+            txtName.setAttribute("data-pattern",regexes.name.regex);
+            txtCallingname.setAttribute("data-pattern",regexes.callingname.regex);
+            txtNIC.setAttribute("data-pattern",regexes.nic.regex);
+            txtAddress.setAttribute("data-pattern",regexes.address.regex);
+            txtMobile.setAttribute("data-pattern",regexes.mobileno.regex);
+            txtLand.setAttribute("data-pattern",regexes.landno.regex);
+            txtDescription.setAttribute("data-pattern",regexes.description.regex);
+
+            genders = httpRequest("../genders/list","GET");
+            employees = httpRequest("../employees/list","GET");
+            civilstatuses = httpRequest("../civilstatuses/list","GET");
+            gurantorstatuses = httpRequest("../clientstatuses/list","GET");
+
+            valid = "lightgreen";
+            invalid = "pink";
+            initial = "white";
+            updated = "khaki";
+            active = "khaki";
+
+            loadView();
+            loadForm();
+
+        }
+
+        function loadView() {
+
+            //Search Area
+            txtSearchName.value="";
+            txtSearchNIC.value="";
+            txtSearchName.style.background = "";
+            txtSearchNIC.style.background = "";
+            cmbSearchGurantorstatus.style.background = "";
+            fillCombo(cmbSearchGurantorstatus,"Status",gurantorstatuses,"name","");
+
+
+            //Table Area
+            activerowno = "";
+            activepage = 1;
+            var query ="&name=&nic=&cstatusId=";
+            loadTable(1,cmbPageSize.value,query);
+        }
+
+        function loadTable(page,size,query) {
+            page = page - 1;
+            gurantors = new Array();
+            var data = httpRequest("/gurantors?page="+page+"&size="+size+query,"GET");
+            if(data.content!= undefined) gurantors = data.content;
+            createPagination('pagination',data.totalPages, data.code+1,paginate);
+            fillTable('tblGurantor',gurantors,fillForm);
+            clearSelection(tblGurantor);
+            if(activerowno!="")selectRow(tblGurantor,activerowno,active);
+            window.location.href="#ui";
+        }
+
+        function paginate(page) {
+            var paginate;
+            if(oldgurantor==null){
+                paginate=true;
+            }else{
+                if(getErrors()==''&&getUpdates()==''){
+                    paginate=true;
+                }else{
+                    paginate = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+            if(paginate) {
+                activepage=page;
+                activerowno=""
+                loadSearchedTable();
+                loadForm();
+            }
+
+        }
+
+        function loadForm() {
+            gurantor = new Object();
+            oldgurantor = null;
+
+            fillCombo(cmbGender,"Select Gender",genders,"name","");
+            fillCombo(cmbCivilstatus,"Select Civil Status",civilstatuses,"name","");
+
+            fillCombo(cmbGurantorstatus,"",gurantorstatuses,"name","Working");
+            gurantor.cstatusId=JSON.parse(cmbGurantorstatus.value);
+
+            fillCombo(cmbAssignemployee,"",employees,"callingname",session.getObject("user").employeeId.callingname);
+            gurantor.employeeId=JSON.parse(cmbAssignemployee.value);
+            cmbAssignemployee.disabled = "disable";
+
+            var today = new Date();
+            var month = today.getMonth()+1;
+            if(month<10) month = "0"+month;
+            var date = today.getDate();
+            if(date<10) date = "0"+date;
+
+            dteDOAssignment.value=today.getFullYear()+"-"+month+"-"+date;
+            gurantor.regdate=dteDOAssignment.value;
+
+            gurcode = httpRequest("../gurantors/gurcode","GET");
+            //console.log("111",clicode.no);
+            txtCode.value = gurcode.no;
+            gurantor.code =  txtCode.value;
+            txtCode.disabled=true;
+
+            // txtCode.value = "";
+            // txtCode.disabled="";
+            txtName.value = "";
+            txtCallingname.value = "";
+            dteDOBirth.value = "";
+            txtNIC.value = "";
+            txtAddress.value = "";
+            txtMobile.value = "";
+            txtLand.value = "";
+
+            txtDescription.value = "";
+            removeFile('flePhoto');
+
+            setStyle(initial);
+            txtCode.style.background = valid;
+            cmbGurantorstatus.style.background=valid;
+            dteDOAssignment.style.background=valid;
+            cmbAssignemployee.style.background=valid;
+            disableButtons(false, true, true);
+        }
+
+
+        function setStyle(style) {
+
+            txtCode.style.background = style;
+            txtName.style.background = style;
+            txtCallingname.style.background = style;
+            cmbGender.style.background = style;
+            cmbCivilstatus.style.background = style;
+            txtNIC.style.background = style;
+            dteDOBirth.style.background = style;
+            txtAddress.style.background = style;
+            txtMobile.style.background = style;
+            txtLand.style.background = style;
+            cmbAssignemployee.style.background = style;
+            dteDOAssignment.style.background = style;
+            txtDescription.style.background = style;
+            cmbGurantorstatus.style.background = style;
+
+        }
+
+        function disableButtons(add, upd, del) {
+
+            if (add || !privilages.add) btnAdd.setAttribute("disabled", "disabled");
+            else btnAdd.removeAttribute("disabled");
+
+            if (upd || !privilages.update) btnUpdate.setAttribute("disabled", "disabled");
+            else btnUpdate.removeAttribute("disabled");
+
+            if (del || !privilages.delete) btnDelete.setAttribute("disabled", "disabled");
+            else btnDelete.removeAttribute("disabled");
+
+        }
+
+
+        // Binding and Validation Functions for Non-Regex-Based
+        // When Regex-Based default validation is used, programmers do not need to define these functions
+        // Default Validation and Binding is coded in "ui.bitproject.earth.lk.js"
+
+        function dteDOBirthCH() {
+            var today = new Date();
+            var birthday = new Date(dteDOBirth.value);
+            if((today.getTime()-birthday.getTime())>(18*365*24*3600*1000)) {
+                gurantor.dobirth = dteDOBirth.value;
+                dteDOBirth.style.background = valid;
+            }
+            else
+            {
+                gurantor.dobirth = null;
+                dteDOBirth.style.background = invalid;
+            }
+        }
+        function txtNICFL() {
+            var NICNo = txtNIC.value;
+            var dayText = 0;
+            if (NICNo.length != 10 && NICNo.length != 12) {
+                toast("<strong>Invalid !</strong> Invalid NIC","danger");
+            } else if (NICNo.length == 10 && !$.isNumeric(NICNo.substr(0, 9)) ) {
+                toast("<strong>Invalid !</strong> Invalid NIC","danger");
+            }
+            else {
+                //Year
+                if (NICNo.length == 10) {
+                    year = "19" + NICNo.substr(0, 2);
+                    dayText = parseInt(NICNo.substr(2, 3));
+                } else {
+                    year = NICNo.substr(0, 4);
+                    dayText = parseInt(NICNo.substr(4, 3));
+                }
+                // // Gender
+                if (dayText > 500) {
+                    //female = "Female";
+                    cmbGender.selectedIndex = 2;
+                    dayText = dayText - 500;
+                } else {
+                    // male = "Male";
+                    cmbGender.selectedIndex = 1;
+                }
+                // Day Digit Validation
+                if (dayText < 1 && dayText > 366) {
+                    toast("<strong>Invalid !</strong> Invalid NIC","danger");
+                } else {
+                    //Month
+
+
+                    if (dayText > 335) {
+                        day = dayText - 335;
+                        month = 12;
+                    } else if (dayText > 305) {
+                        day = dayText - 305;
+                        month = 11;
+                    } else if (dayText > 274) {
+                        day = dayText - 274;
+                        month = 10;
+                    } else if (dayText > 244) {
+                        day = dayText - 244;
+                        month = 9;
+                    } else if (dayText > 213) {
+                        day = dayText - 213;
+                        month = 8;
+                    } else if (dayText > 182) {
+                        day = dayText - 182;
+                        month = 7;
+                    } else if (dayText > 152) {
+                        day = dayText - 152;
+                        month = 6;
+                    } else if (dayText > 121) {
+                        day = dayText - 121;
+                        month = 5;
+                    } else if (dayText > 91) {
+                        day = dayText - 91;
+                        month = 4;
+                    } else if (dayText > 60) {
+                        day = dayText - 60;
+                        month = 3;
+                    } else if (dayText < 32) {
+                        day = dayText;
+                        month = 1;
+
+                    } else if (dayText > 31) {
+                        day = dayText - 31;
+                        month = 2;
+                    }
+                    if(month<10) {month = "0"+month;}
+                    if(day<10){day = "0"+day;}
+
+                    dteDOBirth.value = (year+"-"+month+"-"+day);
+                    gurantor.dobirth=dteDOBirth.value;
+                    dteDOBirth.style.background=valid;
+                    //dteDOBirth.disabled = "disable";
+
+                    //console.log(cmbGender.options[cmbGender.selectedIndex].value);
+                    gurantor.genderId=JSON.parse(cmbGender.options[cmbGender.selectedIndex].value);
+                    cmbGender.style.background=valid;
+                    //cmbGender.disabled = "disable";
+
+                    dteDOBirthCH();
+
+                    //cmbGender.value = gender;
+                    // fillCombo(cmbGender, "Select Gender", genders, "name",client.genderId.name);
+                    //client.genderId=JSON.parse(cmbGender.value);
+                    // client.genderId=cmbGender.value;
+
+                }
+            }
+        }
+
+
+
+        //Form Operation Functions
+
+        function getErrors() {
+
+            var errors = "";
+
+            if (gurantor.code == null)
+                errors = errors + "\n" + "Number not added";
+
+            if (gurantor.name == null)
+                errors = errors + "\n" + regexes.name.message;
+
+            if (gurantor.nic == null)
+                errors = errors + "\n" + regexes.nic.message;
+
+            if (gurantor.callingname == null)
+                errors = errors + "\n" + regexes.callingname.message;
+
+            if (gurantor.genderId == null)
+                errors = errors + "\n" + "Gender Not Selected";
+
+            // if (gurantor.photo == null)
+            //     errors = errors + "\n" + "NIC Copy Not Selected";
+
+            if (gurantor.civilstatusId == null)
+                errors = errors + "\n" + "Civilstatus Not Selected";
+
+            if (gurantor.dobirth == null)
+                errors = errors + "\n" + "Birth Date Invalid";
+
+            if (gurantor.address == null)
+                errors = errors + "\n" + regexes.address.message;
+
+            if (gurantor.mobileno == null)
+                errors = errors + "\n" + regexes.mobileno.message;
+
+            if (gurantor.landno== null && txtLand.value!="")
+                errors = errors + "\n" + regexes.landno.message;
+
+            if (gurantor.employeeId == null)
+                errors = errors + "\nAssigned Employee Invalid";
+
+            if (gurantor.regdate == null)
+                errors = errors + "\n" + "Register Date Invalid";
+
+            if (gurantor.description == null && txtDescription.value!="")
+                errors = errors + "\n" + regexes.description.message;
+
+            if (gurantor.cstatusId == null)
+                errors = errors + "\n" + "Gurantorstatus Not Selected";
+
+
+            return errors;
+
+
+        }
+
+        function btnAddMC() {
+
+            var errors = getErrors();
+
+            if(errors=="") {
+                var option = window.confirm("Are you sure to add following Gurantor ?\n" +
+                    "\nNumber : " + gurantor.code +
+                    "\nFull Name : " + gurantor.name +
+                    "\nCalling Name : " + gurantor.callingname +
+                    "\nGender : " + gurantor.genderId.name +
+                    "\nCivil Status : " + gurantor.civilstatusId.name +
+                    "\nNIC : " + gurantor.nic +
+                    "\nBirth Date : " + gurantor.dobirth +
+                    // "\nNIC Copy : " + gurantor.photoname +
+                    "\nAddress : " + gurantor.address +
+                    "\nMobile : " + gurantor.mobileno +
+                    "\nLand : " + gurantor.landno +
+                    "\nAssign Employee : " + gurantor.employeeId.callingname +
+                    "\nRegister Date : " + gurantor.regdate +
+                    "\nDescription : " + gurantor.description +
+                    "\nGurantor Status : " + gurantor.cstatusId.name);
+                if(option==true) {
+                    var response = httpRequest("/gurantors","POST",gurantor);
+                    if(response=="0"){
+                        toast("<strong>Success !</strong> Saved Successfully","success");
+                        loadForm();
+                        activerowno = 1;
+                        loadSearchedTable();
+                    }
+                    else window.alert("Failed to Add as \n\n"+response);
+                }
+
+            }
+            else
+            { window.alert("You have following Errors\n"+errors); }
+
+        }
+
+        function btnClearMC() {
+            //Get Cofirmation from the User window.confirm();
+
+            var clear;
+            if(oldgurantor==null){
+                clear=true;
+            }else{
+                if(getErrors()==''&&getUpdates()==''){
+                    clear=true;
+                }else{
+                    clear = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+            if(clear) {
+                loadForm();
+                clearSelection(tblGurantor);
+            }
+
+
+
+
+        }
+
+        function fillForm(gur,rowno){
+            activerowno = rowno;
+            var filling;
+            if(oldgurantor==null){
+                filling=true;
+            }else{
+
+                if(getErrors()==''&&getUpdates()==''){
+                    filling=true;
+                }else{
+                    filling = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+
+            if(filling) {
+                $('html, body').animate({
+                    scrollTop: $(".ui").offset().top
+                }, 1000);
+
+                clearSelection(tblGurantor);
+                selectRow(tblGurantor,activerowno,active);
+
+                gurantor = JSON.parse(JSON.stringify(gur));
+                oldgurantor = JSON.parse(JSON.stringify(gur));
+
+                txtCode.value = gurantor.code;
+                txtCode.disabled="disabled";
+                txtName.value = gurantor.name;
+                txtCallingname.value = gurantor.callingname;
+                dteDOBirth.value = gurantor.dobirth;
+                txtNIC.value = gurantor.nic;
+                setDefaultFile('flePhoto', gurantor.photo);
+                txtAddress.value = gurantor.address;
+                txtMobile.value = gurantor.mobileno;
+                txtLand.value = gurantor.landno;
+                dteDOAssignment.value = gurantor.regdate;
+                txtDescription.value = gurantor.description;
+                cmbGurantorstatus.disabled = false;
+                fillCombo(cmbGender, "Select Gender", genders, "name", gurantor.genderId.name);
+                fillCombo(cmbCivilstatus, "Select Civil Status", civilstatuses, "name", gurantor.civilstatusId.name);
+                fillCombo(cmbAssignemployee, "Select Assign Employee", employees, "callingname", gurantor.employeeId.callingname);
+                fillCombo(cmbGurantorstatus, "Gurantor Status ", gurantorstatuses, "name", gurantor.cstatusId.name);
+
+
+                disableButtons(true, false, false);
+                setStyle(valid);
+            }
+
+        }
+
+        function getUpdates() {
+
+            var updates = "";
+
+            if(gurantor!=null && oldgurantor!=null) {
+
+                if (gurantor.code != oldgurantor.code)
+                    updates = updates + "\nNumber is Changed";
+
+                if (gurantor.name != oldgurantor.name)
+                    updates = updates + "\nFullname is Changed";
+
+                if (gurantor.nic != oldgurantor.nic)
+                    updates = updates + "\nNIC is Changed";
+
+                if (gurantor.callingname != oldgurantor.callingname)
+                    updates = updates + "\nCallingname is Changed";
+
+                if (gurantor.genderId.name != oldgurantor.genderId.name)
+                    updates = updates + "\nGender is Changed";
+
+                if (gurantor.civilstatusId.name != oldgurantor.civilstatusId.name)
+                    updates = updates + "\nCivilstatus is Changed";
+
+                if (gurantor.dobirth != oldgurantor.dobirth)
+                    updates = updates + "\nDate of Birth is Changed";
+
+                if (gurantor.photo != oldgurantor.photo)
+                    updates = updates + "\nNIC Copy (Image) is Changed";
+
+                if (gurantor.address != oldgurantor.address)
+                    updates = updates + "\nAddress is Changed";
+
+                if (gurantor.mobileno != oldgurantor.mobileno)
+                    updates = updates + "\nMobile Number is Changed";
+
+                if (gurantor.landno != oldgurantor.landno)
+                    updates = updates + "\nLand Number is Changed";
+
+                if (gurantor.employeeId.name != oldgurantor.employeeId.name)
+                    updates = updates + "\nAssign Employee is Changed";
+
+                if (gurantor.regdate != oldgurantor.regdate)
+                    updates = updates + "\nDate of Assignment is Changed";
+
+
+                if (gurantor.description != oldgurantor.description)
+                    updates = updates + "\nDescription is Changed";
+
+                if (gurantor.cstatusId.name != oldgurantor.cstatusId.name)
+                    updates = updates + "\nGurantorstatus is Changed";
+            }
+
+            return updates;
+
+        }
+
+        function btnUpdateMC() {
+            var errors = getErrors();
+            if (errors == "") {
+                var updates = getUpdates();
+                if (updates == "") window.alert("Nothing Updated!");
+                else {
+
+                    var option = window.confirm("\n\nAre your sure to update followings ! \n\n" + updates);
+                    if(option==true) {
+                        var response = httpRequest("/gurantors","PUT",gurantor);
+                        if(response=="0"){
+                            toast("<strong>Success !</strong> Updated Successfully","success");
+                            loadForm();
+                            loadSearchedTable();
+
+                        }
+                        else window.alert("Failed to Update as \n\n"+response);
+                    }
+
+
+                }
+            }
+            else
+                window.alert("You have following errors in your form\n\n"+getErrors());
+        }
+
+        function btnDeleteMC() {
+
+
+            var option = window.confirm("\n\nAre your sure to delete following ! \n\n" +
+                "Number : " +gurantor.code+ "\nName : " +gurantor.name);
+
+            if(option==true) {
+                var response = httpRequest("/gurantors","DELETE",gurantor);
+                if(response=="0"){
+                    toast("<strong>Success !</strong> Deleted Successfully","success");
+                    loadForm();
+                    loadSearchedTable();
+
+                }
+                else window.alert("Failed to Delete as \n\n"+response);
+            }
+
+        }
+
+
+        //Search Functions
+
+        function loadSearchedTable() {
+
+            var name = txtSearchName.value;
+            var nic = txtSearchNIC.value;
+            var gstatus = cmbSearchGurantorstatus.value;
+
+            var cstatusId="";
+            if(gstatus!="Status")
+            {  cstatusId = JSON.parse(gstatus).id;
+                cmbSearchGurantorstatus.style.background = active; }
+
+            if(name!=""){  txtSearchName.style.background = active; }
+            if(nic!=""){  txtSearchNIC.style.background = active; }
+
+            var query ="&name=&nic=&cstatusId=";
+
+            if(name!="" || nic!="" || cstatusId!="" )
+                query = "&name=" + name + "&nic=" + nic + "&cstatusId=" + cstatusId;
+
+            //window.alert(query);
+            loadTable(activepage, cmbPageSize.value, query);
+
+        }
+
+        function btnSearchMC(){
+            activepage=1;
+            loadSearchedTable();
+        }
+
+        function btnSearchClearMC(){
+            loadView();
+        }
+
+        $(document).ready(function(){
+            $("#myBtn").click(function(){
+                $("#myModal").modal();
+            });
+        });
+
+        // scroll to ID---------------------------------
+        $("a[href^='#']").click(function(e) {
+            e.preventDefault();
+
+            var position = $($(this).attr("href")).offset().top;
+
+            $("body, html").animate({
+                scrollTop: position
+            } /* speed */ );
+        });
+        // -----------------------------------------------
+
+
+    </script>
+
+
+
+    <style>
+        /*div{border: dotted;}*/
+        body {overflow-x: hidden; }
+        div .panel-heading {
+            text-decoration: none;
+            background-color:#818181;
+            color: whitesmoke;
+            border-radius: 2%;
+        }
+    </style>
+
+</head>
+<body>
+
+<div class="container-fluid">
+            <div class="col-md-12">
+            <div class="panel" id="gurantor">
+                <div class="panel-heading">
+                    <button class="btn btn-xs ui"> <a href="#gurantor"><h4>Add Guarantor</h4></a></button>
+                    <button class="btn btn-xs "> <a href="#gurantorview"><h4>View Guarantor</h4></a></button>
+                    <h3 style=" float: left; text-align: center; margin: 20px; color: white">
+                        Guarantor Management</h3>
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal" onsubmit="return false" id="gurantorform" >
+                        <legend>Personal Info</legend>
+                        <script>
+                            // Defining UI-Componnets and Layouts
+                            // Default UI-Componnets and Layouts is coded in "ui.bitproject.earth.lk.js"
+
+                            textField('gurantorform','txtCode','Number <span style="color:red;font-size:20px">*</span>','Enter Number Here','',4,"",'gurantor','code','oldgurantor');
+                            textField('gurantorform','txtName','Full Name <span style="color:red;font-size:20px">*</span>','Enter Full-Name Here','',4,"",'gurantor','name','oldgurantor');
+                            textField('gurantorform','txtCallingname','Calling Name <span style="color:red;font-size:20px">*</span>','Enter Calling-Name Here','',4,"",'gurantor','callingname','oldgurantor');
+                            textField('gurantorform','txtNIC','NIC <span style="color:red;font-size:20px">*</span>','Enter NIC Here','',4,"",'gurantor','nic','oldgurantor');
+                            textField('gurantorform','dteDOBirth','Birth Date <span style="color:red;font-size:20px">*</span>','Enter Birth Date Here','',4,"",'gurantor','dobirth','oldgurantor');
+                            comboBox('gurantorform','cmbGender','Gender <span style="color:red;font-size:20px">*</span>',4,'gurantor','genderId','oldgurantor');
+                            fileChooser('gurantorform','flePhoto','NIC Copy (Image)',4,['.jpg','.png'],5,true,'gurantor','photo','oldgurantor');
+                        </script>
+                        <legend>Location Info</legend>
+                        <script>
+                            textArea('gurantorform','txtAddress','Address <span style="color:red;font-size:20px">*</span>','Enter Address Here','',4,"",'gurantor','address','oldgurantor');
+                            textField('gurantorform','txtMobile','Mobile <span style="color:red;font-size:20px">*</span>','Enter Mobile-Number Here','',4,"",'gurantor','mobileno','oldgurantor');
+                            textField('gurantorform','txtLand','Land','Enter Land Here','',4,"",'gurantor','landno','oldgurantor');
+                        </script>
+                        <legend>Other Info</legend>
+                        <script>
+
+                            comboBox('gurantorform','cmbCivilstatus','Civilstatus <span style="color:red;font-size:20px">*</span>',4,'gurantor','civilstatusId','oldgurantor');
+                            textArea('gurantorform','txtDescription','Description','Enter Description Here','',4,"",'gurantor','description','oldgurantor');
+                            // Custom UI-Componnets and Layouting
+
+                        </script>
+                        <legend>For Office work</legend>
+                        <script>
+                            comboBox('gurantorform','cmbAssignemployee','Assign Employee Name  <span style="color:red;font-size:20px">*</span>',4,'gurantor','employeeId','oldgurantor');
+                            dateField('gurantorform','dteDOAssignment','Register Date <span style="color:red;font-size:20px">*</span>','Select Register Date',4,"",'gurantor','regdate','oldgurantor')
+                            comboBox('gurantorform','cmbGurantorstatus','Guarantor Status <span style="color:red;font-size:20px">*</span>',4,'gurantor','cstatusId','oldgurantor');
+                        </script>
+
+                        <div class="text-right" style="margin-bottom: 5px;">
+                            <input class="btn btn-danger btn-sm" type="button" id="btnDelete" value="Delete" style="width: 15%"/>
+                            <input class="btn btn-warning btn-sm" type="button" id="btnUpdate" value="Update" style="width: 15%"/>
+                            <input class="btn btn-success btn-sm" type="button" id="btnAdd" value="Add" style="width: 17%"/>
+                            <input class="btn btn-info btn-sm" type="button" id="btnClear" value="Clear" style="width: 15%"/>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            </div>
+        </div>
+
+            <h3>View gurantor</h3>
+            <div class="col-md-12" id="gurantorview">
+                <h3>Advance Search of guarantors</h3>
+                <form class="form-inline" onsubmit="return false">
+                    <div class="form-group form-group-sm">
+                        <input placeholder="Search By Name" class="form-control" type="text" id="txtSearchName"/>
+                    </div>
+                    <div class="form-group form-group-sm">
+                        <input placeholder="Search By NIC" class="form-control" type="text" id="txtSearchNIC"/>
+                    </div>
+
+                    <div class="form-group form-group-sm">
+                        <select class="form-control" id="cmbSearchGurantorstatus"></select>
+                    </div>
+
+                    <input type="button" class="btn btn-warning btn-sm" value="Clear" id="btnSearchClear"/>
+                    <input type="button" class="btn btn-success btn-sm" value="Search" id="btnSearch"/>
+                </form>
+                <hr/>
+                <!--&lt;!&ndash; Modal &ndash;&gt;-->
+                <!--<div id="myModal" class="modal fade" role="dialog">-->
+                    <!--<div class="modal-dialog">-->
+
+                        <!--&lt;!&ndash; Modal content&ndash;&gt;-->
+                        <!--<div class="modal-content">-->
+                            <!--<div class="modal-header">-->
+                                <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
+                            <!--</div>-->
+                            <!--<div class="modal-body">-->
+                                <!--<p>After click the Update and Delete Button refer Add guarantor button</p>-->
+                            <!--</div>-->
+                            <!--<div class="modal-footer">-->
+                                <!--<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>-->
+                            <!--</div>-->
+                        <!--</div>-->
+
+                    <!--</div>-->
+                <!--</div>-->
+
+                <h3>List of guarantors table</h3>
+
+                <div class="table-responsive" id="tableParent">
+
+                    <script>
+
+                        // function getNameColumn(ob) {
+                        //     return ob.callingname+"("+ob.code+")";
+                        // }
+
+                        var metadata = [
+                             {name:'Number',search:true,datatype:'text',property:'code'},
+                            // {name:'Name',search:true,datatype:'text',property:getNameColumn},
+                            {name:'Full Name',search:true,datatype:'text',property:'name'},
+                            {name:'Photo',search:false,datatype:'photo',property:'photo'},
+                            {name:'NIC',search:true,datatype:'text',property:'nic'},
+                            {name:'Address',search:true,datatype:'text',property:'address'},
+                            {name:'Mobile',search:true,datatype:'text',property:'mobileno'},
+                            {name:'Land',search:true,datatype:'text',property:'landno'},
+                            {name:'Register Date',search:true,datatype:'text',property:'regdate'}
+                        ];
+                        table("tableParent","tblGurantor",metadata,[5,10,15,30,500,1000],btnSearchMC,true);
+
+                    </script>
+
+                </div>
+                <ul id="pagination" class="pagination"></ul>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+<hr/>
+<div id="err"  style="display: none">
+    <h3>Error Log</h3>
+</div>
+
+</body>
+</html>

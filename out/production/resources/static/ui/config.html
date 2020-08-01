@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!---------------------------------------------------------------------->
+    <title>National Housing Development Authority</title>
+    <!---------------------------------------------------------------------->
+    <link rel="stylesheet" href="../plugin/bootstrap/css/bootstrap.min.css"/>
+    <script src="../plugin/jquery/jquery.min.js"></script>
+    <script src="../plugin/bootstrap/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="../style/common.css"/>
+    <script src="../script/common.bitproject.earth.lk.v1.js"></script>
+    <script src="../script/ui.bitproject.earth.lk.v1.js"></script>
+
+    <script>
+
+        window.addEventListener("load", initialize);
+
+        function initialize() {
+            btnConfig.addEventListener("click", btnConfigMC);
+        }
+
+        function btnConfigMC() {
+
+            var fullname = txtFullname.value.trim();
+            var password = txtPassword.value.trim();
+
+            if (fullname != "" && password != "") {
+
+                ajax = new XMLHttpRequest();
+                ajax.open("POST", "/config", false);
+                ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                ajax.send("fullname=" + fullname + "&password=" + password);
+                err.innerHTML = err.innerHTML + ajax.responseText;
+                window.alert(ajax.responseText);
+                window.open("login", "_self");
+
+            }
+        }
+
+    </script>
+    <style>
+        body {overflow-x: hidden; }
+        div .panel-heading {
+            text-decoration: none;
+            background-color: #721c24;
+            color: whitesmoke;
+            border-radius: 2%;
+        }
+    </style>
+
+</head>
+
+<body id="display">
+<div class="container">
+    <div style="margin-top:100px;" class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+        <div class="panel" style=" border: 1px #721c24 solid;">
+            <div class="panel-heading"> <h3>Admin Configuration</h3> </div>
+
+            <div class="panel-body">
+
+                <div style="margin-bottom: 20px" class="input-group">
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
+                    <input id="txtFullname" type="text" class="form-control" name="username" value=""
+                           placeholder="Company Name">
+                </div>
+
+                <div style="margin-bottom: 25px" class="input-group">
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
+                    <input id="txtPassword" type="password" class="form-control" placeholder="Admin Password">
+                </div>
+
+                <div style="margin-top:10px">
+                    <button id="btnConfig" style="background-color: #721c24; color: whitesmoke" class="col-md-12 btn">Config
+                        Now</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="err" style="display: none"></div>
+
+</body>
+</html>

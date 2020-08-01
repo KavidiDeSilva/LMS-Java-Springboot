@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!---------------------------------------------------------------------->
+    <title>Loan-National Housing Development Authority</title>
+    <!---------------------------------------------------------------------->
+    <link rel="stylesheet" href="../plugin/bootstrap/css/bootstrap.min.css"/>
+    <script type="text/javascript" src="../plugin/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="../plugin/bootstrap/js/bootstrap.min.js"></script>
+    <!----------------------------------------------------------------------->
+    <link rel="stylesheet" href="../style/common.css"/>
+    <script src="../script/common.bitproject.earth.lk.v1.js"></script>
+    <script src="../script/ui.bitproject.earth.lk.v1.js"></script>
+    <!---------------------------------------------------------------------->
+
+    <script type="text/javascript">var scrolltotop={setting:{startline:100,scrollto:0,scrollduration:1e3,fadeduration:[500,100]},controlHTML:'<img src="https://i1155.photobucket.com/albums/p559/scrolltotop/arrow59.png" />',controlattrs:{offsetx:5,offsety:5},anchorkeyword:"#top",state:{isvisible:!1,shouldvisible:!1},scrollup:function(){this.cssfixedsupport||this.$control.css({opacity:0});var t=isNaN(this.setting.scrollto)?this.setting.scrollto:parseInt(this.setting.scrollto);t="string"==typeof t&&1==jQuery("#"+t).length?jQuery("#"+t).offset().top:0,this.$body.animate({scrollTop:t},this.setting.scrollduration)},keepfixed:function(){var t=jQuery(window),o=t.scrollLeft()+t.width()-this.$control.width()-this.controlattrs.offsetx,s=t.scrollTop()+t.height()-this.$control.height()-this.controlattrs.offsety;this.$control.css({left:o+"px",top:s+"px"})},togglecontrol:function(){var t=jQuery(window).scrollTop();this.cssfixedsupport||this.keepfixed(),this.state.shouldvisible=t>=this.setting.startline?!0:!1,this.state.shouldvisible&&!this.state.isvisible?(this.$control.stop().animate({opacity:1},this.setting.fadeduration[0]),this.state.isvisible=!0):0==this.state.shouldvisible&&this.state.isvisible&&(this.$control.stop().animate({opacity:0},this.setting.fadeduration[1]),this.state.isvisible=!1)},init:function(){jQuery(document).ready(function(t){var o=scrolltotop,s=document.all;o.cssfixedsupport=!s||s&&"CSS1Compat"==document.compatMode&&window.XMLHttpRequest,o.$body=t(window.opera?"CSS1Compat"==document.compatMode?"html":"body":"html,body"),o.$control=t('<div id="topcontrol">'+o.controlHTML+"</div>").css({position:o.cssfixedsupport?"fixed":"absolute",bottom:o.controlattrs.offsety,right:o.controlattrs.offsetx,opacity:0,cursor:"pointer"}).attr({title:"Scroll to Top"}).click(function(){return o.scrollup(),!1}).appendTo("body"),document.all&&!window.XMLHttpRequest&&""!=o.$control.text()&&o.$control.css({width:o.$control.width()}),o.togglecontrol(),t('a[href="'+o.anchorkeyword+'"]').click(function(){return o.scrollup(),!1}),t(window).bind("scroll resize",function(t){o.togglecontrol()})})}};scrolltotop.init();</script>
+    <noscript>Not seeing a <a href="https://www.scrolltotop.com/">Scroll to Top Button</a>? Go to our FAQ page for more info.</noscript>
+
+
+
+    <script>
+
+        window.addEventListener("load", initialize);
+
+        //Initializing Functions
+
+        function initialize() {
+
+            btnAdd.addEventListener("click",btnAddMC);
+            btnClear.addEventListener("click",btnClearMC);
+            btnUpdate.addEventListener("click",btnUpdateMC);
+            btnDelete.addEventListener("click",btnDeleteMC);
+            btnSearch.addEventListener("click",btnSearchMC);
+            btnSearchClear.addEventListener("click",btnSearchClearMC);
+
+            txtLoanTypeinterest.addEventListener("focusout",dteMaturityFL);
+
+            cmbLoanpurpose.addEventListener("change",cmbClientCH);
+            cmbLoantype.addEventListener("change",cmbLoantypeCH);
+           // cmbLoantype.addEventListener("change",cmbInterestRateCH);
+            cmbCriteria.addEventListener("change",cmbCriteriaCH);
+
+            btnAddCriteria.addEventListener("click",btnAddCriteriaMC);
+
+            privilages = httpRequest("../privilages?module=LOAN","GET");
+
+            regexes = httpRequest("../regexes/loan","GET");
+
+            // txtName.setAttribute("data-pattern",regexes.name.regex);
+            txtAmount.setAttribute("data-pattern",regexes.amount.regex);
+            txtDuration.setAttribute("data-pattern",regexes.duration.regex);
+            txtReqAmount.setAttribute("data-pattern",regexes.reqamount.regex);
+            txtEquatedMvalue.setAttribute("data-pattern",regexes.equatedmvalue.regex);
+            txtDescription.setAttribute("data-pattern",regexes.description.regex);
+
+            clients = httpRequest("../clients/list","GET");
+            clientswithoutloans = httpRequest("../clients/list/withoutloans","GET");
+            propertydetails = httpRequest("../propertydetails/list","GET");
+            propertydetailswithoutloans = httpRequest("../propertydetails/list/withoutloans","GET");
+            gurantors = httpRequest("../gurantors/list","GET");
+            gurantorswithoutloans = httpRequest("../gurantors/list/withoutloans","GET");
+            loanstatuses = httpRequest("../loanstatuses/list","GET");
+            loantypes = httpRequest("../loantypes/list","GET");
+            employees = httpRequest("../employees/list","GET");
+            //criterias = httpRequest("../criterias/list","GET");
+            purposeofloans = httpRequest("../purposeofloans/list","GET");
+
+
+            valid = "lightgreen";
+            invalid = "pink";
+            initial = "white";
+            updated = "khaki";
+            active = "khaki";
+
+            loadView();
+            loadForm();
+
+        }
+
+        function loadView() {
+            //Search Area
+            txtSearchName.value="";
+            txtSearchName.style.background = "";
+
+            //Table Area
+            activerowno = "";
+            activepage = 1;
+            var query ="&name=";
+            loadTable(1,cmbPageSize.value,query);
+
+        }
+
+        function loadTable(page,size,query) {
+            page = page - 1;
+            users = new Array();
+            var data =  httpRequest("/loans?page="+page+"&size="+size+query,"GET");
+            loans = data.content;
+            createPagination('pagination',data.totalPages, data.number+1,paginate);
+            fillTable('tblLoan',loans,fillForm);
+            clearSelection(tblLoan);
+            if(activerowno!="")selectRow(tblLoan,activerowno,active);
+            window.location.href="#ui";
+        }
+
+        function paginate(page) {
+            var paginate;
+            if(oldloan==null){
+                paginate=true;
+            }else{
+                if(getErrors()==''&&getUpdates()==''){
+                    paginate=true;
+                }else{
+                    paginate = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+            if(paginate) {
+                activepage=page;
+                activerowno="";
+                loadSearchedTable();
+                loadForm();
+            }
+
+        }
+
+        function loadForm() {
+
+            loan = new Object();
+            oldloan = null;
+
+            loan.loancriteriaList = new Array();
+
+            isPending = true;
+            criteriabyloantype ='';
+
+            fillCombo(cmbLoantype,"Select Loan Type",loantypes,"name","");
+            fillCombo(cmbGurantor,"Select Relevant Guarantor's Name",gurantorswithoutloans,"name","");
+            fillCombo(cmbCriteria,"Select Criterias",'',"name","");
+            fillCombo(cmbClient,"Select Borrower's Name",clientswithoutloans,'fullname',"");
+            fillCombo(cmbAssignemployee,"",employees,"callingname",session.getObject("user").employeeId.callingname);
+            fillCombo(cmbLoanstatus,"",loanstatuses,"name","Pending");
+            fillCombo(cmbLoanpurpose, "Select Loan purpose", purposeofloans, "name", "");
+            fillCombo(cmbProperty, "Select Relevant Property Owner", propertydetailswithoutloans, "ownership", "");
+
+            refreshInnerForm();
+
+            var today = new Date();
+            var month = today.getMonth()+1;
+            if(month<10) month = "0"+month;
+            var date = today.getDate();
+            if(date<10) date = "0"+date;
+            dteDOGranted.value=today.getFullYear()+"-"+month+"-"+date;
+
+            loan.dogranted=dteDOGranted.value;
+            dteDOGranted.disabled = "disable";
+
+            loan.employeeId=JSON.parse(cmbAssignemployee.value);
+            cmbAssignemployee.disabled = "disable";
+
+            loan.loanstatusId=JSON.parse(cmbLoanstatus.value);
+            //cmbLoanstatus.disabled = "disable";
+
+            txtName.value = "";
+            txtAmount.value = "";
+            txtDuration.value = "";
+            txtReqAmount.value = "";
+            dteReq.value = "";
+            txtEquatedMvalue.value = "";
+            dteMaturity.value = "";
+            txtDescription.value = "";
+            txtLoanTypeinterest.value = "";
+
+            setStyle(initial);
+            dteDOGranted.style.background=valid;
+            cmbAssignemployee.style.background=valid;
+        //    cmbLoanstatus.style.background=valid;
+            disableButtons(false, true, true);
+        }
+
+        function setStyle(style) {
+
+
+            txtName.style.background = style;
+            txtAmount.style.background = style;
+            txtDuration.style.background = style;
+            cmbLoanpurpose.style.background=style;
+            txtReqAmount.style.background = style;
+            dteReq.style.background = style;
+            dteMaturity.style.background = style;
+            dteDOGranted.style.background = style;
+            txtEquatedMvalue.style.background = style;
+            txtDescription.style.background = style;
+            cmbClient.style.background = style;
+            cmbProperty.style.background=style;
+            cmbGurantor.style.background=style;
+            cmbAssignemployee.style.background = style;
+            cmbLoanstatus.style.background = style;
+            cmbLoantype.style.background = style;
+            txtLoanTypeinterest.style.background = style;
+            cmbCriteria.style.background = style;
+            txtValue.style.background = style;
+        }
+
+        function disableButtons(add, upd, del) {
+
+            if (add || !privilages.add) btnAdd.setAttribute("disabled", "disabled");
+            else btnAdd.removeAttribute("disabled");
+
+            if (upd || !privilages.update) btnUpdate.setAttribute("disabled", "disabled");
+            else btnUpdate.removeAttribute("disabled");
+
+            if (del || !privilages.delete) btnDelete.setAttribute("disabled", "disabled");
+            else btnDelete.removeAttribute("disabled");
+
+        }
+
+        function refreshInnerForm() {
+            txtValue.value="";
+
+            if(cmbLoantype.value != "Select Loan Type" ){
+                criteriabyloantype = httpRequest("../criterias/listbyloantype?loantypeId=" +JSON.parse(cmbLoantype.value).id , "GET")
+               //  criteriabyloantype = criteriabyloantype.filter(
+               //      function(criterian) {
+               //          if(cmbCriteria.value != "Select Criteria")
+               //              return criterian.name !== JSON.parse(cmbCriteria.value).name;
+               //          else  return false;});
+                fillCombo(cmbCriteria, "Select Criteria", criteriabyloantype, "name", "");
+            }
+            fillCombo(cmbCriteria, "Select Criteria", criteriabyloantype, "name", "");
+            fillInnerTable("tblLoancriteria",loan.loancriteriaList ,removeItem);
+        }
+
+        function removeItem(loancriteriaList,index) {
+            loan.loancriteriaList.splice(index-1, 1);
+            refreshInnerForm();
+
+        }
+
+
+        // Binding and Validation Functions for Non-Regex-Based
+        // When Regex-Based default validation is used, programmers do not need to define these functions
+        // Default Validation and Binding is coded in "ui.js"
+
+
+         function cmbClientCH() {
+             var today = new Date();
+             var year = today.getFullYear();
+
+             var gndivision =loan.clientId.gndivisionId.number;
+             if(gndivision == null){gndivision=" ";
+             }else{gndivision;}
+
+             lno = httpRequest("../loans/lastloanno","GET");
+             var loanNo=lno.no;
+
+             txtName.value = JSON.parse(cmbLoantype.value).number+"/"+
+                session.getObject("user").employeeId.branchId.dcode+"/"+
+                 loan.clientId.gndivisionId.dsdivisionId.code+"/"+
+                 gndivision+"/"+JSON.parse(cmbLoanpurpose.value).id+"/"+
+                 JSON.parse(txtDuration.value)+"/"+
+                 year+"/"+"R"+"/"+lno.no;
+            loan.name= txtName.value;
+            txtName.style.background=valid;
+            txtName.disabled=true;
+
+        }
+
+        
+        function cmbLoantypeCH() {
+            cmbLoantype.style.background= valid;
+            cmbCriteria.style.background=initial;
+
+            criteriabyloantype = httpRequest("../criterias/listbyloantype?loantypeId=" + JSON.parse(cmbLoantype.value).id, "GET")
+            fillCombo(cmbCriteria, "Select Criteria", criteriabyloantype, 'name','constraintId','value', "");
+
+            txtLoanTypeinterest.value=loan.loantypeId.interestrate;
+            txtLoanTypeinterest.style.background=valid;
+            //txtLoanTypeinterest.disabled = "disable";
+
+            if (oldloan !=null && oldloan.loantypeId.id != JSON.parse(cmbLoantype.value).id){
+                cmbLoantype.style.background = updated;
+                cmbCriteria.style.background=initial;}
+            else {cmbLoantype.style.background = valid;}
+
+        }
+
+        function cmbCriteriaCH (){
+            cmbCriteria.style.background=valid;
+            txtValue.style.background=initial;
+            txtValue.disabled="";
+
+            if(oldloan !=null && oldloan.criteriaId.name != JSON.parse(cmbCriteria.value).name){
+                cmbCriteria.style.background=updated;
+                txtValue.style.background=initial;
+            }
+            else{
+                cmbCriteria.style.background=valid;
+            }
+
+        }
+        function btnAddCriteriaMC() {
+
+            loancriteria = new Object();
+            loancriteria.criteriaId = JSON.parse(cmbCriteria.value);//binding criteria
+            loancriteria.value = txtValue.value.trim(); //binding value
+
+            loan.loancriteriaList.push(loancriteria);
+
+
+
+            refreshInnerForm();
+            // if(criteriabyloantype.length==0 && isPending){
+            //     cmbLoanstatus.selectedIndex = 0;
+            //     loan.loanstatusId=JSON.parse(cmbLoanstatus.options[cmbLoanstatus.selectedIndex].value);
+            // }
+
+        }
+
+        function dteMaturityFL() {
+            //duration + today date =maturity date
+            var rate = parseInt(txtDuration.value);
+            //alert(rate);
+            var today = new Date(dteDOGranted.value);
+            var month = today.getMonth() + 1;
+            if (month < 10) month = "0" + month;
+            var date = today.getDate();
+            if (date < 10) date = "0" + date;
+            var year = today.getFullYear() + rate;
+
+            dteMaturity.value = year + "-" + month + "-" + date;
+            loan.domaturity=dteMaturity.value;
+            dteMaturity.disabled = "disable";
+            var maturity = new Date(dteMaturity.value);
+
+            //Duration turn into months
+            if (txtDuration.value != "") {
+                dteMaturity.style.background = valid;
+            } else {
+                txtDuration.style.background = invalid;
+                dteMaturity.style.background = invalid;
+                txtEquatedMvalue.style.background = invalid;
+            }
+            calculate();
+        }
+
+        function calculate() {
+           var pri = JSON.parse(txtAmount.value);
+           var inte = JSON.parse(txtLoanTypeinterest.value) / 100 / 12;
+           var dura = JSON.parse(txtDuration.value) * 12;
+
+            // compute the monthly payment figure
+            var x = Math.pow(1 + inte, dura); //Math.pow computes powers
+            var monthly = (pri*x*inte)/(x-1);
+
+            // If the result is a finite number
+            if (isFinite(monthly)){
+                // Fill in the output fields, rounding to 2 decimal places
+                //  txtEquatedMvalue.value = round(monthly);
+                txtEquatedMvalue.value = monthly.toFixed(2);
+                txtEquatedMvalue.style.background = valid;
+                loan.equatedmvalue=txtEquatedMvalue.value;
+                txtEquatedMvalue.disabled = "disable";
+            }
+            else {
+                // Result was Not-a-Number or infinite, which means the input was incomplete or invalid.
+                txtEquatedMvalue.value = ""; // Erase the content of these elements
+                txtEquatedMvalue.style.background = invalid;
+            }
+
+        }
+        // This simple method rounds a number to two decimal places.
+        // function round(x) {
+        //     return Math.round(x*100)/100;
+        // }
+
+
+
+        //Form Operation Functions
+        function getErrors() {
+
+            var errors = "";
+
+            if (loan.loancriteriaList.length == 0)
+                errors = errors + "\n" + "Criteria Not Selected";
+
+            // if (loan.name == null)
+            //     errors = errors + "\n" + regexes.name.message;
+
+            if (loan.amount == null)
+                errors = errors + "\n" + regexes.amount.message;
+
+            if (loan.duration == null)
+                errors = errors + "\n" + regexes.duration.message;
+
+            if (loan.reqamount == null && txtReqAmount.value!="")
+                errors = errors + "\n" + regexes.reqamount.message;
+
+            if (loan.reqdate == null && dteReq.value!="")
+                errors = errors + "\n" +"Requested Date is Empty";
+
+            if (loan.equatedmvalue == null)
+                errors = errors + "\n" + regexes.equatedmvalue.message;
+
+            if (loan.dogranted == null)
+                errors = errors + "\n" + "Granted Date is Empty";
+
+            if (loan.domaturity == null)
+                errors = errors + "\n" + "Maturity Date is Empty";
+
+            if (loan.description == null  && txtDescription.value!="")
+                errors = errors + "\n" + regexes.description.message;
+
+            if (loan.purposeofloanId == null)
+                errors = errors + "\n" + "Purpose of Loan Not Selected";
+
+            if (loan.propertydetailId == null)
+                errors = errors + "\n" + "Property Not Selected";
+
+            if (loan.gurantordetailId == null)
+                errors = errors + "\n" + "Gurantor Not Selected";
+
+            if (loan.clientId == null)
+                errors = errors + "\n" + "Borrower Not Selected";
+
+            if (loan.employeeId == null)
+                errors = errors + "\n" + "Assign Employee Not Selected";
+
+            if (loan.loantypeId == null)
+                errors = errors + "\n" + "Loan Type Not Selected";
+
+            if (loan.loanstatusId == null)
+                errors = errors + "\n" + "Loan Status Not Selected";
+
+
+
+            return errors;
+
+        }
+
+        function btnAddMC(){
+
+            var errors = getErrors();
+
+            if(errors==""){
+                var loancriterialist="";
+                               for(x in loan.loancriteriaList)
+                                   loancriterialist = loancriterialist + (loancriterialist==""?"":", ") +loan.loancriteriaList[x].criteriaId.name;
+
+                var option = window.confirm("Are you sure to add following Loan ?\n" +
+                    "\n Loan Type : " + loan.loantypeId.name +
+                    "\n Loan Number : " + loan.name +
+                    "\n Principal Amount : " + loan.amount +
+                    "\n Duration : " + loan.duration +
+                    "\n Interest Rate : " + loan.loantypeId.interestrate +
+                    "\n Requested Amount : " + loan.reqamount +
+                    "\n Requested Date : " + loan.reqdate +
+                    "\n Granted Date : " + loan.dogranted +
+                    "\n Maturity Date : " + loan.domaturity +
+                    "\n Equated Monthly Value : " + loan.equatedmvalue +
+                    "\n Loan Criteria : " + loancriterialist +
+                    "\n Description : " + loan.description +
+                    "\nPropertyDetails: " + loan.propertydetailId.number +
+                    "\nGuarantor : " + loan.gurantordetailId.name +
+                    "\nPurpose of Loan : " + loan.purposeofloanId.name +
+                    "\n Borrower : " + loan.clientId.name +
+                    "\n Assign Employee : " + loan.employeeId.callingname +
+                    "\n Loan Status : " + loan.loanstatusId.name );
+                if(option==true) {
+                    //console.log(loan);
+                    var response = httpRequest("/loans","POST",loan);
+                    if(response=="0"){
+                        toast("<strong>Success !</strong> Saved Successfully","success");
+                        loadForm();
+                        activerowno = 1;
+                        loadSearchedTable();
+                    }
+                    else window.alert("Failed to Add as \n\n"+response);
+                }
+
+            }
+            else
+            { window.alert("You have following Errors\n"+errors); }
+
+        }
+
+        function btnClearMC() {
+            //Get Cofirmation from the User window.confirm();
+
+            var clear;
+            if(oldloan==null){
+                clear=true;
+            }else{
+                if(getErrors()==''&&getUpdates()==''){
+                    clear=true;
+                }else{
+                    clear = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+            if(clear) {
+                loadForm();
+                clearSelection(tblLoan);
+            }
+
+
+
+
+        }
+
+        function fillForm(ln,rowno){
+
+            activerowno = rowno;
+            var filling;
+            if(oldloan==null){
+                filling=true;
+            }else{
+
+                if(getErrors()==''&&getUpdates()==''){
+                    filling=true;
+                }else{
+                    filling = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+
+            if(filling) {
+
+                $('html, body').animate({
+                    scrollTop: $(".ui").offset().top
+                }, 1000);
+
+                clearSelection(tblLoan);
+                selectRow(tblLoan,activerowno,active);
+
+                loan = JSON.parse(JSON.stringify(ln));
+                oldloan = JSON.parse(JSON.stringify(ln));
+
+                txtName.value = loan.name;
+                txtAmount.value = loan.amount;
+                txtDuration.value = loan.duration;
+                txtReqAmount.value = loan.reqamount;
+                dteReq.value = loan.reqdate;
+                dteDOGranted.value = loan.dogranted;
+                dteMaturity.value = loan.maturity;
+                txtEquatedMvalue.value = loan.equatedmvalue;
+                txtDescription.value = loan.description;
+                txtLoanTypeinterest.value=loan.loantypeId.interestrate;
+
+                fillCombo(cmbGurantor,"Select Relevant Guarantor's Name",gurantors,"name",loan.gurantordetailId.name);
+                fillCombo(cmbClient, "Select Borrower's Name", clients, "fullname", loan.clientId.fullname);
+                fillCombo(cmbAssignemployee, "Select Assign Employee", employees, "callingname", loan.employeeId.callingname);
+                fillCombo(cmbLoanstatus, "Loan Status", loanstatuses, "name", loan.loanstatusId.name);
+                fillCombo(cmbLoantype, "Loan Type", loantypes, "name", loan.loantypeId.name);
+                fillCombo(txtLoanTypeinterest, "Interest Rate", loantypes, "interestrate", loan.loantypeId.interestrate);
+                fillCombo(cmbLoanpurpose, "", purposeofloans, "name", loan.purposeofloanId.name);
+                fillCombo(cmbProperty, "", propertydetails, "number", loan.propertydetailId.ownership);
+
+                cmbLoanstatus.disabled = false;
+
+                cmbCriteria.disabled = false;
+                //cmbValue.disabled = false;
+                criteriabyloantype = httpRequest("../criterias/listbyloantype?loantypeId=" + JSON.parse(cmbLoantype.value).id, "GET")
+                fillCombo(cmbCriteria, "Select Criteria", criteriabyloantype, 'name','constraintId','value', "");
+
+
+                cmbAssignemployee.disabled="disabled";
+
+
+                refreshInnerForm();
+                dteMaturityFL();
+                disableButtons(true, false, false);
+                setStyle(valid);
+            }
+
+        }
+
+        function getUpdates() {
+
+            var updates = "";
+
+            if(loan!=null && oldloan!=null) {
+
+                if (isEqual(loan.loancriteriaList,oldloan.loancriteriaList,"criteriaId"))
+                    updates = updates + "\nCriteria's are Changed";
+
+                if (loan.name != oldloan.name)
+                    updates = updates + "\nName is Changed to " +oldloan.name + " -> " +loan.name;
+
+                if (loan.amount != oldloan.amount)
+                    updates = updates + "\nPrincipal Amount is Changed to " +oldloan.amount + " -> " +loan.amount;
+
+                if (loan.duration != oldloan.duration)
+                    updates = updates + "\nDuration is Changed to " +oldloan.duration + " -> " +loan.duration;
+
+                if (loan.reqamount != oldloan.reqamount)
+                    updates = updates + "\nRequested Amount is Changed to " +oldloan.reqamount + " -> " +loan.reqamount;
+
+                if (loan.reqdate != oldloan.reqdate)
+                    updates = updates + "\nRequested Date is Changed to " +oldloan.reqdate + " -> " +loan.reqdate;
+
+                if (loan.dogranted != oldloan.dogranted)
+                    updates = updates + "\nLoan Granted Date is Changed to " +oldloan.dogranted + " -> "
+                        +loan.dogranted;
+
+                if (loan.domaturity != oldloan.domaturity)
+                    updates = updates + "\nLoan Maturity Date is Changed to " +oldloan.domaturity + " -> "
+                        +loan.domaturity;
+
+                if (loan.equatedmvalue != oldloan.equatedmvalue)
+                    updates = updates + "\nEquated Monthly Value is Changed to " +oldloan.equatedmvalue + " -> "
+                        +loan.equatedmvalue;
+
+                if (loan.description != oldloan.description)
+                    updates = updates + "\nDescription is Changed";
+
+                if (loan.propertydetailId.ownership != oldloan.propertydetailId.ownership)
+                    updates = updates + "\n Property ownership is Changed to " +oldloan.propertydetailId.ownership +
+                        " -> "
+                        +loan.propertydetailId.ownership;
+
+
+                if (loan.clientId.name != oldloan.clientId.name)
+                    updates = updates + "\nBorrower is Changed to " +oldloan.clientId.name + " -> " +loan.clientId.name;
+
+
+                if (loan.gurantordetailId.name != oldloan.gurantordetailId.name)
+                    updates = updates + "\nGurantor is Changed to " +oldloan.clientId.name + " -> " +loan.clientId.name;
+
+
+                if (loan.employeeId.callingname != oldloan.employeeId.callingname)
+                    updates = updates + "\nEntered By is Changed to" +oldloan.employeeId.callingname + " -> "
+                        +loan.employeeId.callingname;
+
+                if (loan.loantypeId.name != oldloan.loantypeId.name)
+                    updates = updates + "\nLoan Type is Changed to" +oldloan.loantypeId.name + " -> "
+                        +loan.loantypeId.name;
+
+                if (loan.loanstatusId.name != oldloan.loanstatusId.name)
+                    updates = updates + "\nLoan Status is Changed to" +oldloan.loanstatusId.name + " -> "
+                        +loan.loanstatusId.name;
+
+                if (loan.loantypeId.interestrate != oldloan.loantypeId.interestrate)
+                    updates = updates + "\nInterest rate is Changed to" +oldloan.loantypeId.interestrate + " -> "
+                        +loan.loantypeId.interestrate;
+
+
+            }
+
+            return updates;
+
+        }
+
+        function btnUpdateMC() {
+            var errors = getErrors();
+            if (errors == "") {
+                var updates = getUpdates();
+                if (updates == "") window.alert("Nothing Updated!");
+                else {
+
+                    var option = window.confirm("\n\nAre your sure to update followings ! \n\n" + updates);
+                    if(option==true) {
+                        var response = httpRequest("/loans","PUT",loan);
+                        if(response=="0"){
+                            toast("<strong>Success !</strong> Updated Successfully","success");
+                            loadForm();
+                            loadSearchedTable();
+
+                        }
+                        else window.alert("Failed to Update as \n\n"+response);
+                    }
+
+
+                }
+            }
+            else
+                window.alert("You have following errors in your form\n\n"+getErrors());
+        }
+
+        function btnDeleteMC() {
+
+
+            var option = window.confirm("\n\nAre your sure to delete following ! \n\n" +
+                "\nLoan Number : " +loan.name);
+
+            if(option==true) {
+                var response = httpRequest("/loans","DELETE",loan);
+                if(response=="0"){
+                    toast("<strong>Success !</strong> Deleted Successfully","success");
+                    loadForm();
+                    loadSearchedTable();
+
+                }
+                else window.alert("Failed to Delete as \n\n"+response);
+            }
+
+        }
+
+
+        //Search Functions
+        function loadSearchedTable(){
+            var name = txtSearchName.value.trim();
+
+
+            if(name!=""){  txtSearchName.style.background = active; }
+
+            var query ="&name=";
+
+            if(name!="" )
+                query = "&name=" + name ;
+
+            //window.alert(query);
+            loadTable(activepage, cmbPageSize.value, query);
+
+
+        }
+
+        function btnSearchMC(){
+            activepage=1;
+            loadSearchedTable();
+
+        }
+
+        function btnSearchClearMC(){
+            loadView();
+        }
+
+        // scroll to ID---------------------------------
+        $("a[href^='#']").click(function(e) {
+            e.preventDefault();
+
+            var position = $($(this).attr("href")).offset().top;
+
+            $("body, html").animate({
+                scrollTop: position
+            } /* speed */ );
+        });
+        // -----------------------------------------------
+
+
+
+    </script>
+
+    <style>
+        body {overflow-x: hidden; }
+        div .panel-heading {
+            text-decoration: none;
+            background-color:#818181;
+            color: whitesmoke;
+            border-radius: 2%;
+        }
+    </style>
+
+
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row" id="ui">
+        <div class="col-md-12">
+            <div class="panel">
+                <div class="panel-heading">
+                    <button class="btn btn-xs ui"> <a href="#ui"><h4>Add Loan</h4></a></button>
+                    <button class="btn btn-xs "> <a href="#loanview"><h4>View Loan</h4></a></button>
+                    <h3 style=" float: left; text-align: center; margin: 20px; color: white">
+                        Loan Management</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <!--<div class="col-md-1"></div>-->
+                        <div class="col-md-10 col-md-push-1" id="form">
+                            <form class="form-horizontal" onsubmit="return false" id="loanform" >
+
+
+                                <legend>Borrower's Loan Info</legend>
+                                <script>
+                                    // Defining UI-Componnets and Layouts
+                                    // Default UI-Componnets and Layouts is coded in "ui.bitproject.earth.lk.js"
+                                    comboBox('loanform','cmbLoantype','Type of the Loan <span style="color:red;font-size:20px">*</span>',4,'loan','loantypeId','oldloan');
+                                    comboBox('loanform','cmbClient','Borrower&#39;s Name <span style="color:red;font-size:20px">*</span>',4,'loan','clientId','oldloan');
+                                    textField('loanform','txtName','Loan no <span style="color:red;font-size:20px">*</span>','Ex : 331/230/12/272 B/2/10/2020/R/(accounting grant no)','',4,"",'loan','name','oldloan');
+                                    textField('loanform','txtReqAmount','Requested Amount','Enter Requested Amount Here Ex : 200000.00','',4,"",'loan','reqamount','oldloan');
+                                    dateField('loanform','dteReq','Requested Date','Select Requested Date',4,"",'loan','reqdate','oldloan');
+
+                                </script>
+                                <legend>Loan Terms (required fields) :</legend>
+                                <script>
+                                    textField('loanform','txtAmount','Principal Amount <span style="color:red;font-size:20px">*</span>','Enter Principal Amount Here Ex : 200000.00','',4,"",'loan','amount','oldloan');
+                                    textField('loanform','txtDuration','Duration (years)  <span style="color:red;font-size:20px">*</span>','Enter Duration Here Ex : 5','',4,"",'loan','duration','oldloan');
+                                    // textField('loanform','txtDOMonths','Duration in Months','Months for the Duration will Display','',4,"",'loan','','oldloan');
+                                    textField('loanform','txtLoanTypeinterest','Loan Interest Rate (%)  <span style="color:red;font-size:20px">*</span>','','',4,"",'','','');
+                                    //comboBox('loanform','txtLoanTypeinterest','Loan Interest(%)',4,'','','');
+                                    //loan granted date eken duration eka adu krnawa--->ethakota Maturity eka enawa...loan eka gewala iwara wena dawasa
+                                    textField('loanform','txtEquatedMvalue','Equated Monthly Value  <span style="color:red;font-size:20px">*</span>','Enter Equated Monthly Value Here','',4,"",'loan','equatedmvalue','oldloan');
+                                    dateField('loanform','dteDOGranted','Loan Granted Date  <span style="color:red;font-size:20px">*</span>','Select Granted Date',4,"",'loan','dogranted','oldloan');
+                                    dateField('loanform','dteMaturity','Maturity Date  <span style="color:red;font-size:20px">*</span>','The date loan finish Paid',4,"",'loan','domaturity','oldloan');
+                                    comboBox('loanform','cmbLoanpurpose','Purpose of Loan  <span style="color:red;font-size:20px">*</span>',4,'loan','purposeofloanId','oldloan');
+                                    comboBox('loanform','cmbProperty','Property Owner  <span style="color:red;font-size:20px">*</span>',4,'loan','propertydetailId','oldloan');
+                                    comboBox('loanform','cmbGurantor','Guarantor Name  <span style="color:red;font-size:20px">*</span>',4,'loan','gurantordetailId','oldloan');
+
+
+                                </script>
+                                <legend>Loan Criteria Info</legend>
+                                <!--------------------Inner form of clientcrietria-------------------------------------------------------------&ndash;&gt;-->
+                                <div id="innerform" style="background-color: rgba(0,0,255,0.1); padding:20px 10px;margin-bottom: 15px">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4" for="cmbCriteria"> Criteria  <span style="color:red;font-size:20px">*</span></label>
+                                        <div class="col-md-8">
+                                            <select class="form-control" id="cmbCriteria"></select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4" for="txtValue">Value  <span style="color:red;font-size:20px">*</span></label>
+                                        <div class="col-md-8">
+                                            <input type="text" id="txtValue"
+                                                   placeholder="Enter Value Here Ex: Income-25000"
+                                                   class="form-control"/>
+                                        </div>
+                                    </div>
+                                    <!--<script>-->
+                                    <!--comboBox('innerform','cmbCriteria','Criteria',4,'','','');-->
+                                    <!--textField('innerform','txtValue','Value','Enter value here','',4,"",'','','');-->
+                                    <!--</script>-->
+
+                                    <div class="text-right" style="margin-bottom: 10px">
+                                        <input class="btn btn-primary btn-sm" type="button" id="btnAddCriteria" value="Add" style=""/>
+                                    </div>
+                                    <!----------------form finish-------------------------->
+                                    <div class="row">
+                                        <div class="table-responsive col-md-10 col-md-offset-1" id="tableInnerParent">
+                                            <script>
+                                                function getColexpected(ob) {
+                                                   // console.log(ob);
+                                                    return ob.criteriaId.constraintId.name+"-"+ob.criteriaId.value;
+                                                }
+
+                                                function getResult(ob) {
+                                                   var n = ob.criteriaId.constraintId.name;
+                                                   var e = ob.criteriaId.value;
+
+                                                   if(n == "LESS THAN") {
+                                                       if(ob.value < e){
+                                                           return ("&#9989");
+                                                       }else{
+                                                           isPending = false;
+                                                           return ("&#10060");
+                                                       }
+                                                   } else if(n == "MORE THAN"){
+                                                       if(ob.value > e){
+                                                           return ("&#9989");
+                                                       }else {
+                                                           isPending = false;
+                                                           return ("&#10060");
+                                                       }
+                                                   } else if(n == "EQUAL"){
+                                                       if(ob.value == e){
+                                                           return ("&#9989");
+                                                       }else{
+                                                           isPending = false;
+                                                           return ("&#10060");
+                                                       }
+                                                   } else{
+                                                       if (ob.value != e) {
+                                                           return ("&#9989");
+                                                       }else {
+                                                           isPending = false;
+                                                           return ("&#10060");}
+                                                        }
+                                                }
+
+                                                var metadatainnertable = [
+                                                    {name:'Criteria',search:false,datatype:'text',property:'criteriaId.name'},
+                                                    {name:'Value',search:false,datatype:'text',property:'value'},
+                                                    {name:'Expected',search:false,datatype:'text',property:getColexpected},
+                                                    {name:'Result',search:false,datatype:'text',property:getResult}
+                                                ];
+                                                tableForInnerForm("tableInnerParent","tblLoancriteria",metadatainnertable,true);
+                                            </script>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!------------------Inner form finish-------------------------------------->
+
+                                <legend>Office Work</legend>
+                                <script>
+                                    comboBox('loanform','cmbLoanstatus','Loan Status  <span style="color:red;font-size:20px">*</span>',4,'loan','loanstatusId','oldloan');
+                                    textArea('loanform','txtDescription','Description','Enter Description Here','',4,"",'loan','description','oldloan');
+                                    comboBox('loanform','cmbAssignemployee','Assign Employee Name  <span style="color:red;font-size:20px">*</span>',4,'loan','employeeId','oldloan');
+                                    // Custom UI-Componnets and Layouting
+                                </script>
+
+                                <div class="text-right">
+                                    <input class="btn btn-danger btn-sm" type="button" id="btnDelete" value="Delete" style="width: 15%"/>
+                                    <input class="btn btn-warning btn-sm" type="button" id="btnUpdate" value="Update" style="width: 15%"/>
+                                    <input class="btn btn-success btn-sm" type="button" id="btnAdd" value="Add" style="width: 17%"/>
+                                    <input class="btn btn-info btn-sm" type="button" id="btnClear" value="Clear" style="width: 15%"/>
+                                </div>
+
+
+                            </form>
+                        </div>
+                        <!--<div class="col-md-1"></div>-->
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12" id="loanview">
+
+            <h3>Advance Search of Loan Details</h3>
+
+            <form class="form-inline" onsubmit="return false">
+                <div class="form-group form-group-sm">
+                    <input placeholder="Search By Loan No" class="form-control" type="text"
+                           id="txtSearchName"/>
+                </div>
+                <!--<div class="form-group form-group-sm">-->
+                <!--<select class="form-control" id="cmbSearchLoanNo"></select>-->
+                <!--</div>-->
+                <input type="button" class="btn btn-primary btn-sm" value=" Search " id="btnSearch"/>
+                <input type="button" class="btn btn-warning btn-sm" value="Clear Search" id="btnSearchClear"/>
+
+            </form>
+            <br/>
+            <hr/>
+            <h3>Advance Search of Loan Details</h3>
+
+            <div class="table-responsive" id="tableParent">
+
+                <script>
+
+                    // function getNameColumn(ob) {
+                    //     return ob.name+"("+ob.id+")"+"-"+ ob.clientId.name;
+                    // }
+
+                    var metadata = [
+
+                        {name:'Loan No',search:true,datatype:'text',property:'name'},
+                        {name:'Principle Amount',search:true,datatype:'text',property:'amount'},
+                        {name:'Duration',search:true,datatype:'text',property:'duration'},
+                        {name:'Interest Rate',search:true,datatype:'text',property:'loantypeId.interestrate'},
+                        {name:'Requested Amount',search:true,datatype:'text',property:'reqamount'},
+                        {name:'Requested Date',search:true,datatype:'text',property:'reqdate'},
+                        {name:'Granted Date',search:true,datatype:'text',property:'dogranted'},
+                        {name:'Maturity Date',search:true,datatype:'text',property:'domaturity'},
+                        {name:'Equated Monthly Value',search:true,datatype:'text',property:'equatedmvalue'},
+                        {name:'Loan Status',search:true,datatype:'text',property:'loanstatusId.name'}
+
+                    ];
+
+                    table("tableParent","tblLoan",metadata,[10,15,30,100,500,1000],btnSearchMC);
+
+                </script>
+
+            </div>
+            <ul id="pagination" class="pagination"></ul>
+        </div>
+
+    </div>
+    <div id="err" style="display: none"><h3>Error Log</h3></div>
+</div>
+
+</body>
+</html>

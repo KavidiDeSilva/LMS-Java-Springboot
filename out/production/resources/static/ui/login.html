@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!---------------------------------------------------------------------->
+    <title>National Housing Development Authority</title>
+    <!---------------------------------------------------------------------->
+    <link rel="stylesheet" href="../plugin/bootstrap/css/bootstrap.min.css"/>
+    <script src="../plugin/jquery/jquery.min.js"></script>
+    <script src="../plugin/bootstrap/js/bootstrap.min.js"></script>
+    <!--<script src="../plugin/font-awesome/css/all.css"></script>-->
+    <script src="../plugin/font-awesome/js/all.js"></script>
+    <!---------------------------------------------------------------------->
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">-->
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>-->
+    <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>-->
+    <!------------------------------------------------------------------------------------------>
+    <link rel="icon" type="image/png" href="../logo-favicon/favicon-64.png" />
+    <!------------------------------------------------------------------------->
+    <link rel="stylesheet" href="../style/common.css"/>
+    <script src="../script/common.bitproject.earth.lk.v1.js"></script>
+    <script src="../script/ui.bitproject.earth.lk.v1.js"></script>
+
+
+
+
+    <style>
+        /*div{border: dotted;}*/
+
+        body {
+            background-image:    url('../image/4.jpg');
+            background-size:     cover;      /* //opt      */
+            background-repeat:   no-repeat;
+            background-position: center center;
+            background-color: whitesmoke;
+        }
+        /* Gray */
+        .default {
+            border-color: #e7e7e7;
+            background-color: lightgrey;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .default:hover {
+            background: #acacac;
+        }
+         .default:hover, .default:focus {
+             box-shadow: 0 0 0 2px white, 0 0 0 3px #798491;
+         }
+        #display{
+            opacity: 0.84;
+        }
+        #title{
+            text-align: center;
+            font-family: "Times New Roman";
+            font-size: 28px;
+            font-weight: bold;
+
+        }
+
+
+    </style>
+ <!--<script>-->
+     <!--$().button('reset');-->
+ <!--</script>-->
+
+</head>
+
+<body id="display">
+
+<div class="container">
+    <div style="margin-top:100px;" class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <img src="../logo-favicon/favicon-64.png" class="img-circle img-thumbnail img-xs center-block"/>
+                <h3 id="title">National Housing Development Authority </h3>
+            </div>
+        </div>
+        <div class="panel panel-default">
+
+            <div class="panel-body">
+                <div style="text-align: center"><h4>Login</h4></div>
+                <div style="margin-bottom: 20px" class="input-group">
+                    <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                    <input id="txtUsername" type="text" class="form-control" name="username" value=""
+                           placeholder="Username">
+                </div>
+
+
+                <div style="margin-bottom: 25px" class="input-group">
+                    <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                    <input id="txtPassword" type="password" class="form-control" placeholder="Password">
+                </div>
+
+                <div style="margin-top:10px">
+                    <button id="btnLogin" class="col-md-6 col-md-offset-3 btn default">Login</button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div id="err" style="display: none"></div>
+<script>
+
+    window.addEventListener("load", initialize);
+
+    function initialize() {
+        btnLogin.addEventListener("click", btnLoginMC);
+    }
+
+    function btnLoginMC() {
+
+        var username = txtUsername.value.trim();
+        var password = txtPassword.value.trim();
+
+        if (username != "" && password != ""){
+
+            ajax = new XMLHttpRequest();
+            ajax.open("POST", "/session", false);
+            ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            ajax.send("username="+username+"&password="+password);
+            err.innerHTML=err.innerHTML+ajax.responseText;
+            if(ajax.status==200 && ajax.responseText!="") {
+                sessionlog = JSON.parse(ajax.responseText);
+                cookie.setValue("username",  username, 1);
+                cookie.setValue("password", password, 1);
+                cookie.setValue("sessionid", sessionlog.id, 1);
+                session.setObject("user", sessionlog.userId);
+                err.innerHTML = err.innerHTML + ajax.responseText;
+
+                window.open("mainwindow", "_self");
+            }
+            else
+                window.alert("Incorrect Username or Password");
+        }
+        else
+            window.alert("Enter Username or Password");
+    }
+
+</script>
+
+
+</body>
+</html>

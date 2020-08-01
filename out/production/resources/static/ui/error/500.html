@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>500</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="../../plugin/bootstrap/css/bootstrap.min.css"/>
+
+    <script src="../../plugin/jquery/jquery.min.js"></script>
+    <script src="../../plugin/bootstrap/js/bootstrap.min.js"></script>
+
+
+    <script src="../../script/common.bitproject.earth.lk.v1.js"></script>
+    <script src="../../script/ui.bitproject.earth.lk.v1.js"></script>
+
+    <!--<link rel="stylesheet" href="../style/btn-b.css">-->
+    <!--<link rel="stylesheet" href="../style/home.css">-->
+    <!--<link rel="stylesheet" href="../build/css/custom.css">-->
+
+
+    <style type="text/css">
+
+        /*div{border: dotted;*/
+
+
+    </style>
+
+    <script>
+
+        window.addEventListener("load", initialize);
+
+        function initialize() {
+            //Update the dynamic content of the Home Page ( Messages/System Notification / Todays Special Items / )
+        }
+
+        function laodUi(ui) {
+            frmMainWindow.src = 'http://localhost:8080/ui/' + ui;
+        }
+        $(document).ready(function(){
+            $("#myInput").on("keyup", function() {
+                var value = $(this).val().toLowerCase();
+                $("#myDIV *").filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+
+
+    </script>
+
+
+
+
+
+</head>
+<body>
+<div class="container" id="myDIV">
+
+    <div class="row">
+        <div class="panel">
+            <div class="panel-heading">
+
+            </div>
+            <div class="panel-body">
+
+                <img src="../../image/cloud.png" class="img-rounded img-responsive" style="float: left;width:170px;height:170px;margin-right:15px;" alt="500">
+                <h1>Internal Server Error</h1>
+                <h3>  Oops! Something went wrong.</h3>
+                <p>
+                    We will work on fixing that right away. Meanwhile, you may <a onclick="laodUi('home')"><em>return
+                    to dashboard</em></a> or try using the search form.
+                </p>
+                <form class="">
+                    <form>
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Search">
+                            <div class="input-group-btn">
+                                <button class="btn btn-default" type="submit">
+                                    <i class="glyphicon glyphicon-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </form>
+            </div>
+        </div>
+        <h4 class="well well-lg">The description of this error pretty much says it all. It’s a general-purpose error message for when a web server encounters some form of internal error. For example, the web server could be overloaded and therefore unable to handle requests properly.
+
+            Judging by Google’s search statistics, this problem is a lot more common than 404 errors.</h4>
+    </div>
+</div>
+
+</body>
+</html>

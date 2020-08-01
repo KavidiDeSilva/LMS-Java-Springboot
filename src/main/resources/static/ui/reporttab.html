@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Reports</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../plugin/bs4/css/bootstrap.min.css">
+    <script type="text/javascript" href="../plugin/jquery/jquery.min.js"></script>
+    <script type="text/javascript" href="../plugin/bs4/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+    <script src="../script/common.bitproject.earth.lk.v1.js"></script>
+    <script src="../script/ui.bitproject.earth.lk.v1.js"></script>
+
+
+    <style type="text/css">
+        body{
+            /*background:url('../image/home.jpg');*/
+            overflow-x: hidden;
+            overflow-y: auto;
+            height: 1000px;
+            width: 100%;
+
+        }
+        /*div{border: dotted;}*/
+
+        .card-body-icon {
+            position: absolute;
+            z-index: 0;
+            top: -25px;
+            right: -25px;
+            font-size: 5rem;
+            -webkit-transform: rotate(15deg);
+            -ms-transform: rotate(15deg);
+            transform: rotate(15deg); }
+
+        .o-hidden {
+            overflow: hidden !important; }
+
+        .z-1 {
+            z-index: 1; }
+
+    </style>
+
+
+
+
+
+
+
+</head>
+<body>
+
+<div class="container-fluid">
+<div class="row">
+    <div class="col-md-12">
+        <h4> Report Dashboard <small class="text-muted"> Loan and Recovery Management</small></h4>
+        <hr>
+
+    </div>
+</div>
+    <!-- Icon Cards-->
+   <!-- <div class="row">
+        <div class="col-md-6">
+            <div class="container">
+                <div class="card">
+                    <div class="card-body">Basic card</div>
+                </div>
+                <br>
+                <div class="card bg-primary text-white">
+                    <div class="card-body">Primary card</div>
+                </div>
+                <br>
+                <div class="card bg-success text-white">
+                    <div class="card-body">Success card</div>
+                </div>
+                <br>
+                <div class="card bg-info text-white">
+                    <div class="card-body">Info card</div>
+                </div>
+                <br>
+                <div class="card bg-warning text-white">
+                    <div class="card-body">Warning card</div>
+                </div>
+                <br>
+                <div class="card bg-danger text-white">
+                    <div class="card-body">Danger card</div>
+                </div>
+                <br>
+                <div class="card bg-secondary text-white">
+                    <div class="card-body">Secondary card</div>
+                </div>
+                <br>
+                <div class="card bg-dark text-white">
+                    <div class="card-body">Dark card</div>
+                </div>
+                <br>
+                <div class="card bg-light text-dark">
+                    <div class="card-body">Light card</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="container">
+                <div class="card">
+                    <div class="card-body">Basic card</div>
+                </div>
+                <br>
+                <div class="card bg-primary text-white">
+                    <div class="card-body">Primary card</div>
+                </div>
+                <br>
+                <div class="card bg-success text-white">
+                    <div class="card-body">Success card</div>
+                </div>
+                <br>
+                <div class="card bg-info text-white">
+                    <div class="card-body">Info card</div>
+                </div>
+                <br>
+                <div class="card bg-warning text-white">
+                    <div class="card-body">Warning card</div>
+                </div>
+                <br>
+                <div class="card bg-danger text-white">
+                    <div class="card-body">Danger card</div>
+                </div>
+                <br>
+                <div class="card bg-secondary text-white">
+                    <div class="card-body">Secondary card</div>
+                </div>
+                <br>
+                <div class="card bg-dark text-white">
+                    <div class="card-body">Dark card</div>
+                </div>
+                <br>
+                <div class="card bg-light text-dark">
+                    <div class="card-body">Light card</div>
+                </div>
+            </div>
+        </div>
+
+    </div>-->
+
+    <div class="row">
+        <div class="col-md-4">
+
+            <div class="container">
+
+                <div id="accordion">
+                    <div class="card">
+                        <div class="card-header">
+                            <a class="card-link" data-toggle="collapse" href="#collapseOne">
+                               Loans Reports
+                            </a>
+                        </div>
+                        <!--<div id="collapseOne" class="collapse show" data-parent="#accordion">-->
+                        <div id="collapseOne" class="collapse show" data-parent="#accordion">
+                                <ul class="list-group">
+                                    <li class="list-group-item"><a href="./report/loanhistory1.html">Loan History</a></li>
+
+                                    <li class="list-group-item"><a href="./report/loansreport.html">Loans per Borrower Report</a></li>
+                                    <!--<li class="list-group-item"><a></a>Loans per Loan Officer Report</li>-->
+                                    <!--<li class="list-group-item"><a></a>Loans Approval/Denial Report</li>-->
+                                </ul>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <a class="collapsed card-link" data-toggle="collapse" href="#collapseTwo">
+                                Loan Payments Reports
+                            </a>
+                        </div>
+                        <div id="collapseTwo" class="collapse show" data-parent="#accordion">
+                            <ul class="list-group">
+                                <li class="list-group-item"><a href="./report/loanpaymenthistory.html">Loan Payment
+                                    History</a></li>
+                                <li class="list-group-item">
+                                    <a href="./report/loanpaymentdetailsreport.html">Loan Payments Details
+                                        Report</a>
+                                </li>
+                                <!--<li class="list-group-item"><a></a>Loan payments per Loan Officer Report</li>-->
+                                <!--<li class="list-group-item"><a></a>Loan payments Approval/Denial Report</li>-->
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <a class="collapsed card-link" data-toggle="collapse show" href="#collapseThree">
+                                Loan Types Reports
+                            </a>
+                        </div>
+                        <div id="collapseThree" class="collapse show" data-parent="#accordion">
+                            <ul class="list-group">
+                                <li class="list-group-item"><a href="./report/loantypeloans.html">Loan Types Report</a></li>
+                                <!--<li class="list-group-item"><a></a>Loan Categories Report</li>-->
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+        </div>
+        <div class="col-md-4">
+
+            <div class="container">
+
+                <div id="accordion1">
+                    <div class="card">
+                        <div class="card-header">
+                            <a class="card-link" data-toggle="collapse" href="#we">
+                               Borrowers Reports
+                            </a>
+                        </div>
+                        <!--<div id="collapseOne" class="collapse show" data-parent="#accordion">-->
+                        <div id="we" class="collapse show" data-parent="#accordion1">
+                            <ul class="list-group">
+                                <li class="list-group-item"><a href="./report/borrowersreport.html">Borrower Loan
+                                    Report</a></li>
+                                <li class="list-group-item"><a href="./report/borrowersdetailsreport.html">Borrowers
+                                    Details Report</a></li>
+                                <li class="list-group-item"><a
+                                        href="./report/borrowerrepaymentsreport.html">Borrower's Loan Payment
+                                    Report</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!--<div class="card">-->
+                        <!--<div class="card-header">-->
+                            <!--<a class="collapsed card-link" data-toggle="collapse" href="#ew">-->
+                                <!--Guarantors Reports-->
+                            <!--</a>-->
+                        <!--</div>-->
+                        <!--<div id="ew" class="collapse" data-parent="#accordion1">-->
+                            <!--<ul class="list-group">-->
+                                <!--<li class="list-group-item"><a></a>Guarantor Details Report</li>-->
+                                <!--&lt;!&ndash;<li class="list-group-item">Borrower Repayment Report</li>&ndash;&gt;-->
+                            <!--</ul>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <!--<div class="card">-->
+                        <!--<div class="card-header">-->
+                            <!--<a class="collapsed card-link" data-toggle="collapse" href="#ed">-->
+                                <!--Property Details Reports-->
+                            <!--</a>-->
+                        <!--</div>-->
+                        <!--<div id="ed" class="collapse" data-parent="#accordion1">-->
+                            <!--<ul class="list-group">-->
+                                <!--<li class="list-group-item"><a></a>Property Details Report</li>-->
+                                <!--&lt;!&ndash;<li class="list-group-item">Borrower Repayment Report</li>&ndash;&gt;-->
+                            <!--</ul>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+
+            <div class="container">
+
+                <div id="accordion3">
+                    <!--<div class="card">-->
+                        <!--<div class="card-header">-->
+                            <!--<a class="card-link" data-toggle="collapse" href="#qa">-->
+                                <!--Employees Reports-->
+                            <!--</a>-->
+                        <!--</div>-->
+                        <!--&lt;!&ndash;<div id="collapseOne" class="collapse show" data-parent="#accordion">&ndash;&gt;-->
+                        <!--<div id="qa" class="collapse" data-parent="#accordion3">-->
+                            <!--<ul class="list-group">-->
+                                <!--<li class="list-group-item"><a></a>Employee designation Report</li>-->
+                                <!--<li class="list-group-item"><a></a>Employee entered data Report</li>-->
+                            <!--</ul>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <div class="card">
+                        <div class="card-header">
+                            <a class="collapsed card-link" data-toggle="collapse" href="#sw">
+                                District Offices Reports
+                            </a>
+                        </div>
+                        <div id="sw" class="collapse show" data-parent="#accordion3">
+                            <ul class="list-group">
+                                <li class="list-group-item"><a href="./report/branchreport.html">District Office Report</a></li>
+                                <!--<li class="list-group-item"><a href="./report/branchrecoveryreport.html">District-->
+                                    <!--Office recovery Report</a></li>-->
+                                <li class="list-group-item"><a  href="./report/branchborrowers.html">District office
+                                    contribution Report</a></li>
+                                <li class="list-group-item"><a  href="./report/branchemployees.html">Employees per Distict
+                                    office Report</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <a class="collapsed card-link" data-toggle="collapse" href="#dc">
+                                Users Login Reports
+                            </a>
+                        </div>
+                        <div id="dc" class="collapse show" data-parent="#accordion3">
+                            <ul class="list-group">
+                                <li class="list-group-item">
+                                    <a href="./report/systemaccessanalysis.html">System Access Analysis Report</a>
+                                </li>
+                                <!--<li class="list-group-item"><a></a>User Roles and Privilages Report</li>-->
+                                <!--<li class="list-group-item"><a></a>Users Report</li>-->
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+
+
+
+</div>
+
+
+
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<html>
+<head>
+<title>Loan Payment Details Report</title>
+    <link rel="stylesheet" href="../../plugin/bootstrap/css/bootstrap.min.css"/>
+    <script src="../../plugin/jquery/jquery.min.js"></script>
+    <script src="../../plugin/bootstrap/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="../../style/common.css"/>
+    <script src="../../script/common.bitproject.earth.lk.v1.js"></script>
+    <script src="../../script/ui.bitproject.earth.lk.v1.js"></script>
+
+
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+
+        window.addEventListener("load", initialize);
+
+        function initialize(){
+           // btnGenarateReport.addEventListener("click",btnGenarateReportMC);
+           // btnClear.addEventListener("click",btnClearMC);
+             btnPrintPiechart.addEventListener("click",btnPrintPiechartMC);
+            btnPrintTable.addEventListener("click",btnPrintTableMC);
+            btnPrintAllReport.addEventListener("click",btnPrintAllReportMC);
+
+             colors =
+                 ["red","green","blue","orange","yellow","cyan","magenta","gray","gold","purple","red","green","blue","orange","yellow","cyan","magenta","gray","gold","purple","red","green","blue","orange","yellow","cyan","magenta","gray","gold","purple","red","green","blue","orange","yellow","cyan","magenta","gray","gold","purple","red","green","blue","orange","yellow","cyan","magenta","gray","gold","purple","red","green","blue","orange","yellow","cyan","magenta","gray","gold","purple","red","green","blue","orange","yellow","cyan","magenta","gray","gold","purple"];
+
+            serverdata=httpRequest("../../reports/loanpaymentdetails","GET");
+            loadReports();
+        }
+
+        function loadReports() {
+            var columns =
+                [
+                    {type:"string",name:"borrower_loan_no"},
+                    {type:"currency",name:"amount"},
+                    {type:"currency",name:"principal"},
+                    {type:"currency",name:"interestamount"},
+                    {type:"currency",name:"equatedmvalue"},
+                    {type:"currency",name:"total_repayment_amount"},
+                    {type:"currency",name:"balance"},
+                    {type:"number",name:"no_repayments"},
+                    {type:"number",name:"remains"},
+                    {type:"number",name:"duration"}
+                    ];
+            drawReportTable('tbl',serverdata,columns);
+              drawPieChart('pch',serverdata,'borrower_loan_no','no_repayments','No of Payments',600,600,colors);
+            drawColStackedChart('colch',serverdata,'borrower_loan_no','total_repayment_amount','balance',' No of Payments',600,600,colors);
+        }
+
+        // function btnGenarateReportMC(){
+        //     var startdate = dteStart.value;
+        //     var enddate = dteEnd.value;
+        //     if(startdate!="" && enddate!="") {
+        //         serverdata = httpRequest("../../reports/loandetails?startdate=" + startdate + "&enddate=" + enddate, "GET");
+        //         loadReports();
+        //     }
+        // }
+
+        // function btnClearMC() {
+        //     serverdata=httpRequest("../../reports/loandetails","GET");
+        //     // dteStart.value="";
+        //     // dteEnd.value="";
+        //     loadReports();
+        // }
+
+
+        function btnPrintTableMC() {
+            printDiv("tableview",1200,6000,360,"../../image/natinalhda.png");
+        }
+
+        function btnPrintPiechartMC() {
+            printDiv("barchartview",800,1000,400,"../../image/natinalhda.png");
+        }
+
+        function btnPrintAllReportMC() {
+            printDiv("allreport",1200,6000,360,"../../image/natinalhda.png");
+        }
+        function
+        drawColStackedChart(parentId,serverdata,legendProperty,valueProperty,valueProperty2,title,width,height,colors){
+            corechartLoad=false;
+            var data = [
+                [legendProperty.charAt(0).toUpperCase()+legendProperty.slice(1),
+                    valueProperty.charAt(0).toUpperCase()+valueProperty.slice(1),
+                    valueProperty2.charAt(0).toUpperCase()+valueProperty2.slice(1), { role: "style" } ]
+            ];
+
+            for(var i=0; i<serverdata.length; i++){
+                var row = [];
+                var d = serverdata[i];
+                row[0] = d[legendProperty];
+                row[1] = d[valueProperty];
+                row[2] = d[valueProperty2];
+                row[3] = 'color:'+colors[i%10]+';opacity:0.9';
+                data.push(row);
+            }
+
+            google.charts.load('current', {'packages':['corechart']});
+            if(corechartLoad){
+                draw();
+            }else{
+                google.charts.setOnLoadCallback(function(){
+                    draw();
+                    corechartLoad=true;
+                });
+            }
+
+
+
+            function draw(){
+                var dataTable = google.visualization.arrayToDataTable(data);
+
+                var view = new google.visualization.DataView(dataTable);
+                view.setColumns([0, 1,
+                    { calc: "stringify",
+                        sourceColumn: 1,
+                        type: "string",
+                        role: "annotation" },
+                    2]);
+
+                var options = {
+                    title: title,
+                    isStacked:true,
+                    width: "100%",
+                    height:"100%",
+                    legend: {position: 'top', maxLines: 3},
+                    vAxis: {minValue: 0}
+                    // bar: {groupWidth: "60%"}
+                };
+                var chart = new google.visualization.ColumnChart(document.getElementById(parentId));
+                chart.draw(view, options);
+            }
+        }
+
+
+    </script>
+
+    <style>
+        body{
+            /*background:url('../image/home.jpg');*/
+            overflow-x: hidden;
+            overflow-y: auto;
+            height: 2000px;
+            width: 100%;
+
+        }
+        div .panel-heading {
+            text-decoration: none;
+            background-color:#818181;
+            color: whitesmoke;
+            border-radius: 2%;
+        }
+    </style>
+
+</head>
+
+<body>
+
+
+<div class="container-fluid">
+    <div class="row" id="ui">
+        <div class="col-md-12">
+            <div class="panel">
+                <div class="panel-heading">
+                    <h3>Loan Payment Details Report</h3>
+                </div>
+
+                <div class="panel-body" >
+
+                    <div class="row">
+
+                        <div class="col-md-12" id="ondemandcriteria">
+                            <form class="form-inline" onsubmit="return false">
+                                <!--<div class="form-group form-group-sm">-->
+                                <!--<input placeholder="Start Date" class="form-control" type="date" id="dteStart"/>-->
+                                <!--</div>-->
+                                <!--<div class="form-group form-group-sm">-->
+                                <!--<input placeholder="End Date" class="form-control" type="date" id="dteEnd"/>-->
+                                <!--</div>-->
+
+                                <!--<input type="button" class="btn btn-warning btn-sm" value="Clear" id="btnClear"/>-->
+                                <!--<input type="button" class="btn btn-success btn-sm" value="Genarate Report" id="btnGenarateReport"/>-->
+
+                                <div class="text-right" style="margin-top: 10px;">
+                                    <button class="btn btn-primary btn-sm"  id="btnPrintTable" > <span class="glyphicon glyphicon-print"> </span> Print Table  </button>
+                                    <button class="btn btn-primary btn-sm"  id="btnPrintPiechart" > <span class="glyphicon glyphicon-print"> </span> Print Piechart  </button>
+                                    <button class="btn btn-primary btn-sm"  id="btnPrintAllReport" > <span class="glyphicon glyphicon-print"> </span> Print All Reports  </button>
+
+                                </div>
+
+                            </form>
+                        </div>
+
+                    </div>
+
+                    <div class="row" style="height: 50px;">
+                    </div>
+
+                    <div class="row" id="allreport">
+
+                        <div class="col-md-12" id="tableview"> <h3>Loan Payment Details Report</h3> <hr/> <div
+                                id="tbl"></div>
+                        </div>
+
+                        <div class="col-md-12" id="barchartview"> <h3>Total Payments vs. Balance</h3> <hr/>
+                            <div id="colch"></div> </div>
+                        <div class="col-md-6" id="piechartview"> <h2>No of Repayments Pie Chart</h2> <hr/> <div
+                                id="pch"></div>   </div>
+                        <div class="col-md-1" ></div>
+
+                        <!--<div class="col-md-4" id="barchartview"> <h2>System Access Analysis Report</h2> <hr/> <div id="colch"></div> </div>-->
+                    </div>
+
+
+                </div>
+
+                <div class="panel-footer">
+                    <div id="err" style="display: none">
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

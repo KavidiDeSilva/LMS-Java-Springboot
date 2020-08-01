@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<html>
+<head>
+    <title>District Office Report</title>
+
+    <link rel="stylesheet" href="../../plugin/bootstrap/css/bootstrap.min.css"/>
+    <script src="../../plugin/jquery/jquery.min.js"></script>
+    <script src="../../plugin/bootstrap/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="../../style/common.css"/>
+    <script src="../../script/common.bitproject.earth.lk.v1.js"></script>
+    <script src="../../script/ui.bitproject.earth.lk.v1.js"></script>
+
+
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+
+        window.addEventListener("load", initialize);
+
+        function initialize(){
+            //btnGenarateReport.addEventListener("click",btnGenarateReportMC);
+            //btnClear.addEventListener("click",btnClearMC);
+            //btnPrintPiechart.addEventListener("click",btnPrintPiechartMC);
+            btnPrintTable.addEventListener("click",btnPrintTableMC);
+            //btnPrintAllReport.addEventListener("click",btnPrintAllReportMC);
+
+          // colors = ["red","green","blue","orange","yellow","cyan","magenta","gray","gold","purple"];
+
+            serverdata=httpRequest("../../reports/branchdetails","GET");
+            loadReports();
+        }
+
+        function loadReports() {
+            var columns =
+                    [
+                    {type:"string",name:"district_office"},
+                    {type:"string",name:"address"},
+                    {type:"number",name:"mobile_no"},
+                    {type:"number",name:"land_no"},
+                    {type:"number",name:"fax"},
+                    {type:"string",name:"email"},
+                    {type:"string",name:"district"}];
+            drawReportTable('tbl',serverdata,columns);
+            // drawPieChart('pch',serverdata,'name','duration','Sample Title',500,300,colors);
+            // drawColumnChart('colch',serverdata,'name','duration','Sample Title',500,300,colors);
+          //  drawMateriChart('mcol',serverdata,'name','duration','amount','Sample Title',600,600,colors);
+        }
+
+
+        function btnGenarateReportMC(){
+            // var startdate = dteStart.value;
+            // var enddate = dteEnd.value;
+            // if(startdate!="" && enddate!="") {
+            //     serverdata = httpRequest("../../reports/systemaccessanalysis?startdate=" + startdate + "&enddate=" + enddate, "GET");
+            //     loadReports();
+            // }
+        }
+
+        // function btnClearMC() {
+        //     serverdata=httpRequest("../../reports/borrowerdetails","GET");
+        //     // dteStart.value="";
+        //     // dteEnd.value="";
+        //     loadReports();
+        // }
+
+
+
+        function btnPrintTableMC() {
+           // printDiv("tableview",370,370,400,"../../image/NHDA_Logo.jpg");
+            printDiv("tableview",1200,500,280,"../../image/natinalhda.png");
+        }
+
+        // function btnPrintPiechartMC() {
+        //     printDiv("piechartview",800,800,400,"../../image/NHDA_Logo.jpg");
+        // }
+        //
+        // function btnPrintAllReportMC() {
+        //     printDiv("allreport",800,800,400,"../../image/NHDA_Logo.jpg");
+        // }
+
+
+    </script>
+
+<style>
+    body{
+        /*background:url('../image/home.jpg');*/
+        overflow-x: hidden;
+        overflow-y: auto;
+        height: 4000px;
+        width: 100%;
+
+    }
+    div .panel-heading {
+        text-decoration: none;
+        background-color:#818181;
+        color: whitesmoke;
+        border-radius: 2%;
+    }
+</style>
+
+</head>
+
+<body>
+
+
+<div class="container-fluid">
+    <div class="row" id="ui">
+        <div class="col-md-12">
+            <div class="panel">
+                <div class="panel-heading">
+                    <h3>District Office Report</h3>
+                </div>
+
+                <div class="panel-body" >
+
+                    <div class="row">
+
+                        <div class="col-md-12" id="ondemandcriteria">
+                            <form class="form-inline" onsubmit="return false">
+                                <!--<div class="form-group form-group-sm">-->
+                                    <!--<input placeholder="Start Date" class="form-control" type="date" id="dteStart"/>-->
+                                <!--</div>-->
+                                <!--<div class="form-group form-group-sm">-->
+                                    <!--<input placeholder="End Date" class="form-control" type="date" id="dteEnd"/>-->
+                                <!--</div>-->
+
+                                <!--<input type="button" class="btn btn-warning btn-sm" value="Clear" id="btnClear"/>-->
+                                <!--<input type="button" class="btn btn-success btn-sm" value="Genarate Report" id="btnGenarateReport"/>-->
+
+                                <div class="text-right" style="margin-top: 10px;">
+                                    <button class="btn btn-primary btn-sm"  id="btnPrintTable" > <span class="glyphicon glyphicon-print"> </span> Print Table  </button>
+                                    <!--<button class="btn btn-primary btn-sm"  id="btnPrintPiechart" > <span class="glyphicon glyphicon-print"> </span> Print Piechart  </button>-->
+                                    <!--<button class="btn btn-primary btn-sm"  id="btnPrintAllReport" > <span class="glyphicon glyphicon-print"> </span> Print All Reports  </button>-->
+
+                                </div>
+
+                            </form>
+                        </div>
+
+                    </div>
+
+                    <!--<div class="row" style="height: 50px;">-->
+                    <!--</div>-->
+
+                    <div class="row" id="allreport">
+                        <div class="row">
+                            <div class="col-md-10 col-md-offset-1" id="tableview"> <h3>District Office Report</h3><hr/>
+                                <div id="tbl"></div></div>
+                        </div>
+
+                        <!--<div class="row">-->
+                            <!--<div class="col-md-6" id="piechartview"> <h3>Borrowers Details per Loan Report</h3> <hr/>-->
+                                <!--<div id="pch"></div>   </div>-->
+
+
+                            <!--<div class="col-md-6" id="barchartview"> <h3>Borrowers Details per Loan Report</h3> <hr/>-->
+                                <!--<div id="colch"></div> </div>-->
+                        <!--</div>-->
+                        <!--<div class="row">-->
+
+                            <!--<div class="col-md-6" id="mchartview"> <h3>Borrowers Details per Loan Report</h3> <hr/>-->
+                                <!--<div id="mcol"></div>-->
+                            <!--</div>-->
+                            <!--<div class="col-md-6" id="chartview"> <h3>Borrowers Details per Loan Report</h3> <hr/>-->
+                                <!--<div id="col"></div>-->
+                            <!--</div>-->
+
+
+                        <!--</div>-->
+
+
+                </div>
+
+                </div>
+
+                <div class="panel-footer">
+                    <div id="err" style="display: none">
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

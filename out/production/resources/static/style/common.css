@@ -1,0 +1,60 @@
+/* Validation Colors for Input Controls */
+
+.invalid .form-control{
+    background-color: pink;
+}
+.valid .form-control{
+    background-color: lightgreen;
+}
+.updated .form-control{
+    background-color: khaki;
+}
+
+
+.file-box{
+    height: 87px;
+    margin-bottom: 7px;
+    border:1px solid #ccc;
+    padding: 5px;
+    position: relative;
+}
+
+.file-box>img{
+    position: absolute;
+    height: 75px;
+    top: 5px;
+    left: 5px;
+}
+
+.file-box>ul{
+    position: absolute;
+    top: 5px;
+    left: 87px;
+    right: 5px;
+    padding: 0px;
+    list-style: none;
+    color: #555;
+    text-align: right;
+}
+
+/*Scrollbar css*/
+/* width */
+::-webkit-scrollbar {width: 8px;}
+/* Track */
+::-webkit-scrollbar-track {background: #f1f1f1;}
+/* Handle */
+::-webkit-scrollbar-thumb {background: #888;}
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {background: #555;}
+
+/*.control-label > label {*/
+    /*display: inline-flex;*/
+/*}*/
+/*.control-label.required > label:before {*/
+    /*color: red;*/
+    /*content: "*";*/
+    /*order: 1;*/
+/*}*/
+/*.control-label > label:after {*/
+    /*content: ":";*/
+/*}*/

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!---------------------------------------------------------------------->
+    <title>DS Division-National Housing Development Authority</title>
+    <!---------------------------------------------------------------------->
+    <link rel="stylesheet" href="../plugin/bootstrap/css/bootstrap.min.css"/>
+    <script src="../plugin/jquery/jquery.min.js"></script>
+    <script src="../plugin/bootstrap/js/bootstrap.min.js"></script>
+    <!---------------------------------------------------------------------->
+    <link rel="stylesheet" href="../style/common.css"/>
+    <script src="../script/common.bitproject.earth.lk.v1.js"></script>
+    <script src="../script/ui.bitproject.earth.lk.v1.js"></script>
+    <!---------------------------------------------------------------------->
+    <script type="text/javascript">var scrolltotop={setting:{startline:100,scrollto:0,scrollduration:1e3,fadeduration:[500,100]},controlHTML:'<img src="https://i1155.photobucket.com/albums/p559/scrolltotop/arrow59.png" />',controlattrs:{offsetx:5,offsety:5},anchorkeyword:"#top",state:{isvisible:!1,shouldvisible:!1},scrollup:function(){this.cssfixedsupport||this.$control.css({opacity:0});var t=isNaN(this.setting.scrollto)?this.setting.scrollto:parseInt(this.setting.scrollto);t="string"==typeof t&&1==jQuery("#"+t).length?jQuery("#"+t).offset().top:0,this.$body.animate({scrollTop:t},this.setting.scrollduration)},keepfixed:function(){var t=jQuery(window),o=t.scrollLeft()+t.width()-this.$control.width()-this.controlattrs.offsetx,s=t.scrollTop()+t.height()-this.$control.height()-this.controlattrs.offsety;this.$control.css({left:o+"px",top:s+"px"})},togglecontrol:function(){var t=jQuery(window).scrollTop();this.cssfixedsupport||this.keepfixed(),this.state.shouldvisible=t>=this.setting.startline?!0:!1,this.state.shouldvisible&&!this.state.isvisible?(this.$control.stop().animate({opacity:1},this.setting.fadeduration[0]),this.state.isvisible=!0):0==this.state.shouldvisible&&this.state.isvisible&&(this.$control.stop().animate({opacity:0},this.setting.fadeduration[1]),this.state.isvisible=!1)},init:function(){jQuery(document).ready(function(t){var o=scrolltotop,s=document.all;o.cssfixedsupport=!s||s&&"CSS1Compat"==document.compatMode&&window.XMLHttpRequest,o.$body=t(window.opera?"CSS1Compat"==document.compatMode?"html":"body":"html,body"),o.$control=t('<div id="topcontrol">'+o.controlHTML+"</div>").css({position:o.cssfixedsupport?"fixed":"absolute",bottom:o.controlattrs.offsety,right:o.controlattrs.offsetx,opacity:0,cursor:"pointer"}).attr({title:"Scroll to Top"}).click(function(){return o.scrollup(),!1}).appendTo("body"),document.all&&!window.XMLHttpRequest&&""!=o.$control.text()&&o.$control.css({width:o.$control.width()}),o.togglecontrol(),t('a[href="'+o.anchorkeyword+'"]').click(function(){return o.scrollup(),!1}),t(window).bind("scroll resize",function(t){o.togglecontrol()})})}};scrolltotop.init();</script>
+    <noscript>Not seeing a <a href="https://www.scrolltotop.com/">Scroll to Top Button</a>? Go to our FAQ page for more info.</noscript>
+
+
+    <script>
+
+        window.addEventListener("load", initialize);
+
+        //Initializing Functions
+
+        function initialize() {
+
+            btnAdd.addEventListener("click",btnAddMC);
+            btnClear.addEventListener("click",btnClearMC);
+            btnUpdate.addEventListener("click",btnUpdateMC);
+            btnDelete.addEventListener("click",btnDeleteMC);
+            btnSearch.addEventListener("click",btnSearchMC);
+            btnSearchClear.addEventListener("click",btnSearchClearMC);
+
+            cmbProvince.addEventListener("change",cmbProvinceCH);
+            
+            privilages = httpRequest("../privilages?module=DSDIVISION","GET");
+            regexes = httpRequest("../regexes/dsdivision","GET");
+            txtName.setAttribute("data-pattern",regexes.name.regex);
+            txtCode.setAttribute("data-pattern",regexes.code.regex);
+
+            provinces = httpRequest("../provinces/list","GET");
+            districts = httpRequest("../districts/list","GET");
+
+
+
+            valid = "lightgreen";
+            invalid = "pink";
+            initial = "white";
+            updated = "khaki";
+            active = "khaki";
+
+            loadView();
+            loadForm();
+
+
+        }
+
+        function loadView() {
+            //Search Area
+            txtSearchName.value="";
+            txtSearchName.style.background = "";
+            txtSearchCode.value="";
+            txtSearchCode.style.background = "";
+
+            //Table Area
+            activerowno = "";
+            activepage = 1;
+            loadTable(1,cmbPageSize.value,"&name=&code=");
+
+        }
+
+        function loadTable(page,size,query) {
+            page = page - 1;
+            users = new Array();
+            var data =  httpRequest("/dsdivisions?page="+page+"&size="+size+query,"GET");
+            dsdivisions = data.content;
+            createPagination('pagination',data.totalPages, data.number+1,paginate);
+            fillTable('tblDsdivision',dsdivisions,fillForm);
+            clearSelection(tblDsdivision);
+            if(activerowno!="")selectRow(tblDsdivision,activerowno,active);
+            window.location.href="#ui";
+        }
+
+        function paginate(page) {
+            var paginate;
+            if(olddsdivision==null){
+                paginate=true;
+            }else{
+                if(getErrors()==''&&getUpdates()==''){
+                    paginate=true;
+                }else{
+                    paginate = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+            if(paginate) {
+                activepage=page;
+                activerowno=""
+                loadSearchedTable();
+                loadForm();
+            }
+
+        }
+
+        function loadForm() {
+
+            dsdivision = new Object();
+            olddsdivision = null;
+
+            fillCombo(cmbProvince,"Select Province",provinces,"name","");
+            fillCombo(cmbDistrict,"Select District",'',"name","");
+
+
+            txtName.value = "";
+            txtCode.value = "";
+
+            setStyle(initial);
+            disableButtons(false, true, true);
+
+        }
+
+        function setStyle(style) {
+
+            txtName.style.background = style;
+            txtCode.style.background = style;
+
+            cmbProvince.style.background = style;
+            cmbDistrict.style.background = style;
+
+        }
+
+        function disableButtons(add, upd, del) {
+
+            if (add || !privilages.add) btnAdd.setAttribute("disabled", "disabled");
+            else btnAdd.removeAttribute("disabled");
+
+            if (upd || !privilages.update) btnUpdate.setAttribute("disabled", "disabled");
+            else btnUpdate.removeAttribute("disabled");
+
+            if (del || !privilages.delete) btnDelete.setAttribute("disabled", "disabled");
+            else btnDelete.removeAttribute("disabled");
+
+        }
+
+
+        // Binding and Validation Functions for Non-Regex-Based
+        // When Regex-Based default validation is used, programmers do not need to define these functions
+        // Default Validation and Binding is coded in "ui.bitproject.earth.lk.js"
+
+        function cmbProvinceCH() {
+            cmbProvince.style.background=valid;
+            cmbDistrict.style.background=initial;
+            cmbDistrict.disabled="";
+            var districts = httpRequest("../districts/listbyprovince?provinceId="+ JSON.parse(cmbProvince.value).id, "GET");
+            fillCombo(cmbDistrict,"Select a District",districts,"name","");
+
+            if(olddsdivision !=null && olddsdivision.districtId.name != JSON.parse(cmbProvince.value).name){
+                cmbProvince.style.background=updated;
+                cmbDistrict.style.background=initial;
+            }
+            else{
+                cmbProvince.style.background=valid;
+            }
+        }
+
+
+
+
+        //Form Operation Functions
+
+        function getErrors() {
+
+            var errors = "";
+
+            if (dsdivision.code == null )
+                errors = errors + "\n" + regexes.code.message;
+
+            if (dsdivision.name == null)
+                errors = errors + "\n" + regexes.name.message;
+
+
+
+
+            return errors;
+
+        }
+
+        function btnAddMC(){
+
+            var errors = getErrors();
+
+            if(errors==""){
+
+               var option = window.confirm("Are you sure to add following DS Division ?\n" +
+                   "\nDS Division Name : " + dsdivision.name +
+                   "\nDS Division Code : " + dsdivision.code +
+                   "\nProvince : " + JSON.parse(cmbProvince.value).name +
+                   "\nDistrict : " + dsdivision.districtId.name );
+                if(option==true) {
+                    var response = httpRequest("/dsdivisions","POST",dsdivision);
+                    if(response=="0"){
+                        toast("<strong>Success !</strong> Saved Successfully","success");
+                        loadForm();
+                        activerowno = 1;
+                        loadSearchedTable();
+                    }
+                    else window.alert("Failed to Add as \n\n"+response);
+                }
+
+            }
+            else
+            { window.alert("You have following Errors\n"+errors); }
+
+        }
+
+        function btnClearMC() {
+            //Get Cofirmation from the User window.confirm();
+
+            var clear;
+            if(olddsdivision==null){
+                clear=true;
+            }else{
+                if(getErrors()==''&&getUpdates()==''){
+                    clear=true;
+                }else{
+                    clear = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+            if(clear) {
+                loadForm();
+                clearSelection(tblDsdivision);
+            }
+
+
+
+
+        }
+
+        function fillForm(dsd,rowno){
+            activerowno = rowno;
+            var filling;
+            if(olddsdivision==null){
+                filling=true;
+            }else{
+
+                if(getErrors()==''&&getUpdates()==''){
+                    filling=true;
+                }else{
+                    filling = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+
+            if(filling) {
+
+                clearSelection(tblDsdivision);
+                selectRow(tblDsdivision,activerowno,active);
+
+                dsdivision = JSON.parse(JSON.stringify(dsd));
+                olddsdivision = JSON.parse(JSON.stringify(dsd));
+
+                txtName.value = dsdivision.name;
+                txtCode.value = dsdivision.code;
+
+
+                fillCombo(cmbProvince,"Select Province",provinces,"name",dsdivision.districtId.provinceId.name);
+
+                districts = httpRequest("../districts/listbyprovince?provinceId=" + JSON.parse(cmbProvince.value).id, "GET");
+                fillCombo(cmbDistrict, "Select a District", districts, "name", dsdivision.districtId.name);
+                cmbDistrict.disabled = "";
+
+
+                disableButtons(true, false, false);
+                setStyle(valid);
+            }
+
+        }
+
+        function getUpdates() {
+
+            var updates = "";
+
+            if(dsdivision!=null && olddsdivision!=null) {
+
+                if (dsdivision.name != olddsdivision.name)
+                    updates = updates + " \nDS Division Name is Changed to " +olddsdivision.name + " -> " +dsdivision.name;
+
+                if (dsdivision.code != olddsdivision.code)
+                    updates = updates + " \nDS Division Code is Changed to " +olddsdivision.code + " -> " +dsdivision.code;
+
+
+            }
+
+            return updates;
+
+        }
+
+        function btnUpdateMC() {
+            var errors = getErrors();
+            if (errors == "") {
+                var updates = getUpdates();
+                if (updates == "") window.alert("Nothing Updated!");
+                else {
+
+                    var option = window.confirm("\n\nAre your sure to update followings ! \n\n " + updates);
+                    if(option==true) {
+                        var response = httpRequest("/dsdivisions","PUT",dsdivision);
+                        if(response=="0"){
+                            toast("<strong>Success !</strong> Updated Successfully","success");
+                            loadForm();
+                            loadSearchedTable();
+
+                        }
+                        else window.alert("Failed to Update as \n\n"+response);
+                    }
+
+
+                }
+            }
+            else
+                window.alert("You have following errors in your form\n\n"+getErrors());
+        }
+
+        function btnDeleteMC() {
+
+
+            var option = window.confirm("\n\nAre your sure to delete following ! \n\n" +
+                " DS Division Name : " +dsdivision.name + " DS Division Code : " +dsdivision.code );
+
+            if(option==true) {
+                var response = httpRequest("/dsdivisions","DELETE",dsdivision);
+                if(response=="0"){
+                    toast("<strong>Success !</strong> Deleted Successfully","success");
+                    loadForm();
+                    loadSearchedTable();
+
+                }
+                else window.alert("Failed to Delete as \n\n"+response);
+            }
+
+        }
+
+
+        //Search Functions
+
+        function loadSearchedTable(){
+
+            var name = txtSearchName.value.trim();
+            var code = txtSearchCode.value.trim();
+
+            if(name!=""){  txtSearchName.style.background = active; }
+            if(code!=""){  txtSearchCode.style.background = active; }
+
+            var query ="&name=&code=";
+
+            if(name!="" || code!=""  )
+                query = "&name=" + name + "&code=" + code;
+
+            //window.alert(query);
+            loadTable(activepage, cmbPageSize.value, query);
+
+        }
+
+        function btnSearchMC(){
+            activepage=1;
+            loadSearchedTable();
+        }
+
+        function btnSearchClearMC(){
+            loadView();
+        }
+
+
+    </script>
+
+
+    <style>
+        body {overflow-x: hidden; }
+        div .panel-heading {
+            text-decoration: none;
+            background-color:#818181;
+            color: whitesmoke;
+            border-radius: 2%;
+        }
+    </style>
+
+
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row" id="ui">
+        <div class="col-md-12">
+            <div class="panel">
+                <div class="panel-heading">
+            <h3>Divisional Secretaries Division Management</h3>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+
+                <div class="col-md-4" id="form">
+                    <form class="form-horizontal" onsubmit="return false" id="dsdivisionform" >
+
+                        <div class="form-group">
+                            <label class="control-label col-md-4" for="cmbProvince">Province</label>
+                            <div class="col-md-6">
+                                <select class="form-control" id="cmbProvince"></select>
+                            </div>
+                            <div class="col-md-2"> <p><a href="province.html">Add new..</a></p></div>
+                        </div>
+                        <script>
+                            // Defining UI-Componnets and Layouts
+                            // Default UI-Componnets and Layouts is coded in "ui.bitproject.earth.lk.js"
+                            //comboBox('dsdivisionform','cmbProvince','Province',4,'','','');  // Error: Cannot set property '' of undefined
+                            comboBox('dsdivisionform','cmbDistrict','District',4,'dsdivision','districtId','olddsdivision');
+                            textField('dsdivisionform','txtName','DS Division Name','Enter Name Here','',4,"",'dsdivision','name','olddsdivision');
+                            textField('dsdivisionform','txtCode','DS Division Code','Enter Code Here','',4,"",'dsdivision','code','olddsdivision');
+
+
+
+                            // Custom UI-Componnets and Layouting
+
+                        </script>
+
+
+
+
+                        <div class="text-right">
+                            <input class="btn btn-danger btn-sm" type="button" id="btnDelete" value="Delete" style="width: 15%"/>
+                            <input class="btn btn-warning btn-sm" type="button" id="btnUpdate" value="Update" style="width: 15%"/>
+                            <input class="btn btn-success btn-sm" type="button" id="btnAdd" value="Add" style="width: 17%"/>
+                            <input class="btn btn-info btn-sm" type="button" id="btnClear" value="Clear" style="width:
+                            15%"/>
+                        </div>
+
+
+                    </form>
+                </div>
+
+
+                <div class="col-md-8" id="dsdivisionview">
+
+                    <form class="form-inline" onsubmit="return false">
+                        <div class="form-group form-group-sm">
+                            <input placeholder="Search By Name" class="form-control" type="text" id="txtSearchName"/>
+                        </div>
+                        <div class="form-group form-group-sm">
+                            <input placeholder="Search By Code" class="form-control" type="text" id="txtSearchCode"/>
+                        </div>
+
+                        <input type="button" class="btn btn-primary btn-sm" value="Search" id="btnSearch"/>
+                        <input type="button" class="btn btn-warning btn-sm" value="Clear Search" id="btnSearchClear"/>
+
+                    </form>
+                    <hr/>
+
+
+                    <div class="table-responsive" id="tableParent">
+
+                        <script>
+                            var metadata = [
+                                {name:'Code',search:true,datatype:'text',property:'code'},
+                                {name:'DS Division',search:true,datatype:'text',property:'name'},
+                                {name:'District',search:true,datatype:'text',property:'districtId.name'},
+                                {name:'Province',search:true,datatype:'text',property:'districtId.provinceId.name'}
+                            ];
+
+                            table("tableParent","tblDsdivision",metadata,[10,15,30,500,1000],btnSearchMC);
+
+                        </script>
+
+
+                    </div>
+                    <ul id="pagination" class="pagination"></ul>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="panel-footer"><div id="err" style="display: none"><h3>Error Log</h3></div></div>
+    </div>
+</div>
+    </div>
+</div>
+
+</body>
+</html>

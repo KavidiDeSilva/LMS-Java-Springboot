@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!---------------------------------------------------------------------->
+    <title>National Housing Development Authority</title>
+    <!---------------------------------------------------------------------->
+    <link rel="stylesheet" href="../plugin/bootstrap/css/bootstrap.min.css"/>
+    <script src="../plugin/jquery/jquery.min.js"></script>
+    <script src="../plugin/bootstrap/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="../style/common.css"/>
+    <script src="../script/common.bitproject.earth.lk.v1.js"></script>
+    <script src="../script/ui.bitproject.earth.lk.v1.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.12/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.12/dist/js/select2.min.js"></script>
+
+    <script>
+
+        window.addEventListener("load", initialize);
+
+        //Initializing Functions
+
+        function initialize() {
+
+            btnAdd.addEventListener("click",btnAddMC);
+            btnClear.addEventListener("click",btnClearMC);
+            btnUpdate.addEventListener("click",btnUpdateMC);
+            btnDelete.addEventListener("click",btnDeleteMC);
+
+            btnSearch.addEventListener("click",btnSearchMC);
+            btnSearchClear.addEventListener("click",btnSearchClearMC);
+
+            cmbRole.addEventListener("change",cmbRoleCH);
+
+            userprivilages = httpRequest("../privilages?module=PRIVILAGE","GET");
+
+            roles = httpRequest("../roles/list","GET");
+            modules = httpRequest("../modules/list","GET");
+            employeeswithuseraccount = httpRequest("../employees/list/withuseraccount","GET");
+
+            valid = "lightgreen";
+            invalid = "pink";
+            initial = "white";
+            updated = "khaki";
+            active = "khaki";
+
+            loadView();
+            loadForm();
+
+            $('#cmbSearchEmployee').select2();
+
+        }
+
+        function loadView() {
+
+            //Search Area
+            fillCombo(cmbSearchRole,"Role",roles,"name","");
+            fillCombo(cmbSearchModule,"Module",modules,"name","");
+            fillCombo(cmbSearchEmployee,"Employee Name",employeeswithuseraccount,"callingname","");
+            cmbSearchRole.style.background = "";
+            cmbSearchModule.style.background = "";
+            cmbSearchEmployee.style.background = "";
+
+            //Table Area
+            activerowno = "";
+            activepage = 1;
+            loadTable(1,cmbPageSize.value,"");
+
+        }
+
+
+        function loadTable(page,size,query) {
+            page = page - 1;
+            privilages = new Array();
+            var data = httpRequest("/privilages?page="+page+"&size="+size+query,"GET");
+            privilages = data.content;
+            createPagination('pagination',data.totalPages, data.number+1,paginate);
+            fillTable('tblPrevilage',privilages,fillForm);
+            clearSelection(tblPrevilage);
+            if(activerowno!="")selectRow(tblPrevilage,activerowno,active);
+            window.location.href="#ui";
+        }
+
+        function paginate(page) {
+            var paginate;
+            if(oldprivilage==null){
+                paginate=true;
+            }else{
+                if(getErrors()==''&&getUpdates()==''){
+                    paginate=true;
+                }else{
+                    paginate = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+            if(paginate) {
+                activepage=page;
+                activerowno=""
+                loadSearchedTable();
+                loadForm();
+            }
+
+        }
+
+        function loadForm() {
+
+            privilage = new Object();
+            oldprivilage = null;
+
+            fillCombo(cmbRole,"Select Role",roles,"name","");
+            fillCombo(cmbModule,"Select Role First",[],"name","");
+            cmbRole.disabled="";
+            cmbModule.disabled="";
+
+            chkSelect.checked=false;
+            chkInsert.checked=false;
+            chkUpdate.checked=false;
+            chkDelete.checked=false;
+
+
+            privilage.sel=0;
+            privilage.ins=0;
+            privilage.upd=0;
+            privilage.del=0;
+
+            setStyle(initial);
+            disableButtons(false, true, true);
+
+        }
+
+        function setStyle(style) {
+            cmbRole.style.background = style;
+            cmbModule.style.background = style;
+            chkSelect.parentNode.style.background = style;
+            chkInsert.parentNode.style.background = style;
+            chkUpdate.parentNode.style.background = style;
+            chkDelete.parentNode.style.background = style;
+        }
+
+        function disableButtons(add, upd, del) {
+
+            if (add || !userprivilages.add) btnAdd.setAttribute("disabled", "disabled");
+            else btnAdd.removeAttribute("disabled");
+
+            if (upd || !userprivilages.update) btnUpdate.setAttribute("disabled", "disabled");
+            else btnUpdate.removeAttribute("disabled");
+
+            if (del || !userprivilages.delete) btnDelete.setAttribute("disabled", "disabled");
+            else btnDelete.removeAttribute("disabled");
+
+        }
+
+
+        // Binding and Validation Functions for Non-Regex-Based
+        // When Regex-Based default validation is used, programmers do not need to define these functions
+        // Default Validation and Binding is coded in "ui.bitproject.earth.lk.js"
+
+        function cmbRoleCH() {
+            modulesunassigned = httpRequest("../modules/list/unassignedtothisrole?roleid="+JSON.parse(cmbRole.value).id,"GET");
+            fillCombo(cmbModule,"Select a Module", modulesunassigned,"name","");
+            cmbRole.style.background = valid;
+        }
+
+
+
+        //Form Operation Functions
+
+        function getErrors() {
+
+            var errors = "";
+
+            if (privilage.roleId == null)
+                errors = errors + "\n" + "Roles Not Selected";
+
+            if (privilage.moduleId == null)
+                errors = errors + "\n" + "Module Not Selected";
+
+            if (privilage.sel == 0 && privilage.ins == 0 && privilage.upd == 0 && privilage.del == 0)
+                errors = errors + "\n" + "No any Privilages are Selected";
+
+            return errors;
+
+        }
+
+        function btnAddMC(){
+
+            var errors = getErrors();
+
+            if(errors==""){
+
+                var privi = privilage.sel == 1 ? "Select   " : "";
+                privi = privi + (privilage.ins == 1 ? "Insert   " : "");
+                privi = privi + (privilage.upd == 1 ? "Update   " : "");
+                privi = privi + (privilage.del == 1 ? "Delete   " : "");
+
+                var option = window.confirm("Are you sure to add a Module with following privilages  ?\n" +
+                    "\nRole : " + privilage.roleId.name +
+                    "\nModule : " + privilage.moduleId.name +
+                    "\nPrivilage : " + privi);
+                if(option==true) {
+                    var response = httpRequest("/privilages","POST",privilage);
+                    if(response=="0"){
+                        toast("<strong>Success !</strong> Saved Successfully","success");
+                        loadForm();
+                        activerowno = 1;
+                        loadSearchedTable();
+                    }
+                    else window.alert("Failed to Add as \n\n"+response);
+                }
+
+            }
+            else
+            { window.alert("You have following Errors\n"+errors); }
+
+        }
+
+        function btnClearMC() {
+            //Get Cofirmation from the User window.confirm();
+
+            var clear;
+            if(oldprivilage==null){
+                clear=true;
+            }else{
+                if(getErrors()==''&&getUpdates()==''){
+                    clear=true;
+                }else{
+                    clear = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+            if(clear) {
+                loadForm();
+                clearSelection(tblPrevilage);
+            }
+
+
+
+
+        }
+
+        function fillForm(pri,rowno){
+            activerowno = rowno;
+            var filling;
+            if(oldprivilage==null){
+                filling=true;
+            }else{
+
+                if(getErrors()==''&&getUpdates()==''){
+                    filling=true;
+                }else{
+                    filling = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+
+            if(filling) {
+                $('html, body').animate({
+                    scrollTop: $(".ui").offset().top
+                }, 1000);
+
+                clearSelection(tblPrevilage);
+                selectRow(tblPrevilage,activerowno,active);
+
+                privilage = JSON.parse(JSON.stringify(pri));
+                oldprivilage = JSON.parse(JSON.stringify(pri));
+
+                fillCombo(cmbRole, "", roles, "name", pri.roleId.name);
+                fillCombo(cmbModule, "", modules , "name", pri.moduleId.name);
+                cmbRole.disabled="disabled";
+                cmbModule.disabled="disabled";
+
+                var privi = privilage.sel == 1 ? "Select   " : "";
+                privi = privi + (privilage.ins == 1 ? "Insert   " : "");
+                privi = privi + (privilage.upd == 1 ? "Update   " : "");
+                privi = privi + (privilage.del == 1 ? "Delete   " : "");
+
+                chkSelect.checked=privilage.sel == 1 ? true : false;
+                chkInsert.checked=privilage.ins == 1 ? true : false;
+                chkUpdate.checked=privilage.upd == 1 ? true : false;
+                chkDelete.checked=privilage.del == 1 ? true : false;
+
+                disableButtons(true, false, false);
+                setStyle(valid);
+                chkSelect.parentNode.style.background = privilage.sel == 1 ? valid : initial;
+                chkInsert.parentNode.style.background = privilage.ins == 1 ? valid : initial;
+                chkUpdate.parentNode.style.background = privilage.upd == 1 ? valid : initial;
+                chkDelete.parentNode.style.background = privilage.del == 1 ? valid : initial;
+            }
+
+        }
+
+        function getUpdates() {
+
+            var updates = "";
+
+            if(privilage!=null && oldprivilage!=null) {
+
+                if (privilage.sel != oldprivilage.sel)
+                    updates = updates + "\nSelect is Changed";
+
+                if (privilage.ins != oldprivilage.ins)
+                    updates = updates + "\nInsert is Changed";
+
+                if (privilage.upd != oldprivilage.upd)
+                    updates = updates + "\nUpdate is Changed";
+
+                if (privilage.del != oldprivilage.del)
+                    updates = updates + "\nDelete is Changed";
+            }
+
+            return updates;
+
+        }
+
+        function btnUpdateMC() {
+            var errors = getErrors();
+            if (errors == "") {
+                var updates = getUpdates();
+                if (updates == "") window.alert("Nothing Updated!");
+                else {
+
+                    var option = window.confirm("\n\nAre your sure to update followings ! \n\n" + updates);
+                    if(option==true) {
+                        var response = httpRequest("/privilages","PUT",privilage);
+                        if(response=="0"){
+                            toast("<strong>Success !</strong> Updated Successfully","success");
+                            loadForm();
+                            loadSearchedTable();
+                        }
+                        else window.alert("Failed to Update as \n\n"+response);
+                    }
+
+
+                }
+            }
+            else
+                window.alert("You have following errors in your form\n\n"+getErrors());
+        }
+
+        function btnDeleteMC() {
+
+
+            var option = window.confirm("\n\nAre your sure to delete following ! \n\n" +
+                "Role : " +privilage.roleId.name+ "\nModule : " +privilage.moduleId.name);
+
+            if(option==true) {
+                var response = httpRequest("/privilages","DELETE",privilage);
+                if(response=="0"){
+                    toast("<strong>Success !</strong> Deleted Successfully","success");
+                    loadForm();
+                    loadSearchedTable();
+
+                }
+                else window.alert("Failed to Delete as \n\n"+response);
+            }
+
+        }
+
+
+        //Search Functions
+
+        function loadSearchedTable(){
+
+            var role = cmbSearchRole.value;
+            var module = cmbSearchModule.value;
+            var employee = cmbSearchEmployee.value;
+
+            var roleid="";
+            if(role!="Role")
+            { roleid = JSON.parse(role).id;
+                cmbSearchRole.style.background = active;}
+
+            var moduleid="";
+            if(module!="Module")
+            {  moduleid = JSON.parse(module).id;
+                cmbSearchModule.style.background = active; }
+
+            var employeeid="";
+            if(employee!="Employee Name")
+            {  employeeid = JSON.parse(employee).id;
+                cmbSearchEmployee.style.background = active; }
+
+            var query ="";
+
+            if(roleid!="" || moduleid!="" || employeeid!="")
+                query = "&roleid=" + roleid + "&moduleid=" + moduleid + "&employeeid=" + employeeid;
+
+            //window.alert(query);
+            loadTable(activepage, cmbPageSize.value, query);
+
+        }
+
+        function btnSearchMC(){
+            activepage=1;
+            loadSearchedTable();
+        }
+
+        function btnSearchClearMC(){
+            loadView();
+        }
+
+
+    </script>
+
+    <style>
+        /*body {overflow-x: hidden; }*/
+        div .panel-heading {
+            text-decoration: none;
+            background-color:#818181;
+            color: whitesmoke;
+            border-radius: 2%;
+        }
+    </style>
+
+
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row" id="ui">
+        <div class="col-md-12">
+            <div class="panel">
+                <div class="panel-heading">
+                    <button class="btn btn-xs ui"> <a href="#ui"><h4>Add Privilege</h4></a></button>
+                    <button class="btn btn-xs "> <a href="#privilegeview"><h4>View Privilege</h4></a></button>
+                    <h3 style=" float: left; text-align: center; margin: 20px; color: white">
+                        Privilege Management</h3>
+                </div>
+                <div class="panel-body">
+            <div class="row">
+
+                <div class="col-md-8" id="form">
+                    <form class="form-horizontal" onsubmit="return false" id="previlageform" >
+
+                        <script>
+
+                            // Defining UI-Componnets and Layouts
+                            // Default UI-Componnets and Layouts is coded in "ui.bitproject.earth.lk.js"
+
+                           comboBox('previlageform','cmbRole','Role <span style="color:red;font-size:20px">*</span>',4,'privilage','roleId','oldprivilage');
+                            comboBox('previlageform','cmbModule','Module <span style="color:red;font-size:20px">*</span>',4,'privilage','moduleId','oldprivilage');
+
+                            checkBox('previlageform','chkSelect','Select',0,4,'privilage','sel','oldprivilage');
+                            checkBox('previlageform','chkInsert','Insert',0,4,'privilage','ins','oldprivilage');
+                            checkBox('previlageform','chkUpdate','Update',0,4,'privilage','upd','oldprivilage');
+                            checkBox('previlageform','chkDelete','Delete',0,4,'privilage','del','oldprivilage');
+
+
+                            // Custom UI-Componnets and Layouting
+
+
+                        </script>
+
+
+
+                        <div class="text-right">
+                            <input class="btn btn-danger btn-sm" type="button" id="btnDelete" value="Delete" style="width: 15%"/>
+                            <input class="btn btn-warning btn-sm" type="button" id="btnUpdate" value="Update" style="width: 15%"/>
+                            <input class="btn btn-success btn-sm" type="button" id="btnAdd" value="Add" style="width: 17%"/>
+                            <input class="btn btn-info btn-sm" type="button" id="btnClear" value="Clear" style="width: 15%"/>
+                        </div>
+
+
+                    </form>
+                </div>
+
+
+            </div>
+        </div>
+            </div>
+            <div class="col-md-12" id="privilegeview">
+
+                <form class="form-inline" onsubmit="return false">
+
+                    <div class="form-group form-group-sm">
+                        <select class="form-control" id="cmbSearchRole"></select>
+                    </div>
+                    <div class="form-group form-group-sm">
+                        <select class="form-control" id="cmbSearchModule"></select>
+                    </div>
+                    <div class="form-group form-group-sm">
+                        <select class="form-control" id="cmbSearchEmployee"></select>
+                    </div>
+
+                    <input type="button" class="btn btn-primary btn-sm" value="Search" id="btnSearch"/>
+                    <input type="button" class="btn btn-warning btn-sm" value="Clear Search" id="btnSearchClear"/>
+                </form>
+                <hr/>
+
+
+                <div class="table-responsive" id="tableParent">
+
+                    <script>
+
+                        function getRoleColumn(ob) {
+                            var rolelist="";
+                            for(x in ob.userroleList)
+                                rolelist = rolelist + (rolelist==""?"":", ") +ob.userroleList[x].roleId.name
+                            return rolelist;
+                        }
+
+                        var metadata = [
+                            {name:'Role',search:true,datatype:'text',property:'roleId.name'},
+                            {name:'Module',search:true,datatype:'text',property:'moduleId.name'},
+                            {name:'Select',search:true,datatype:'text',property:'sel'},
+                            {name:'Insert',search:true,datatype:'text',property:'ins'},
+                            {name:'Update',search:true,datatype:'text',property:'upd'},
+                            {name:'Delete',search:true,datatype:'text',property:'del'}
+                        ];
+
+                        table("tableParent","tblPrevilage",metadata,[8,20,30,100,500,1000],btnSearchMC);
+
+                    </script>
+
+
+                </div>
+                <ul id="pagination" class="pagination"></ul>
+
+            </div>
+            <div id="err" style="display: none"><h3>Error Log</h3></div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

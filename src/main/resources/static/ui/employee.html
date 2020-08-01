@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!---------------------------------------------------------------------->
+    <title>National Housing Development Authority</title>
+    <!---------------------------------------------------------------------->
+    <link rel="stylesheet" href="../plugin/bootstrap/css/bootstrap.min.css"/>
+    <script type="text/javascript" src="../plugin/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="../plugin/bootstrap/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="../plugin/font-awesome/css/all.css"/>
+    <script type="text/javascript" src="../plugin/font-awesome/js/all.js"></script>
+    <!---------------------------------------------------------------------->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <!------------------------------------------------------------------------------------------>
+    <link rel="stylesheet" href="../style/common.css"/>
+    <script src="../script/common.bitproject.earth.lk.v1.js"></script>
+    <script src="../script/ui.bitproject.earth.lk.v1.js"></script>
+    <!---------------------------------------------------------------------------->
+
+
+
+    <style>
+        body{
+            /*border: black solid 1px;*/
+            margin-top: 5px;
+            margin-left: 5px;
+            overflow-x: hidden;
+        }
+        div .panel-heading {
+            text-decoration: none;
+            background-color:#818181;
+            color: whitesmoke;
+            border-radius: 2%;
+        }
+    </style>
+
+    <script>
+
+        window.addEventListener("load", initialize);
+
+        //Initializing Functions
+
+        function initialize() {
+
+            btnAdd.addEventListener("click",btnAddMC);
+            btnClear.addEventListener("click",btnClearMC);
+            btnUpdate.addEventListener("click",btnUpdateMC);
+            btnDelete.addEventListener("click",btnDeleteMC);
+            dteDOBirth.onchange = dteDOBirthCH;
+            txtNIC.onfocusout=txtNICFL;
+            btnSearch.addEventListener("click",btnSearchMC);
+            btnSearchClear.addEventListener("click",btnSearchClearMC);
+
+            privilages = httpRequest("../privilages?module=EMPLOYEE","GET");
+
+            regexes = httpRequest("../regexes/employee","GET");
+          //  txtNumber.setAttribute("data-pattern",regexes.number.regex);
+            txtFullname.setAttribute("data-pattern",regexes.fullname.regex);
+            txtCallingname.setAttribute("data-pattern",regexes.callingname.regex);
+            txtNIC.setAttribute("data-pattern",regexes.nic.regex);
+            txtAddress.setAttribute("data-pattern",regexes.address.regex);
+            txtMobile.setAttribute("data-pattern",regexes.mobile.regex);
+            txtLand.setAttribute("data-pattern",regexes.land.regex);
+            txtDescription.setAttribute("data-pattern",regexes.description.regex);
+
+            genders = httpRequest("../genders/list","GET");
+            designations = httpRequest("../designations/list","GET");
+            civilstatuses = httpRequest("../civilstatuses/list","GET");
+            employeestatuses = httpRequest("../employeestatuses/list","GET");
+            branches = httpRequest("../branches/list","GET");
+
+
+            valid = "lightgreen";
+            invalid = "pink";
+            initial = "white";
+            updated = "khaki";
+            active = "khaki";
+
+            loadView();
+            loadForm();
+
+
+
+        }
+
+        function loadView() {
+
+            //Search Area
+            txtSearchName.value="";
+            txtSearchNIC.value="";
+            fillCombo(cmbSearchDesignation,"Designation",designations,"name","");
+            fillCombo(cmbSearchEmployeestatus,"Status",employeestatuses,"name","");
+            cmbSearchEmployeestatus.style.background = "";
+            cmbSearchDesignation.style.background = "";
+            txtSearchName.style.background = "";
+            txtSearchNIC.style.background = "";
+
+
+            //Table Area
+            activerowno = "";
+            activepage = 1;
+            var query = "&name=&nic=&designationid=&employeestatusid=";
+            loadTable(1,cmbPageSize.value,query);
+        }
+
+        function loadTable(page,size,query) {
+            page = page - 1;
+            employees = new Array();
+            var data = httpRequest("/employees?page="+page+"&size="+size+query,"GET");
+            if(data.content!= undefined) employees = data.content;
+            createPagination('pagination',data.totalPages, data.number+1,paginate);
+            fillTable('tblEmployee',employees,fillForm);
+            clearSelection(tblEmployee);
+            if(activerowno!="")selectRow(tblEmployee,activerowno,active);
+            window.location.href="#ui";
+        }
+
+        function paginate(page) {
+            var paginate;
+            if(oldemployee==null){
+                paginate=true;
+            }else{
+                if(getErrors()==''&&getUpdates()==''){
+                    paginate=true;
+                }else{
+                    paginate = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+            if(paginate) {
+                activepage=page;
+                activerowno=""
+                loadSearchedTable();
+                loadForm();
+            }
+
+        }
+
+        function loadForm() {
+            employee = new Object();
+            oldemployee = null;
+
+            fillCombo(cmbGender,"Select Gender",genders,"name","");
+            fillCombo(cmbDesignation,"Select Designation",designations,"name","");
+            fillCombo(cmbCivilstatus,"Select Civil Status",civilstatuses,"name","");
+            fillCombo(cmbBranch,"Select Branch",branches,"name","");
+
+            fillCombo(cmbEmployeestatus,"",employeestatuses,"name","Working");
+            employee.employeestatusId=JSON.parse(cmbEmployeestatus.value);
+
+
+            var today = new Date();
+            var month = today.getMonth()+1;
+            if(month<10) month = "0"+month;
+            var date = today.getDate()+1;
+            if(date<10) date = "0"+date;
+
+            dteDOAssignment.value=today.getFullYear()+"-"+month+"-"+date;
+            employee.doassignment=dteDOAssignment.value;
+
+
+            empno = httpRequest("../employees/empno","GET");
+            //console.log("111",clicode.no);
+            txtNumber.value = empno.no;
+            employee.number =  txtNumber.value;
+            txtNumber.disabled=true;
+
+            txtFullname.value = "";
+            txtCallingname.value = "";
+            dteDOBirth.value = "";
+            txtNIC.value = "";
+            txtAddress.value = "";
+            txtMobile.value = "";
+            txtLand.value = "";
+
+            txtDescription.value = "";
+            removeFile('flePhoto');
+
+            setStyle(initial);
+            txtNumber.style.background=valid;
+            cmbEmployeestatus.style.background=valid;
+            dteDOAssignment.style.background=valid;
+
+            disableButtons(false, true, true);
+        }
+
+        function setStyle(style) {
+
+            txtNumber.style.background = style;
+            txtFullname.style.background = style;
+            txtCallingname.style.background = style;
+            cmbGender.style.background = style;
+            cmbCivilstatus.style.background = style;
+            txtNIC.style.background = style;
+            dteDOBirth.style.background = style;
+            txtAddress.style.background = style;
+            txtMobile.style.background = style;
+            txtLand.style.background = style;
+            cmbDesignation.style.background = style;
+            dteDOAssignment.style.background = style;
+            txtDescription.style.background = style;
+            cmbEmployeestatus.style.background = style;
+            cmbBranch.style.background = style;
+
+        }
+
+        function disableButtons(add, upd, del) {
+
+            if (add || !privilages.add) btnAdd.setAttribute("disabled", "disabled");
+            else btnAdd.removeAttribute("disabled");
+
+            if (upd || !privilages.update) btnUpdate.setAttribute("disabled", "disabled");
+            else btnUpdate.removeAttribute("disabled");
+
+            if (del || !privilages.delete) btnDelete.setAttribute("disabled", "disabled");
+            else btnDelete.removeAttribute("disabled");
+
+        }
+
+
+        // Binding and Validation Functions for Non-Regex-Based
+        // When Regex-Based default validation is used, programmers do not need to define these functions
+        // Default Validation and Binding is coded in "ui.bitproject.earth.lk.js"
+
+        function dteDOBirthCH() {
+            var today = new Date();
+            var birthday = new Date(dteDOBirth.value);
+            if((today.getTime()-birthday.getTime())>(18*365*24*3600*1000)) {
+                employee.dobirth = dteDOBirth.value;
+                dteDOBirth.style.background = valid;
+            }
+            else
+            {
+                employee.dobirth = null;
+                dteDOBirth.style.background = invalid;
+            }
+        }
+        function txtNICFL() {
+            // var res = str.substring(2,3);
+            // if(res < 5){
+            //     txtText.innerHTML = "Male";
+            // }else {
+            //     txtText.innerHTML = "Female";
+            // }
+
+            var NICNo = txtNIC.value;
+            var dayText = 0;
+            if (NICNo.length != 10 && NICNo.length != 12) {
+                toast("<strong>Invalid !</strong> Invalid NIC","danger");
+            } else if (NICNo.length == 10 && !$.isNumeric(NICNo.substr(0, 9)) ) {
+                toast("<strong>Invalid !</strong> Invalid NIC","danger");
+            }
+            else {
+                //Year
+                if (NICNo.length == 10) {
+                    year = "19" + NICNo.substr(0, 2);
+                    dayText = parseInt(NICNo.substr(2, 3));
+                } else {
+                    year = NICNo.substr(0, 4);
+                    dayText = parseInt(NICNo.substr(4, 3));
+                }
+                // // Gender
+                if (dayText > 500) {
+                    //female = "Female";
+                    cmbGender.selectedIndex = 2;
+                    dayText = dayText - 500;
+                } else {
+                    // male = "Male";
+                    cmbGender.selectedIndex = 1;
+                }
+                // Day Digit Validation
+                if (dayText < 1 && dayText > 366) {
+                    toast("<strong>Invalid !</strong> Invalid NIC","danger");
+                } else {
+                    //Month
+
+
+                    if (dayText > 335) {
+                        day = dayText - 335;
+                        month = 12;
+                    } else if (dayText > 305) {
+                        day = dayText - 305;
+                        month = 11;
+                    } else if (dayText > 274) {
+                        day = dayText - 274;
+                        month = 10;
+                    } else if (dayText > 244) {
+                        day = dayText - 244;
+                        month = 9;
+                    } else if (dayText > 213) {
+                        day = dayText - 213;
+                        month = 8;
+                    } else if (dayText > 182) {
+                        day = dayText - 182;
+                        month = 7;
+                    } else if (dayText > 152) {
+                        day = dayText - 152;
+                        month = 6;
+                    } else if (dayText > 121) {
+                        day = dayText - 121;
+                        month = 5;
+                    } else if (dayText > 91) {
+                        day = dayText - 91;
+                        month = 4;
+                    } else if (dayText > 60) {
+                        day = dayText - 60;
+                        month = 3;
+                    } else if (dayText < 32) {
+                        day = dayText;
+                        month = 1;
+
+                    } else if (dayText > 31) {
+                        day = dayText - 31;
+                        month = 2;
+                    }
+                    if(month<10) {month = "0"+month;}
+                    if(day<10){day = "0"+day;}
+
+                    dteDOBirth.value = (year+"-"+month+"-"+day);
+                    employee.dobirth=dteDOBirth.value;
+                    dteDOBirth.style.background=valid;
+                    dteDOBirth.disabled = "disable";
+
+                    //console.log(cmbGender.options[cmbGender.selectedIndex].value);
+                    employee.genderId=JSON.parse(cmbGender.options[cmbGender.selectedIndex].value);
+                    cmbGender.style.background=valid;
+                    cmbGender.disabled = "disable";
+
+                    dteDOBirthCH();
+
+                }
+            }
+        }
+
+
+        //Form Operation Functions
+        
+        function getErrors() {
+
+            var errors = "";
+
+            if (employee.number == null)
+                errors = errors + "\n" + "Employee number not added";
+
+            if (employee.fullname == null)
+                errors = errors + "\n" + regexes.fullname.message;
+
+            if (employee.nic == null)
+                errors = errors + "\n" + regexes.nic.message;
+
+            if (employee.callingname == null)
+                errors = errors + "\n" + regexes.callingname.message;
+
+            if (employee.genderId == null)
+                errors = errors + "\n" + "Gender Not Selected";
+
+            if (employee.civilstatusId == null)
+                errors = errors + "\n" + "Civilstatus Not Selected";
+
+            if (employee.dobirth == null)
+                errors = errors + "\n" + "Birth Date Invalid";
+
+            if (employee.address == null)
+                errors = errors + "\n" + regexes.address.message;
+
+            if (employee.mobile == null)
+                errors = errors + "\n" + regexes.mobile.message;
+
+            if (employee.land== null && txtLand.value!="")
+                errors = errors + "\n" + regexes.land.message;
+
+            if (employee.designationId == null)
+                errors = errors + "\n" + "Designation Not Selected";
+
+            if (employee.branchId == null)
+                errors = errors + "\n" + "Branch Not Selected";
+
+            if (employee.doassignment == null)
+                errors = errors + "\n" + "Assignment Date Invalid";
+
+            if (employee.description == null && txtDescription.value!="")
+                errors = errors + "\n" + regexes.description.message;
+
+            if (employee.employeestatusId == null)
+                errors = errors + "\n" + "Employeestatus Not Selected";
+
+
+            return errors;
+
+
+        }
+        
+        function btnAddMC() {
+            
+            var errors = getErrors();
+
+           if(errors=="") {
+                var option = window.confirm("Are you sure to add following Employee ?\n" +
+                    "\nNumber : " + employee.number +
+                    "\nFull Name : " + employee.fullname +
+                    "\nCalling Name : " + employee.callingname +
+                    "\nGender : " + employee.genderId.name +
+                    "\nCivil Status : " + employee.civilstatusId.name +
+                    "\nNIC : " + employee.nic +
+                    "\nBirth Date : " + employee.dobirth +
+                    "\nPhoto : " + employee.photoname +
+                    "\nAddress : " + employee.address +
+                    "\nMobile : " + employee.mobile +
+                    "\nLand : " + employee.land +
+                    "\nDesignation : " + employee.designationId.name +
+                    "\nBranch : " + employee.branchId.name +
+                    "\nAssignment Date : " + employee.doassignment +
+                    "\nDescription : " + employee.description +
+                    "\nEmployee Status : " + employee.employeestatusId.name);
+                if(option==true) {
+                  var response = httpRequest("/employees","POST",employee);
+                    if(response=="0"){
+                    toast("<strong>Success !</strong> Saved Successfully","success");
+                    loadForm();
+                    activerowno = 1;
+                    loadSearchedTable();
+                    }
+                    else window.alert("Failed to Add as \n\n"+response);
+                }
+
+          }
+          else
+           { window.alert("You have following Errors\n"+errors); }
+
+        }
+
+        function btnClearMC() {
+            //Get Cofirmation from the User window.confirm();
+
+            var clear;
+            if(oldemployee==null){
+                clear=true;
+            }else{
+                if(getErrors()==''&&getUpdates()==''){
+                    clear=true;
+                }else{
+                    clear = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+            if(clear) {
+                loadForm();
+                clearSelection(tblEmployee);
+            }
+
+
+
+
+        }
+
+        function fillForm(emp,rowno){
+            activerowno = rowno;
+            var filling;
+            if(oldemployee==null){
+                filling=true;
+            }else{
+
+                if(getErrors()==''&&getUpdates()==''){
+                    filling=true;
+                }else{
+                    filling = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+
+            if(filling) {
+                $('html, body').animate({
+                    scrollTop: $(".ui").offset().top
+                }, 1000);
+
+               clearSelection(tblEmployee);
+               selectRow(tblEmployee,activerowno,active);
+
+                employee = JSON.parse(JSON.stringify(emp));
+                oldemployee = JSON.parse(JSON.stringify(emp));
+
+                txtNumber.value = employee.number;
+                txtNumber.disabled="disabled";
+                txtFullname.value = employee.fullname;
+                txtCallingname.value = employee.callingname;
+                dteDOBirth.value = employee.dobirth;
+                txtNIC.value = employee.nic;
+                txtAddress.value = employee.address;
+                txtMobile.value = employee.mobile;
+                txtLand.value = employee.land;
+                dteDOAssignment.value = employee.doassignment;
+                txtDescription.value = employee.description;
+                cmbEmployeestatus.disabled = false;
+                fillCombo(cmbGender, "Select Gender", genders, "name", employee.genderId.name);
+                fillCombo(cmbDesignation, "Select Designation", designations, "name", employee.designationId.name);
+                fillCombo(cmbCivilstatus, "Select Civil Status", civilstatuses, "name", employee.civilstatusId.name);
+                fillCombo(cmbEmployeestatus, "", employeestatuses, "name", employee.employeestatusId.name);
+                fillCombo(cmbBranch, "Select Branch", branches, "name", employee.branchId.name);
+
+                setDefaultFile('flePhoto', employee.photo);
+
+                disableButtons(true, false, false);
+                setStyle(valid);
+            }
+
+        }
+
+        function getUpdates() {
+
+            var updates = "";
+
+            if(employee!=null && oldemployee!=null) {
+
+                if (employee.number != oldemployee.number)
+                    updates = updates + "\nNumber is Changed";
+
+                if (employee.fullname != oldemployee.fullname)
+                    updates = updates + "\nFull Name is Changed to" +oldemployee.fullname + " -> " +employee.fullname;
+
+                if (employee.nic != oldemployee.nic)
+                    updates = updates + "\nNIC is Changed";
+
+                if (employee.callingname != oldemployee.callingname)
+                    updates = updates + "\nCallingname is Changed";
+
+                if (employee.genderId.name != oldemployee.genderId.name)
+                    updates = updates + "\nGender is Changed";
+
+                if (employee.civilstatusId.name != oldemployee.civilstatusId.name)
+                    updates = updates + "\nCivilstatus is Changed";
+
+                if (employee.dobirth != oldemployee.dobirth)
+                    updates = updates + "\nDate of Birth is Changed";
+
+                if (employee.photo != oldemployee.photo)
+                    updates = updates + "\nPhoto is Changed";
+
+                if (employee.address != oldemployee.address)
+                    updates = updates + "\nAddress is Changed";
+
+                if (employee.mobile != oldemployee.mobile)
+                    updates = updates + "\nMobile Number is Changed";
+
+                if (employee.land != oldemployee.land)
+                    updates = updates + "\nLand Number is Changed";
+
+                if (employee.designationId.name != oldemployee.designationId.name)
+                    updates = updates + "\nDesignation is Changed to " +oldemployee.designationId.name + " -> "
+                        +employee.designationId.name;
+
+                if (employee.branchId.name != oldemployee.branchId.name)
+                    updates = updates + "\nBranch is Changed to " +oldemployee.branchId.name + " -> "
+                        +employee.branchId.name;
+
+                if (employee.doassignment != oldemployee.doassignment)
+                    updates = updates + "\nDate of Assignment is Changed";
+
+
+                if (employee.description != oldemployee.description)
+                    updates = updates + "\nDescription is Changed";
+
+                if (employee.employeestatusId.name != oldemployee.employeestatusId.name)
+                    updates = updates + "\nEmployeestatus is Changed";
+            }
+
+            return updates;
+
+        }
+
+        function btnUpdateMC() {
+            var errors = getErrors();
+            if (errors == "") {
+                var updates = getUpdates();
+                if (updates == "") window.alert("Nothing Updated!");
+                else {
+
+                    var option = window.confirm("\n\nAre your sure to update followings ! \n\n" + updates);
+                    if(option==true) {
+                        var response = httpRequest("/employees","PUT",employee);
+                        if(response=="0"){
+                            toast("<strong>Success !</strong> Updated Successfully","success");
+                            loadForm();
+                            loadSearchedTable();
+
+                        }
+                        else window.alert("Failed to Update as \n\n"+response);
+                    }
+
+
+                }
+            }
+            else
+                window.alert("You have following errors in your form\n\n"+getErrors());
+        }
+
+        function btnDeleteMC() {
+
+
+            var option = window.confirm("\n\nAre your sure to delete following ! \n\n" +
+                "Number : " +employee.number+ "\nName : " +employee.fullname);
+
+            if(option==true) {
+                var response = httpRequest("/employees","DELETE",employee);
+                if(response=="0"){
+                    toast("<strong>Success !</strong> Deleted Successfully","success");
+                    loadForm();
+                    loadSearchedTable();
+
+                }
+                else window.alert("Failed to Delete as \n\n"+response);
+            }
+
+       }
+
+
+        //Search Functions
+
+        function loadSearchedTable() {
+
+            var name = txtSearchName.value;
+            var nic = txtSearchNIC.value;
+            var designation = cmbSearchDesignation.value;
+            var employeestatus = cmbSearchEmployeestatus.value;
+
+            var designationid="";
+            if(designation!="Designation")
+            { designationid = JSON.parse(designation).id;
+            cmbSearchDesignation.style.background = active;}
+
+            var employeestatusid="";
+            if(employeestatus!="Status")
+            {  employeestatusid = JSON.parse(employeestatus).id;
+                cmbSearchEmployeestatus.style.background = active; }
+
+            if(name!=""){  txtSearchName.style.background = active; }
+            if(nic!=""){  txtSearchNIC.style.background = active; }
+
+            var query ="&name=&nic=&designationid=&employeestatusid=";
+
+            if(name!="" || nic!="" || designationid!="" || employeestatusid!="" )
+                query = "&name=" + name + "&nic=" + nic + "&designationid=" + designationid + "&employeestatusid=" + employeestatusid;
+
+            //window.alert(query);
+            loadTable(activepage, cmbPageSize.value, query);
+
+        }
+
+        function btnSearchMC(){
+            activepage=1;
+            loadSearchedTable();
+        }
+
+        function btnSearchClearMC(){
+               loadView();
+        }
+
+    </script>
+
+
+
+</head>
+
+<body>
+<div class="container-fluid">
+    <div class="row" id="ui" >
+        <div class="col-md-12">
+            <div class="panel">
+                <div class="panel-heading">
+                    <button class="btn btn-xs ui"> <a href="#ui"><h4>Add Employee</h4></a></button>
+                    <button class="btn btn-xs "> <a href="#employeeview"><h4>View Employee</h4></a></button>
+                    <h3 style=" float: left; text-align: center; margin: 20px; color: white">
+                        Employee Management</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-10" id="form">
+                        <form class="form-horizontal" onsubmit="return false" id="employeeform" >
+
+                <script>
+
+                    // Defining UI-Componnets and Layouts
+                    // Default UI-Componnets and Layouts is coded in "ui.bitproject.earth.lk.js"
+
+                    textField('employeeform','txtNumber','Number <span style="color:red;font-size:20px">*</span>','Enter Number Here','',4,"",'employee','number','oldemployee');
+                    textField('employeeform','txtFullname','Full Name <span style="color:red;font-size:20px">*</span>','Enter Full-Name Here','',4,"",'employee','fullname','oldemployee');
+                    textField('employeeform','txtCallingname','Calling Name <span style="color:red;font-size:20px">*</span>','Enter Calling-Name Here','',4,"",'employee','callingname','oldemployee');
+                    textField('employeeform','txtNIC','NIC <span style="color:red;font-size:20px">*</span>','Enter NIC Here','',4,"",'employee','nic','oldemployee');
+                    comboBox('employeeform','cmbGender','Gender <span style="color:red;font-size:20px">*</span>',4,'employee','genderId','oldemployee');
+                    textField('employeeform','dteDOBirth','Birth Date <span style="color:red;font-size:20px">*</span>','Enter Birth Date Here','',4,"",'employee','dobirth','oldemployee');
+                    comboBox('employeeform','cmbCivilstatus','Civil Status <span style="color:red;font-size:20px">*</span>',4,'employee','civilstatusId','oldemployee');
+                    fileChooser('employeeform','flePhoto','Photo <span style="color:red;font-size:20px">*</span>',4,['.jpg','.png'],5,true,'employee','photo','oldemployee');
+                    textArea('employeeform','txtAddress','Address <span style="color:red;font-size:20px">*</span>','Enter Address Here','',4,"",'employee','address','oldemployee');
+                    textField('employeeform','txtMobile','Mobile <span style="color:red;font-size:20px">*</span>','Enter Mobile-Number Here','',4,"",'employee','mobile','oldemployee');
+
+                    // Custom UI-Componnets and Layouting
+
+                </script>
+
+                 <script>
+
+                     textField('employeeform','txtLand','Land','Enter Land Here','',4,"",'employee','land','oldemployee');
+                     comboBox('employeeform','cmbDesignation','Designation <span style="color:red;font-size:20px">*</span>',4,'employee','designationId','oldemployee');
+                     comboBox('employeeform','cmbBranch','District Office <span style="color:red;font-size:20px">*</span>',4,'employee','branchId','oldemployee');
+                     dateField('employeeform','dteDOAssignment','Assignment Date <span style="color:red;font-size:20px">*</span>','Select Assignment Date',4,"",'employee','doassignment','oldemployee')
+                     textArea('employeeform','txtDescription','Description','Enter Description Here','',4,"",'employee','description','oldemployee');
+                     comboBox('employeeform','cmbEmployeestatus','Employee Status <span style="color:red;font-size:20px">*</span>',4,'employee','employeestatusId','oldemployee');
+
+                 </script>
+                 <div class="text-right" style="margin-bottom: 5px;">
+                     <input class="btn btn-danger btn-sm" type="button" id="btnDelete" value="Delete" style="width: 15%"/>
+                     <input class="btn btn-warning btn-sm" type="button" id="btnUpdate" value="Update" style="width: 15%"/>
+                     <input class="btn btn-success btn-sm" type="button" id="btnAdd" value="Add" style="width: 17%"/>
+                     <input class="btn btn-info btn-sm" type="button" id="btnClear" value="Clear" style="width: 15%"/>
+                 </div>
+
+             </form>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12" id="employeeview">
+
+                <h3>Search Content</h3>
+                <form class="form-inline" onsubmit="return false">
+                    <div class="form-group form-group-sm">
+                        <input placeholder="Search By Name" class="form-control" type="text" id="txtSearchName"/>
+                    </div>
+                    <div class="form-group form-group-sm">
+                        <input placeholder="Search By NIC" class="form-control" type="text" id="txtSearchNIC"/>
+                    </div>
+                    <div class="form-group form-group-sm">
+                        <select class="form-control" id="cmbSearchDesignation"></select>
+                    </div>
+                    <div class="form-group form-group-sm">
+                        <select class="form-control" id="cmbSearchEmployeestatus"></select>
+                    </div>
+
+                    <input type="button" class="btn btn-primary btn-sm" value="Search" id="btnSearch"/>
+                    <input type="button" class="btn btn-warning btn-sm" value="Clear" id="btnSearchClear"/>
+                </form>
+                <hr/>
+                <h3>List of Employees</h3>
+                <div class="table-responsive" id="tableParent">
+
+                    <script>
+
+//                        function getNameColumn(ob) {
+//                            return ob.callingname+"("+ob.number+")";
+//                        }
+
+                        var metadata = [
+                             {name:'Number',search:true,datatype:'text',property:'number'},
+                            {name:'Name',search:true,datatype:'text',property:'fullname'},
+                            {name:'Name',search:true,datatype:'photo',property:'photo'},
+                            {name:'NIC',search:true,datatype:'text',property:'nic'},
+                            {name:'Mobile',search:true,datatype:'text',property:'mobile'},
+                            {name:'Designation',search:true,datatype:'text',property:'designationId.name'},
+                            {name:'Branch',search:true,datatype:'text',property:'branchId.name'},
+                            {name:'Employeestatus',search:true,datatype:'text',property:'employeestatusId.name'},
+                        ];
+                        table("tableParent","tblEmployee",metadata,[10,15,30,500,1000],btnSearchMC,true);
+
+                    </script>
+
+
+                </div>
+                <ul id="pagination" class="pagination"></ul>
+            </div>
+            <div id="err" style="display: none"><h3>Error Log</h3></div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,981 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!---------------------------------------------------------------------->
+    <title>Borrower-National Housing Development Authority</title>
+    <!---------------------------------------------------------------------->
+    <link rel="stylesheet" href="../plugin/bootstrap/css/bootstrap.min.css"/>
+    <script src="../plugin/jquery/jquery.min.js"></script>
+    <script src="../plugin/bootstrap/js/bootstrap.min.js"></script>
+    <!---------------------------------------------------------------------->
+    <link rel="stylesheet" href="../style/common.css"/>
+    <script src="../script/common.bitproject.earth.lk.v1.js"></script>
+    <script src="../script/ui.bitproject.earth.lk.v1.js"></script>
+    <!---------------------------------------------------------------------->
+    <script type="text/javascript">var scrolltotop={setting:{startline:100,scrollto:0,scrollduration:1e3,fadeduration:[500,100]},controlHTML:'<img src="https://i1155.photobucket.com/albums/p559/scrolltotop/arrow59.png" />',controlattrs:{offsetx:5,offsety:5},anchorkeyword:"#top",state:{isvisible:!1,shouldvisible:!1},scrollup:function(){this.cssfixedsupport||this.$control.css({opacity:0});var t=isNaN(this.setting.scrollto)?this.setting.scrollto:parseInt(this.setting.scrollto);t="string"==typeof t&&1==jQuery("#"+t).length?jQuery("#"+t).offset().top:0,this.$body.animate({scrollTop:t},this.setting.scrollduration)},keepfixed:function(){var t=jQuery(window),o=t.scrollLeft()+t.width()-this.$control.width()-this.controlattrs.offsetx,s=t.scrollTop()+t.height()-this.$control.height()-this.controlattrs.offsety;this.$control.css({left:o+"px",top:s+"px"})},togglecontrol:function(){var t=jQuery(window).scrollTop();this.cssfixedsupport||this.keepfixed(),this.state.shouldvisible=t>=this.setting.startline?!0:!1,this.state.shouldvisible&&!this.state.isvisible?(this.$control.stop().animate({opacity:1},this.setting.fadeduration[0]),this.state.isvisible=!0):0==this.state.shouldvisible&&this.state.isvisible&&(this.$control.stop().animate({opacity:0},this.setting.fadeduration[1]),this.state.isvisible=!1)},init:function(){jQuery(document).ready(function(t){var o=scrolltotop,s=document.all;o.cssfixedsupport=!s||s&&"CSS1Compat"==document.compatMode&&window.XMLHttpRequest,o.$body=t(window.opera?"CSS1Compat"==document.compatMode?"html":"body":"html,body"),o.$control=t('<div id="topcontrol">'+o.controlHTML+"</div>").css({position:o.cssfixedsupport?"fixed":"absolute",bottom:o.controlattrs.offsety,right:o.controlattrs.offsetx,opacity:0,cursor:"pointer"}).attr({title:"Scroll to Top"}).click(function(){return o.scrollup(),!1}).appendTo("body"),document.all&&!window.XMLHttpRequest&&""!=o.$control.text()&&o.$control.css({width:o.$control.width()}),o.togglecontrol(),t('a[href="'+o.anchorkeyword+'"]').click(function(){return o.scrollup(),!1}),t(window).bind("scroll resize",function(t){o.togglecontrol()})})}};scrolltotop.init();</script>
+    <noscript>Not seeing a <a href="https://www.scrolltotop.com/">Scroll to Top Button</a>? Go to our FAQ page for more info.</noscript>
+
+
+    <script>
+
+        window.addEventListener("load", initialize);
+
+        //Initializing Functions
+
+        function initialize() {
+
+            // btnFormPrint.onclick=function(){
+            //     printForm("clientform");
+            //
+            // }
+            //
+            // btnPrintTable.onclick=function(){
+            //     printTable("tblClient");
+            // }
+            btnAdd.addEventListener("click",btnAddMC);
+            btnClear.addEventListener("click",btnClearMC);
+            btnUpdate.addEventListener("click",btnUpdateMC);
+            btnDelete.addEventListener("click",btnDeleteMC);
+
+            btnSearch.addEventListener("click",btnSearchMC);
+            btnSearchClear.addEventListener("click",btnSearchClearMC);
+
+            //dteDOBirth.onchange = dteDOBirthCH;
+            //txtNIC.onfocusout = function () {alert(txtNIC.value);}
+            // dteDOBirth.oninput=txtAgeCH;
+
+            txtNIC.onfocusout=txtNICFL;
+            cmbProvince.addEventListener("change",cmbProvinceCH);
+            cmbDistrict.addEventListener("change",cmbDistrictCH);
+            cmbDsdivision.addEventListener("change",cmbDsdivisionCH);
+
+            privilages = httpRequest("../privilages?module=CLIENT","GET");
+
+            regexes = httpRequest("../regexes/client","GET");
+           // txtCode.setAttribute("data-pattern",regexes.code.regex);
+            txtname.setAttribute("data-pattern",regexes.name.regex);
+            txtfname.setAttribute("data-pattern",regexes.fullname.regex);
+            txtNIC.setAttribute("data-pattern",regexes.nic.regex);
+            txtAddress.setAttribute("data-pattern",regexes.address.regex);
+            txtMobileno.setAttribute("data-pattern",regexes.mobileno.regex);
+            txtLandno.setAttribute("data-pattern",regexes.landno.regex);
+            txtDescription.setAttribute("data-pattern",regexes.description.regex);
+
+            genders = httpRequest("../genders/list","GET");
+            civilstatuses = httpRequest("../civilstatuses/list","GET");
+            workingstatuses = httpRequest("../workingstatuses/list","GET");
+            clientstatuses = httpRequest("../clientstatuses/list","GET");
+            employees = httpRequest("../employees/list","GET");
+
+            provinces = httpRequest("../provinces/list","GET");
+            //districts = httpRequest("../districts/list","GET");
+            //dsdivisions = httpRequest("../dsdivisions/list","GET");
+            gndivisions = httpRequest("../gndivisions/list","GET");
+
+            valid = "lightgreen";
+            invalid = "pink";
+            initial = "white";
+            updated = "khaki";
+            active = "khaki";
+
+            loadView();
+            loadForm();
+
+        }
+
+        function loadView() {
+
+            //Search Area
+            txtSearchName.value="";
+            txtSearchNIC.value="";
+            txtSearchName.style.background = "";
+            txtSearchNIC.style.background = "";
+            cmbSearchGndivision.style.background = "";
+            cmbSearchClientstatus.style.background = "";
+            fillCombo(cmbSearchGndivision,"GN Division",gndivisions,"name","");
+            fillCombo(cmbSearchClientstatus,"Borrower Status",clientstatuses,"name","");
+
+            //Table Area
+            activerowno = "";
+            activepage = 1;
+            var query ="&name=&nic=&gndivisionId=&cstatusId=";
+            loadTable(1,cmbPageSize.value,query);
+
+        }
+
+        function loadTable(page,size,query) {
+            page = page - 1;
+            clients = new Array();
+            var data = httpRequest("/clients?page="+page+"&size="+size+query,"GET");
+            if(data.content!= undefined) clients = data.content;
+            createPagination('pagination',data.totalPages, data.number+1,paginate);
+            fillTable('tblClient',clients,fillForm);
+            clearSelection(tblClient);
+            if(activerowno!="")selectRow(tblClient,activerowno,active);
+            window.location.href="#ui";
+        }
+
+        function paginate(page) {
+            var paginate;
+            if(oldclient==null){
+                paginate=true;
+            }else{
+                if(getErrors()==''&&getUpdates()==''){
+                    paginate=true;
+                }else{
+                    paginate = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+            if(paginate) {
+                activepage=page;
+                activerowno=""
+                loadSearchedTable();
+                loadForm();
+            }
+
+        }
+
+        function loadForm() {
+            client = new Object();
+            oldclient = null;
+
+            fillCombo(cmbGender, "Select Gender", genders, "name", "");
+            fillCombo(cmbCivilstatus, "Select Civil Status", civilstatuses, "name", "");
+            fillCombo(cmbWorkingstatus, "Select Working Status", workingstatuses, "name", "");
+            fillCombo(cmbclientstatus, "", clientstatuses, "name", "Available");
+            fillCombo(cmbAssignemployee, "", employees, "callingname", session.getObject("user").employeeId.callingname);
+
+            fillCombo(cmbProvince, "Select Province", provinces, "name", "");
+            fillCombo(cmbDistrict, "Select District", '', "name", "");
+            fillCombo(cmbDsdivision, "Select DS Division", '', "name", "");
+            fillCombo(cmbGndivision, "Select a GN Division", gndivisions, "name", "");
+
+
+            var today = new Date();
+            var month = today.getMonth() + 1;
+            if (month < 10) month = "0" + month;
+            var date = today.getDate();
+            if (date < 10) date = "0" + date;
+
+            dteDOAssign.value = today.getFullYear() + "-" + month + "-" + date;
+            client.regdate = dteDOAssign.value;
+            dteDOAssign.disabled = "disable";
+
+            client.cstatusId = JSON.parse(cmbclientstatus.value);
+            client.employeeId = JSON.parse(cmbAssignemployee.value);
+            cmbAssignemployee.disabled = "disable";
+
+            cmbDistrict.disabled = "disable";
+            cmbDsdivision.disabled = "disable";
+            cmbGndivision.disabled = "disable";
+
+            clicode = httpRequest("../clients/clicode","GET");
+            //console.log("111",clicode.no);
+            txtCode.value = clicode.no;
+            client.code =  txtCode.value;
+            txtCode.disabled=true;
+
+            txtname.value = "";
+            txtfname.value = "";
+            dteDOBirth.value = "";
+            txtNIC.value = "";
+            txtAddress.value = "";
+            txtMobileno.value = "";
+            txtLandno.value = "";
+            txtEmail.value = "";
+            txtDescription.value = "";
+            removeFile('flePhoto');
+            removeFile('fleFiles');
+
+           // txtAge.value = "";
+
+            setStyle(initial);
+            txtCode.style.background = valid;
+            cmbAssignemployee.style.background = valid;
+            dteDOAssign.style.background = valid;
+           // cmbclientstatus.style.background = valid;
+
+            disableButtons(false, true, true);
+        }
+
+        function setStyle(style) {
+
+            txtCode.style.background = style;
+            txtname.style.background = style;
+            txtfname.style.background = style;
+            txtNIC.style.background = style;
+            dteDOBirth.style.background = style;
+            txtAddress.style.background = style;
+            txtMobileno.style.background = style;
+            txtLandno.style.background = style;
+            txtEmail.style.background = style;
+            cmbProvince.style.background = style;
+            cmbDistrict.style.background = style;
+            cmbDsdivision.style.background = style;
+            cmbGndivision.style.background = style;
+            cmbGender.style.background=style;
+            cmbCivilstatus.style.background=style;
+            txtDescription.style.background = style;
+            cmbAssignemployee.style.background = style;
+            dteDOAssign.style.background = style;
+            cmbclientstatus.style.background = style;
+            cmbWorkingstatus.style.background = style;
+           // txtAge.style.background=style;
+        }
+
+        function disableButtons(add, upd, del) {
+
+            if (add || !privilages.add) btnAdd.setAttribute("disabled", "disabled");
+            else btnAdd.removeAttribute("disabled");
+
+            if (upd || !privilages.update) btnUpdate.setAttribute("disabled", "disabled");
+            else btnUpdate.removeAttribute("disabled");
+
+            if (del || !privilages.delete) btnDelete.setAttribute("disabled", "disabled");
+            else btnDelete.removeAttribute("disabled");
+
+        }
+
+
+        // Binding and Validation Functions for Non-Regex-Based
+        // When Regex-Based default validation is used, programmers do not need to define these functions
+        // Default Validation and Binding is coded in "ui.bitproject.earth.lk.js"
+
+        function dteDOBirthCH() {
+            var today = new Date();
+            var birthday = new Date(dteDOBirth.value);
+            if((today.getTime()-birthday.getTime())>(18*365*24*3600*1000)) {
+                client.dobirth = dteDOBirth.value;
+                dteDOBirth.style.background = valid;
+            }
+            else {
+                client.dobirth = null;
+                dteDOBirth.style.background = invalid;
+
+            }
+        }
+
+        function txtNICFL() {
+            var NICNo = txtNIC.value;
+            var dayText = 0;
+            if (NICNo.length != 10 && NICNo.length != 12) {
+                toast("<strong>Invalid !</strong> Invalid NIC","danger");
+            } else if (NICNo.length == 10 && !$.isNumeric(NICNo.substr(0, 9)) ) {
+                toast("<strong>Invalid !</strong> Invalid NIC","danger");
+            }
+            else {
+                //Year
+                if (NICNo.length == 10) {
+                    year = "19" + NICNo.substr(0, 2);
+                    dayText = parseInt(NICNo.substr(2, 3));
+                } else {
+                    year = NICNo.substr(0, 4);
+                    dayText = parseInt(NICNo.substr(4, 3));
+                }
+                // // Gender
+                if (dayText > 500) {
+                    //female
+                    cmbGender.selectedIndex = 2;
+                    dayText = dayText - 500;
+                } else {
+                   // male
+                    cmbGender.selectedIndex = 1;
+                }
+                // Day Digit Validation
+                if (dayText < 1 && dayText > 366) {
+                    toast("<strong>Invalid !</strong> Invalid NIC","danger");
+                } else {
+                    //Month
+                    if (dayText > 335) {
+                        day = dayText - 335;
+                        month = 12;
+                    } else if (dayText > 305) {
+                        day = dayText - 305;
+                        month = 11;
+                    } else if (dayText > 274) {
+                        day = dayText - 274;
+                        month = 10;
+                    } else if (dayText > 244) {
+                        day = dayText - 244;
+                        month = 9;
+                    } else if (dayText > 213) {
+                        day = dayText - 213;
+                        month = 8;
+                    } else if (dayText > 182) {
+                        day = dayText - 182;
+                        month = 7;
+                    } else if (dayText > 152) {
+                        day = dayText - 152;
+                        month = 6;
+                    } else if (dayText > 121) {
+                        day = dayText - 121;
+                        month = 5;
+                    } else if (dayText > 91) {
+                        day = dayText - 91;
+                        month = 4;
+                    } else if (dayText > 60) {
+                        day = dayText - 60;
+                        month = 3;
+                    } else if (dayText < 32) {
+                        day = dayText;
+                        month = 1;
+
+                    } else if (dayText > 31) {
+                        day = dayText - 31;
+                        month = 2;
+                    }
+                    if(month<10) {month = "0"+month;}
+                    if(day<10){day = "0"+day;}
+
+                    dteDOBirth.value = (year+"-"+month+"-"+day);
+                    client.dobirth=dteDOBirth.value;
+                    dteDOBirth.style.background=valid;
+                    dteDOBirth.disabled = "disable";
+
+                    client.genderId=JSON.parse(cmbGender.options[cmbGender.selectedIndex].value);
+                    cmbGender.style.background=valid;
+                    cmbGender.disabled = "disable";
+
+                    // txtAgeCH();
+                    dteDOBirthCH();
+
+                }
+            }
+        }
+
+        // function txtAgeCH() {
+        //     var today = new Date();
+        //     var birthday = new Date(dteDOBirth.value);
+        //     var YearsOld =  Number(today.getTime()-birthday.getTime())/(365*24*3600*1000);
+        //     var x= Math.trunc(YearsOld);
+        //
+        //     txtAge.value = ("You are " + x + " years old.");
+        //     txtAge.style.background = valid;
+        //     txtAge.disabled = "disable";
+        // }
+
+        function cmbProvinceCH() {
+            cmbProvince.style.background=valid;
+            cmbDistrict.style.background=initial;
+            cmbDistrict.disabled="";
+            var districts = httpRequest("../districts/listbyprovince?provinceId="+ JSON.parse(cmbProvince.value).id, "GET");
+            fillCombo(cmbDistrict,"Select a District",districts,"name","");
+
+            if(oldclient !=null && oldclient.gndivisionId.dsdivisionId.districtId.name != JSON.parse(cmbProvince.value).name){
+                cmbProvince.style.background=updated;
+                cmbDistrict.style.background=initial;
+            }
+            else{
+                cmbProvince.style.background=valid;
+            }
+        }
+
+        function cmbDistrictCH() {
+            cmbDistrict.style.background=valid;
+            cmbDsdivision.style.background=initial;
+            cmbDsdivision.disabled="";
+            var dsdivisions = httpRequest("../dsdivisions/listbydistrict?districtId="+ JSON.parse(cmbDistrict.value).id, "GET");
+            fillCombo(cmbDsdivision,"Select a DS Division",dsdivisions,"name","");
+            if(oldclient !=null && oldclient.gndivisionId.dsdivisionId.name != JSON.parse(cmbDistrict.value).name){
+                cmbDistrict.style.background=updated;
+                cmbDsdivision.style.background=initial;
+            }
+            else{
+                cmbDistrict.style.background=valid;
+            }
+        }
+
+        function cmbDsdivisionCH() {
+            cmbDsdivision.style.background=valid;
+            cmbGndivision.style.background=initial;
+            cmbGndivision.disabled="";
+            var gndivisions = httpRequest("../gndivisions/listbydsdivision?dsdivisionId="+ JSON.parse(cmbDsdivision.value).id, "GET");
+            fillCombo(cmbGndivision,"Select a GN Division",gndivisions,"name","");
+            if(oldclient !=null && oldclient.gndivisionId.name != JSON.parse(cmbDsdivision.value).name){
+                cmbDsdivision.style.background=updated;
+                cmbGndivision.style.background=initial;
+            }
+            else{
+                cmbDsdivision.style.background=valid;
+            }
+        }
+
+        //Form Operation Functions
+
+        function getErrors() {
+
+            var errors = "";
+
+            if (client.code == null)
+                errors = errors + "\n" + "Number not added";
+
+            if (client.name == null)
+                errors = errors + "\n" + regexes.name.message;
+
+            if (client.fullname == null)
+                errors = errors + "\n" + regexes.fullname.message;
+
+            if (client.nic == null)
+                errors = errors + "\n" + regexes.nic.message;
+
+            if (client.genderId == null)
+                errors = errors + "\n" + "Gender Not Selected";
+
+            if (client.civilstatusId == null)
+                errors = errors + "\n" + "Civilstatus Not Selected";
+
+            if (client.dobirth == null)
+                errors = errors + "\n" + "Birth Date Invalid";
+
+            if (client.address == null)
+                errors = errors + "\n" + regexes.address.message;
+
+            if (client.mobileno == null)
+                errors = errors + "\n" + regexes.mobileno.message;
+
+            if (client.landno== null && txtLandno.value!="")
+                errors = errors + "\n" + regexes.landno.message;
+
+            if (client.email == null && txtEmail.value!="")
+                errors = errors + "\n" + "Invalid Email";
+
+            if (client.employeeId == null)
+                errors = errors + "\n" + "Assign Employee Not Selected";
+
+            if (client.gndivisionId == null)
+                errors = errors + "\n" + "Gndivision Not Selected";
+
+            if (client.workingstatusId == null)
+                errors = errors + "\n" + "Working status Not Selected";
+
+            if (client.regdate == null)
+                errors = errors + "\n" + "Registor Date Invalid";
+
+            if (client.description == null && txtDescription.value!="")
+                errors = errors + "\n" + regexes.description.message;
+
+            if (client.cstatusId == null)
+                errors = errors + "\n" + "Borrowers Status Not Selected";
+
+            return errors;
+
+
+        }
+
+        function btnAddMC() {
+
+            var errors = getErrors();
+
+            if(errors=="") {
+
+                var option = window.confirm("Are you sure to add following Client ?\n" +
+                    "\nCode : " + client.code +
+                    "\nName : " + client.name +
+                    "\nFullname : " + client.fullname +
+                    "\nGender : " + client.genderId.name +
+                    "\nCivil Status : " + client.civilstatusId.name +
+                    "\nNIC : " + client.nic +
+                    "\nBirth Date : " + client.dobirth +
+                    // "\nNIC Copy : " + client.photo +
+                    // "\nFiles : " + client.file +
+                    "\nAddress : " + client.address +
+                    "\nMobile : " + client.mobileno +
+                    "\nLand : " + client.landno +
+                    "\nEmail : " + client.email +
+                    "\nAssign Date : " + client.regdate +
+                    "\nDescription : " + client.description +
+                    "\nProvince : " + JSON.parse(cmbProvince.value).name +
+                    "\nDistrict : " + JSON.parse(cmbDistrict.value).name +
+                    "\nDs Division : " + JSON.parse(cmbDsdivision.value).name +
+                    "\nGn Division : " + client.gndivisionId.name +
+                    "\nWorking Status : " + client.workingstatusId.name +
+                    "\nBorrower Status : " + client.cstatusId.name+
+                    "\nEntered By : " + client.employeeId.callingname);
+                if(option==true) {
+                    var response = httpRequest("/clients","POST",client);
+                    if(response=="0"){
+                        toast("<strong>Success !</strong> Saved Successfully","success");
+                        loadForm();
+                        activerowno = 1;
+                        loadView()
+                        loadSearchedTable();
+                    }
+                    else window.alert("Failed to Add as \n\n"+response);
+                }
+
+            }
+            else
+            { window.alert("You have following Errors\n"+errors); }
+
+        }
+
+        function btnClearMC() {
+            //Get Cofirmation from the User window.confirm();
+
+            var clear;
+            if(oldclient==null){
+                clear=true;
+            }else{
+                if(getErrors()==''&&getUpdates()==''){
+                    clear=true;
+                }else{
+                    clear =window.alert("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+
+                }
+            }
+            if(clear) {
+                var con = window.confirm("Form has Some Errors or Update Values. " +
+                    "Are you sure to discard that changes ?");
+            }
+            if(con) {
+                loadForm();
+                clearSelection(tblClient);
+            }
+
+        }
+
+        function fillForm(cli,rowno){
+            activerowno = rowno;
+            var filling;
+            if(oldclient==null){
+                filling=true;
+            }else{
+
+                if(getErrors()==''&&getUpdates()==''){
+                    filling=true;
+                }else{
+                    filling = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+
+            if(filling) {
+                $('html, body').animate({
+                    scrollTop: $(".ui").offset().top
+                }, 1000);
+
+                clearSelection(tblClient);
+                selectRow(tblClient,activerowno,active);
+
+                client = JSON.parse(JSON.stringify(cli));
+                oldclient = JSON.parse(JSON.stringify(cli));
+
+                txtCode.value = client.code;
+                txtCode.disabled="disabled";
+                txtname.value = client.name;
+                txtfname.value = client.fullname;
+                dteDOBirth.value = client.dobirth;
+                txtNIC.value = client.nic;
+                txtAddress.value = client.address;
+                txtMobileno.value = client.mobileno;
+                txtLandno.value = client.landno;
+                txtEmail.value = client.email;
+                dteDOAssign.value = client.regdate;
+                txtDescription.value = client.description;
+
+                fillCombo(cmbGender, "Select Gender", genders, "name", client.genderId.name);
+                fillCombo(cmbCivilstatus, "Select Civil Status", civilstatuses, "name", client.civilstatusId.name);
+                fillCombo(cmbWorkingstatus, "", workingstatuses, "name", client.workingstatusId.name);
+                fillCombo(cmbAssignemployee, "Select Assign Employee", employees, "callingname", client.employeeId.callingname);
+                fillCombo(cmbclientstatus, "Borrower Status ", clientstatuses, "name", client.cstatusId.name);
+                setDefaultFile('flePhoto', client.photo);
+                setDefaultFile('fleFiles', client.file);
+                cmbclientstatus.disabled = false;
+                fillCombo(cmbProvince,"Select Province",provinces,"name",client.gndivisionId.dsdivisionId.districtId.provinceId.name);
+
+                districts = httpRequest("../districts/listbyprovince?provinceId=" + JSON.parse(cmbProvince.value).id, "GET");
+                fillCombo(cmbDistrict, "Select a District", districts, "name", client.gndivisionId.dsdivisionId.districtId.name);
+                cmbDistrict.disabled = "";
+
+                dsdivisions = httpRequest("../dsdivisions/listbydistrict?districtId="+ JSON.parse(cmbDistrict.value).id, "GET");
+                fillCombo(cmbDsdivision,"Select a DS Division",dsdivisions,"name",client.gndivisionId.dsdivisionId.name);
+                cmbDsdivision.disabled = "";
+
+                gndivisions = httpRequest("../gndivisions/listbydsdivision?dsdivisionId="+ JSON.parse(cmbDsdivision.value).id, "GET");
+                fillCombo(cmbGndivision,"Select a GN Division",gndivisions,"name",client.gndivisionId.name);
+                cmbGndivision.disabled = "";
+
+               // txtAgeCH(); //In Update Age should be Displayed
+
+                disableButtons(true, false, false);
+                setStyle(valid);
+            }
+
+        }
+
+
+
+
+        function getUpdates() {
+
+            var updates = "";
+
+            if(client!=null && oldclient!=null) {
+
+                if (client.code != oldclient.code)
+                    updates = updates + "\nNumber is Changed to" +oldclient.code + " -> " +client.code;
+
+                if (client.name != oldclient.name)
+                    updates = updates + "\nName is Changed to" +oldclient.name + " -> " +client.name;
+
+                if (client.fullname != oldclient.fullname)
+                    updates = updates + "\nFullname is Changed to" +oldclient.fullname + " -> " +client.fullname;
+
+                if (client.nic != oldclient.nic)
+                    updates = updates + "\nNIC is Changed to" +oldclient.nic + " -> " +client.nic;
+
+                if (client.genderId.name != oldclient.genderId.name)
+                    updates = updates + "\nGender is Changed to" +oldclient.genderId.name + " -> " +client.genderId.name;
+
+                if (client.civilstatusId.name != oldclient.civilstatusId.name)
+                    updates = updates + "\nCivilstatus is Changed to" +oldclient.civilstatusId.name + " -> "
+                        +client.civilstatusId.name;
+
+                if (client.gndivisionId.name != oldclient.gndivisionId.name)
+                    updates = updates + "\nGnDivision is Changed to" +oldclient.gndivisionId.name + " -> "
+                        +client.gndivisionId.name;
+
+                if (client.dobirth != oldclient.dobirth)
+                    updates = updates + "\nDate of Birth is Changed to" +oldclient.dobirth + " -> " +client.dobirth;
+
+                if (client.photo != oldclient.photo)
+                    updates = updates + "\nNIC Copy (Image) is Changed";
+                if (client.file != oldclient.file)
+                    updates = updates + "\nGramasewaka Certificate is Changed";
+
+                if (client.address != oldclient.address)
+                    updates = updates + "\nAddress is Changed to" +oldclient.address + " -> " +client.address;
+
+                if (client.mobileno != oldclient.mobileno)
+                    updates = updates + "\nMobile Number is Changed to" +oldclient.mobileno + " -> " +client.mobileno;
+
+                if (client.landno != oldclient.landno)
+                    updates = updates + "\nLand Number is Changed to" +oldclient.landno + " -> " +client.landno;
+
+                if (client.email != oldclient.email)
+                    updates = updates + "\nEmail is Changed to" +oldclient.email + " -> "+client.email;
+
+                if (client.employeeId.name != oldclient.employeeId.name)
+                    updates = updates + "\nAssigned Employee is Changed";
+
+
+                if (client.regdate != oldclient.regdate)
+                    updates = updates + "\nDate of Assign is Changed";
+
+                if (client.description != oldclient.description)
+                    updates = updates + "\nDescription is Changed";
+
+                if (client.cstatusId.name != oldclient.cstatusId.name)
+                    updates = updates + "\nBorrower status is Changed";
+            }
+
+
+            return updates;
+
+        }
+
+        function btnUpdateMC() {
+            var errors = getErrors();
+            if (errors == "") {
+                var updates = getUpdates();
+                if (updates == "") window.alert("Nothing Updated!");
+                else {
+
+                    var option = window.confirm("\n\nAre your sure to update followings ! \n\n" + updates);
+                    if(option==true) {
+                        var response = httpRequest("/clients","PUT",client);
+                        if(response=="0"){
+                            toast("<strong>Success !</strong> Updated Successfully...........!","success");
+                            loadForm();
+                            loadView();
+                            loadSearchedTable();
+
+                        }
+                        else window.alert("Failed to Update as \n\n"+response);
+                    }
+
+
+                }
+            }
+            else
+                window.alert("You have following errors in your form\n\n"+getErrors());
+        }
+
+        function btnDeleteMC() {
+
+
+            var option = window.confirm("\n\nAre your sure to delete following ! \n\n" +
+                "Code : " +client.code+ "\nName : " +client.name);
+
+            if(option==true) {
+                var response = httpRequest("/clients","DELETE",client);
+                if(response=="0"){
+                    toast("<strong>Success !</strong> Deleted Successfully","success");
+                    loadForm();
+                    loadView();
+                    loadSearchedTable();
+
+                }
+                else window.alert("Failed to Delete as \n\n"+response);
+            }
+
+        }
+
+
+        //Search Functions
+
+        function loadSearchedTable() {
+
+
+            var name = txtSearchName.value;
+            var nic = txtSearchNIC.value;
+            var gndivion = cmbSearchGndivision.value;
+            var clistatus = cmbSearchClientstatus.value;
+
+            var gndivisionId="";
+            if(gndivion!="GN Division")
+            { gndivisionId = JSON.parse(gndivion).id;
+                //alert(gndivion);
+                cmbSearchGndivision.style.background = active;}
+
+            var cstatusId="";
+            if(clistatus!="Borrower Status")
+            {  cstatusId = JSON.parse(clistatus).id;
+                cmbSearchClientstatus.style.background = active; }
+
+            if(name!=""){  txtSearchName.style.background = active; }
+            if(nic!=""){  txtSearchNIC.style.background = active; }
+
+            var query ="&name=&nic=&gndivisionId=&cstatusId=";
+
+            if(name!="" || nic!="" || gndivisionId!="" || cstatusId!="" )
+                query = "&name=" + name + "&nic=" + nic + "&gndivisionId=" + gndivisionId + "&cstatusId=" +
+                    cstatusId;
+
+            //window.alert(query);
+            loadTable(activepage, cmbPageSize.value, query);
+
+
+        }
+
+        function btnSearchMC(){
+            activepage=1;
+            loadSearchedTable();
+        }
+
+        function btnSearchClearMC(){
+            loadView();
+        }
+        // scroll to ID---------------------------------
+        $("a[href^='#']").click(function(e) {
+            e.preventDefault();
+
+            var position = $($(this).attr("href")).offset().top;
+
+            $("body, html").animate({
+                scrollTop: position
+            } /* speed */ );
+        });
+        // -----------------------------------------------
+
+
+    </script>
+
+    <style>
+        body {overflow-x: hidden; }
+        div .panel-heading {
+            text-decoration: none;
+            background-color:#818181;
+            color: whitesmoke;
+            border-radius: 2%;
+        }
+    </style>
+
+</head>
+<body>
+
+<div class="container-fluid">
+            <div class="col-md-12">
+            <div class="panel" id="cli">
+                <div class="panel-heading">
+                    <button class="btn btn-xs ui"> <a href="#cli"><h4>Add Borrower</h4></a></button>
+                    <button class="btn btn-xs "> <a href="#clientview"><h4>View Borrower</h4></a></button>
+                    <h3 style=" float: left; text-align: center; margin: 20px; color: white">
+                        Borrower Management</h3>
+                </div>
+
+                <div class="panel-body">
+                    <form class="form-horizontal" onsubmit="return false" id="clientform" >
+
+                        <legend>Personal Info</legend>
+
+                        <script>
+
+                            // Defining UI-Componnets and Layouts
+                            // Default UI-Componnets and Layouts is coded in "ui.bitproject.earth.lk.js"
+                            textField('clientform','txtCode','Number <span style="color:red;font-size:20px">*</span>','Number Here','',4,"",'client','code','oldclient');
+                            textField('clientform','txtfname','Full Name <span style="color:red;font-size:20px">*</span>','Enter Name in Full Here','',4,"",'client','fullname','oldclient');
+                            textField('clientform','txtname','Calling Name <span style="color:red;font-size:20px">*</span>','Enter Borrowers name Here','',4,"",'client','name','oldclient');
+                            textField('clientform','txtNIC','NIC <span style="color:red;font-size:20px">*</span>','Enter NIC Here','',4,"",'client','nic','oldclient');
+                            textField('clientform','dteDOBirth','Birth Date <span style="color:red;font-size:20px">*</span>','Enter Birth Date Here','',4,"",'client','dobirth','oldclient');
+                            comboBox('clientform','cmbGender','Gender <span style="color:red;font-size:20px">*</span>',4,'client','genderId','oldclient');
+                        </script>
+
+                        <!--<div class="form-group">-->
+                            <!--<label class="control-label col-md-4" for="txtAge">Age</label>-->
+                            <!--<div class="col-md-8">-->
+                                <!--<input type="text" id="txtAge" placeholder="Age will display here" value="dd-mm-yyyy" class="form-control"/>-->
+                            <!--</div>-->
+                        <!--</div>-->
+
+                        <script>
+                            fileChooser('clientform','flePhoto','NIC Copy (Image)',4,['.jpg','.png'],5,true,'client','photo','oldclient');
+                        </script>
+                        <legend>Location Info</legend>
+                        <div class="form-group">
+                            <label class="control-label col-md-4" for="cmbProvince">Province <span style="color:red;font-size:20px">*</span></label>
+                            <div class="col-md-8">
+                                <select class="form-control" id="cmbProvince"></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-4" for="cmbDistrict">District <span style="color:red;font-size:20px">*</span></label>
+                            <div class="col-md-8">
+                                <select class="form-control" id="cmbDistrict"></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-4" for="cmbDsdivision">Divisional Secretaries Division
+                                <span style="color:red;font-size:20px">*</span></label>
+                            <div class="col-md-8">
+                                <select class="form-control" id="cmbDsdivision"></select>
+                            </div>
+
+                        </div>
+                        <script>
+                            comboBox('clientform','cmbGndivision','Grama Niladari Division <span style="color:red;font-size:20px">*</span>',4,'client','gndivisionId','oldclient');
+                            textArea('clientform','txtAddress','Address <span style="color:red;font-size:20px">*</span>','Enter Borrower Address Here','',4,"",'client','address','oldclient');
+                        </script>
+                        <legend>Contact Info</legend>
+                        <script>
+                            textField('clientform','txtMobileno','Mobile <span style="color:red;font-size:20px">*</span>','Enter Mobile-Number Here','',4,"",'client','mobileno','oldclient');
+                            textField('clientform','txtLandno','Land-line Number','Enter Land-line number Here','',4,"",'client','landno','oldclient');
+                            textField('clientform','txtEmail','Email','Enter email Here','',4,"",'client','email','oldclient');
+                            comboBox('clientform','cmbCivilstatus','Civil Status <span style="color:red;font-size:20px">*</span>',4,'client','civilstatusId','oldclient');
+                            comboBox('clientform','cmbWorkingstatus','Working Status <span style="color:red;font-size:20px">*</span>',4,'client','workingstatusId','oldclient');
+                            //------------------------------------------------------------------------
+                            fileChooser('clientform','fleFiles','Gramasewaka Certification (Scanned Image)',4,['.jpg','.png'],5,true,'client','file','oldclient');
+                        </script>
+                        <legend>For Office work</legend>
+                        <script>
+                            comboBox('clientform','cmbAssignemployee','Entered By <span style="color:red;font-size:20px">*</span>',4,'client','employeeId','oldclient');
+                            dateField('clientform','dteDOAssign','Register Date','Select Registor Date',4,"",'client','regdate','oldclient');
+                            textArea('clientform','txtDescription','Description','Enter Description Here','',4,"",'client','description','oldclient');
+                            comboBox('clientform','cmbclientstatus','Status <span style="color:red;font-size:20px">*</span>',4,'client','cstatusId','oldclient');
+
+                            // Custom UI-Components and Layouting
+
+                        </script>
+
+                        <div class="text-right" style="margin-bottom: 5px;">
+                            <input class="btn btn-danger btn-sm" type="button" id="btnDelete" value="Delete" style="width: 15%"/>
+                            <input class="btn btn-warning btn-sm" type="button" id="btnUpdate" value="Update" style="width: 15%"/>
+                            <input class="btn btn-success btn-sm" type="button" id="btnAdd" value="Add" style="width: 17%"/>
+                            <input class="btn btn-info btn-sm" type="button" id="btnClear" value="Clear" style="width: 15%"/>
+                            <input class="btn btn-default btn-sm" type="button" id="btnFormPrint" value="Print" style="width: 12%"/>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            </div>
+        </div>
+
+            <div class="col-md-12" id="clientview">
+                <h3>Advance Search of Borrowers</h3>
+                <form class="form-inline" onsubmit="return false">
+                    <div class="form-group form-group-sm">
+                        <input placeholder="Search By Name" class="form-control" type="text" id="txtSearchName"/>
+                    </div>
+                    <div class="form-group form-group-sm">
+                        <input placeholder="Search By NIC" class="form-control" type="text" id="txtSearchNIC"/>
+                    </div>
+
+                    <div class="form-group form-group-sm">
+                        <select class="form-control" id="cmbSearchGndivision"></select>
+                    </div>
+                    <div class="form-group form-group-sm">
+                        <select class="form-control" id="cmbSearchClientstatus"></select>
+                    </div>
+
+
+                    <input type="button" class="btn btn-primary btn-sm" value="Search" id="btnSearch"/>
+
+                    <input type="button" class="btn btn-warning btn-sm" value="Clear Search" id="btnSearchClear"/>
+                    <button class="btn btn-default btn-sm pull-right" type="button" id="btnPrintTable">Print</button>
+                </form>
+                <hr/>
+                <!-- Modal -->
+                <div id="myModal" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <p>After click the Update and Delete Button refer Add borrower button</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <h3>List of Borrowers Table</h3>
+
+                    <div class="table-responsive" id="tableParent">
+
+                        <script>
+
+                            // function getNameColumn(ob) {
+                            //     return ob.name+"("+ob.code+")";
+                            // }
+
+                            var metadata = [
+                                {name:'Code',search:true,datatype:'text',property:'code'},
+                                {name:'Name',search:true,datatype:'text',property:'fullname'},
+                                {name:'NIC Copy',search:false,datatype:'photo',property:'photo'},
+                                {name:'NIC',search:true,datatype:'text',property:'nic'},
+                                {name:'Gender',search:true,datatype:'text',property:'genderId.name'},
+                                {name:'Mobile',search:true,datatype:'text',property:'mobileno'},
+                                {name:'District',search:true,datatype:'text',property:'gndivisionId.dsdivisionId.districtId.name'},
+                                {name:'DS Division',search:true,datatype:'text',property:'gndivisionId.dsdivisionId.name'},
+                                {name:'GN Division',search:true,datatype:'text',property:'gndivisionId.name'},
+                                {name:'Status',search:true,datatype:'text',property:'cstatusId.name'}
+                            ];
+                            table("tableParent","tblClient",metadata,[10,15,30,500,1000],btnSearchMC,true);
+
+                        </script>
+                    </div>
+                    <ul id="pagination" class="pagination"></ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+<hr/>
+        <div id="err" style="display: none">
+            <h3>Error Log</h3>
+        </div>
+
+
+
+</body>
+</html>

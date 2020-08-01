@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!---------------------------------------------------------------------->
+    <title>National Housing Development Authority</title>
+    <!---------------------------------------------------------------------->
+    <link rel="stylesheet" href="../plugin/bootstrap/css/bootstrap.min.css"/>
+    <script type="text/javascript" src="../plugin/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="../plugin/bootstrap/js/bootstrap.min.js"></script>
+    <!----------------------------------------------------------------------->
+    <link rel="stylesheet" href="../style/common.css"/>
+    <script src="../script/common.bitproject.earth.lk.v1.js"></script>
+    <script src="../script/ui.bitproject.earth.lk.v1.js"></script>
+
+    <script type="text/javascript">var scrolltotop={setting:{startline:100,scrollto:0,scrollduration:1e3,fadeduration:[500,100]},controlHTML:'<img src="https://i1155.photobucket.com/albums/p559/scrolltotop/arrow59.png" />',controlattrs:{offsetx:5,offsety:5},anchorkeyword:"#top",state:{isvisible:!1,shouldvisible:!1},scrollup:function(){this.cssfixedsupport||this.$control.css({opacity:0});var t=isNaN(this.setting.scrollto)?this.setting.scrollto:parseInt(this.setting.scrollto);t="string"==typeof t&&1==jQuery("#"+t).length?jQuery("#"+t).offset().top:0,this.$body.animate({scrollTop:t},this.setting.scrollduration)},keepfixed:function(){var t=jQuery(window),o=t.scrollLeft()+t.width()-this.$control.width()-this.controlattrs.offsetx,s=t.scrollTop()+t.height()-this.$control.height()-this.controlattrs.offsety;this.$control.css({left:o+"px",top:s+"px"})},togglecontrol:function(){var t=jQuery(window).scrollTop();this.cssfixedsupport||this.keepfixed(),this.state.shouldvisible=t>=this.setting.startline?!0:!1,this.state.shouldvisible&&!this.state.isvisible?(this.$control.stop().animate({opacity:1},this.setting.fadeduration[0]),this.state.isvisible=!0):0==this.state.shouldvisible&&this.state.isvisible&&(this.$control.stop().animate({opacity:0},this.setting.fadeduration[1]),this.state.isvisible=!1)},init:function(){jQuery(document).ready(function(t){var o=scrolltotop,s=document.all;o.cssfixedsupport=!s||s&&"CSS1Compat"==document.compatMode&&window.XMLHttpRequest,o.$body=t(window.opera?"CSS1Compat"==document.compatMode?"html":"body":"html,body"),o.$control=t('<div id="topcontrol">'+o.controlHTML+"</div>").css({position:o.cssfixedsupport?"fixed":"absolute",bottom:o.controlattrs.offsety,right:o.controlattrs.offsetx,opacity:0,cursor:"pointer"}).attr({title:"Scroll to Top"}).click(function(){return o.scrollup(),!1}).appendTo("body"),document.all&&!window.XMLHttpRequest&&""!=o.$control.text()&&o.$control.css({width:o.$control.width()}),o.togglecontrol(),t('a[href="'+o.anchorkeyword+'"]').click(function(){return o.scrollup(),!1}),t(window).bind("scroll resize",function(t){o.togglecontrol()})})}};scrolltotop.init();</script>
+    <noscript>Not seeing a <a href="https://www.scrolltotop.com/">Scroll to Top Button</a>? Go to our FAQ page for more info.</noscript>
+
+
+
+
+    <script>
+
+        window.addEventListener("load", initialize);
+
+        //Initializing Functions
+
+        function initialize() {
+
+            btnAdd.addEventListener("click",btnAddMC);
+            btnClear.addEventListener("click",btnClearMC);
+            btnUpdate.addEventListener("click",btnUpdateMC);
+            btnDelete.addEventListener("click",btnDeleteMC);
+            btnSearch.addEventListener("click",btnSearchMC);
+            btnSearchClear.addEventListener("click",btnSearchClearMC);
+            btnPrintTable.addEventListener("click",btnPrintTableMC);
+            cmbProvince.addEventListener("change",cmbProvinceCH);
+
+            privilages = httpRequest("../privilages?module=BRANCH","GET");
+
+            regexes = httpRequest("../regexes/branch","GET");
+            txtNumber.setAttribute("data-pattern",regexes.number.regex);
+            txtName.setAttribute("data-pattern",regexes.name.regex);
+            txtAddress.setAttribute("data-pattern",regexes.address.regex);
+            txtManager.setAttribute("data-pattern",regexes.districtmanager.regex);
+            txtMobile.setAttribute("data-pattern",regexes.mobileno.regex);
+            txtLand.setAttribute("data-pattern",regexes.landno.regex);
+            txtFax.setAttribute("data-pattern",regexes.fax.regex);
+            txtDescription.setAttribute("data-pattern",regexes.description.regex);
+
+            provinces = httpRequest("../provinces/list","GET");
+            districts = httpRequest("../districts/list","GET");
+
+
+            valid = "lightgreen";
+            invalid = "pink";
+            initial = "white";
+            updated = "khaki";
+            active = "khaki";
+
+            loadView();
+            loadForm();
+
+        }
+
+        function loadView() {
+            //Search Area
+            txtSearchName.value="";
+            txtSearchName.style.background = "";
+            fillCombo(cmbSearchDistrict,"Select District",districts,"name","");
+            cmbSearchDistrict.style.background = "";
+
+            //Table Area
+            activerowno = "";
+            activepage = 1;
+            var query ="&name=&districtid=";
+            loadTable(1,cmbPageSize.value,query);
+
+        }
+
+        function loadTable(page,size,query) {
+            page = page - 1;
+            branches = new Array();
+            var data =  httpRequest("/branches?page="+page+"&size="+size+query,"GET");
+            branches = data.content;
+            createPagination('pagination',data.totalPages, data.number+1,paginate);
+            fillTable('tblBranch',branches,fillForm);
+            clearSelection(tblBranch);
+            if(activerowno!="")selectRow(tblBranch,activerowno,active);
+            window.location.href="#ui";
+        }
+
+        function paginate(page) {
+            var paginate;
+            if(oldbranch==null){
+                paginate=true;
+            }else{
+                if(getErrors()==''&&getUpdates()==''){
+                    paginate=true;
+                }else{
+                    paginate = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+            if(paginate) {
+                activepage=page;
+                activerowno=""
+                loadSearchedTable();
+                loadForm();
+            }
+
+        }
+
+        function loadForm() {
+
+            branch = new Object();
+            oldbranch = null;
+
+            fillCombo(cmbProvince,"Select Province",provinces,"name","");
+            fillCombo(cmbDistrict,"Select District",districts,"name","");
+            cmbDistrict.disabled = "disable";
+
+
+            txtNumber.value = "";
+            txtDcode.value = "";
+            txtName.value = "";
+            txtAddress.value = "";
+            txtManager.value = "";
+            txtLand.value = "";
+            txtMobile.value = "";
+            txtFax.value = "";
+            txtEmail.value = "";
+            txtDescription.value = "";
+
+            setStyle(initial);
+            disableButtons(false, true, true);
+
+        }
+
+        function setStyle(style) {
+
+            txtNumber.style.background = style;
+            txtDcode.style.background = style;
+            txtName.style.background = style;
+            txtAddress.style.background = style;
+            txtManager.style.background = style;
+            txtLand.style.background = style;
+            txtMobile.style.background = style;
+            txtFax.style.background = style;
+            txtEmail.style.background = style;
+            txtDescription.style.background = style;
+            cmbDistrict.style.background = style;
+            cmbProvince.style.background = style;
+
+
+        }
+
+        function disableButtons(add, upd, del) {
+
+            if (add || !privilages.add) btnAdd.setAttribute("disabled", "disabled");
+            else btnAdd.removeAttribute("disabled");
+
+            if (upd || !privilages.update) btnUpdate.setAttribute("disabled", "disabled");
+            else btnUpdate.removeAttribute("disabled");
+
+            if (del || !privilages.delete) btnDelete.setAttribute("disabled", "disabled");
+            else btnDelete.removeAttribute("disabled");
+
+        }
+        function btnPrintTableMC() {
+            // printDiv("tableview",370,370,400,"../../image/NHDA_Logo.jpg");
+            printDiv("tblBranch",600,100,190,"../../image/NHDA_Logo.jpg");
+        }
+
+
+        // Binding and Validation Functions for Non-Regex-Based
+        // When Regex-Based default validation is used, programmers do not need to define these functions
+        // Default Validation and Binding is coded in "ui.bitproject.earth.lk.js"
+
+        function cmbProvinceCH() {
+            cmbProvince.style.background=valid;
+            cmbDistrict.style.background=initial;
+            cmbDistrict.disabled="";
+            var districts = httpRequest("../districts/listbyprovince?provinceId="+ JSON.parse(cmbProvince.value).id, "GET");
+            fillCombo(cmbDistrict,"Select District",districts,"name","");
+
+            if(oldbranch !=null && oldbranch.districtId.name != JSON.parse(cmbProvince.value).name){
+                cmbProvince.style.background=updated;
+                cmbDistrict.style.background=initial;
+            }
+            else{
+                cmbProvince.style.background=valid;
+            }
+        }
+
+        //Form Operation Functions
+
+        function getErrors() {
+
+            var errors = "";
+
+            if (branch.number == null)
+                errors = errors + "\n" + regexes.number.message;
+
+            if (branch.dcode == null)
+                errors = errors + "\n" + "Invalid District Code ";
+
+            if (branch.name == null)
+                errors = errors + "\n" + regexes.name.message;
+
+            if (branch.districtmanager == null)
+                errors = errors + "\n" + regexes.districtmanager.message;
+
+            if (branch.address == null)
+                errors = errors + "\n" + regexes.address.message;
+
+            if (branch.mobileno == null)
+                errors = errors + "\n" + regexes.mobileno.message;
+
+            if (branch.landno== null && txtLand.value!="")
+                errors = errors + "\n" + regexes.landno.message;
+
+            if (branch.fax == null)
+                errors = errors + "\n" + regexes.fax.message;
+
+            if (branch.email == null)
+                errors = errors + "\n" + " Email is Empty";
+
+            if (branch.description == null && txtDescription.value!="")
+                errors = errors + "\n" + regexes.description.message;
+
+            if (branch.districtId == null)
+                errors = errors + "\n" + "District Not Selected";
+            return errors;
+
+        }
+
+        function btnAddMC(){
+
+            var errors = getErrors();
+
+            if(errors==""){
+
+                var option = window.confirm("Are you sure to add following Branch ?\n" +
+                    "\n Number : " + branch.number +
+                    "\n Name : " + branch.name +
+                    "\n District Code : " + branch.dcode +
+                    "\n Address : " + branch.address +
+                    "\n District Manager : " + branch.districtmanager +
+                    "\n Mobile No : " + branch.mobileno +
+                    "\n Land No : " + branch.landno +
+                    "\n Fax : " + branch.fax +
+                    "\n Email : " + branch.email +
+                    "\n Description : " + branch.description +
+                    "\n Province : " + JSON.parse(cmbProvince.value).name +
+                    "\n District : " + branch.districtId.name );
+
+                if(option==true) {
+                    var response = httpRequest("/branches","POST",branch);
+                    if(response=="0"){
+                        toast("<strong>Success !</strong> Saved Successfully","success");
+                        loadForm();
+                        activerowno = 1;
+                        loadSearchedTable();
+                    }
+                    else window.alert("Failed to Add as \n\n"+response);
+                }
+
+            }
+            else
+            { window.alert("You have following Errors\n"+errors); }
+
+        }
+
+        function btnClearMC() {
+            //Get Cofirmation from the User window.confirm();
+
+            var clear;
+            if(oldbranch==null){
+                clear=true;
+            }else{
+                if(getErrors()==''&&getUpdates()==''){
+                    clear=true;
+                }else{
+                    clear = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+            if(clear) {
+                loadForm();
+                clearSelection(tblBranch);
+            }
+
+
+
+
+        }
+
+        function fillForm(brnch,rowno){
+            activerowno = rowno;
+            var filling;
+            if(oldbranch==null){
+                filling=true;
+            }else{
+
+                if(getErrors()==''&&getUpdates()==''){
+                    filling=true;
+                }else{
+                    filling = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+
+            if(filling) {
+                $('html, body').animate({
+                    scrollTop: $(".ui").offset().top
+                }, 1000);
+
+
+                clearSelection(tblBranch);
+                selectRow(tblBranch,activerowno,active);
+
+                branch = JSON.parse(JSON.stringify(brnch));
+                oldbranch = JSON.parse(JSON.stringify(brnch));
+
+                txtNumber.value = branch.number;
+                txtName.value = branch.name;
+                txtDcode.value = branch.dcode;
+                txtAddress.value = branch.address;
+                txtManager.value = branch.districtmanager;
+                txtLand.value = branch.landno;
+                txtMobile.value = branch.mobileno;
+                txtFax.value = branch.fax;
+                txtEmail.value = branch.email;
+                txtDescription.value = branch.description;
+
+                // fillCombo(cmbDistrict, "District", districts, "name", branch.districtId.name);
+                fillCombo(cmbProvince,"Select Province",provinces,"name",branch.districtId.provinceId.name);
+
+                districts = httpRequest("../districts/listbyprovince?provinceId=" + JSON.parse(cmbProvince.value).id, "GET");
+                fillCombo(cmbDistrict, "Select District", districts, "name", branch.districtId.name);
+                cmbDistrict.disabled = "";
+
+                disableButtons(true, false, false);
+                setStyle(valid);
+            }
+
+        }
+
+        function getUpdates() {
+
+            var updates = "";
+
+            if(branch!=null && oldbranch!=null) {
+
+
+                if (branch.number != oldbranch.number)
+                    updates = updates + "\nNumber is Changed to" +oldbranch.number + " -> " +branch.number;
+
+                if (branch.name != oldbranch.name)
+                    updates = updates + "\nName is Changed to" +oldbranch.name + " -> " +branch.name;
+
+                if (branch.dcode != oldbranch.dcode)
+                    updates = updates + "\nDistrict Code is Changed to" +oldbranch.dcode + " -> " +branch.dcode;
+
+
+                if (branch.districtmanager != oldbranch.districtmanager)
+                    updates = updates + "\nDistrict manager is Changed to" +oldbranch.districtmanager + " -> "
+                        +branch.districtmanager;
+
+                if (branch.address != oldbranch.address)
+                    updates = updates + "\nAddress is Changed to" +oldbranch.address + " -> " +branch.address;
+
+                if (branch.mobileno != oldbranch.mobileno)
+                    updates = updates + "\nMobile Number is Changed to" +oldbranch.mobileno + " -> " +branch.mobileno;
+
+                if (branch.landno != oldbranch.landno)
+                    updates = updates + "\nLand Number is Changed to" +oldbranch.landno + " -> " +branch.landno;
+
+                if (branch.fax != oldbranch.fax)
+                    updates = updates + "\nFax is Changed to" +oldbranch.fax + " -> " +branch.fax;
+
+                if (branch.email != oldbranch.email)
+                    updates = updates + "\nLand Number is Changed to" +oldbranch.email + " -> " +branch.email;
+
+                if (branch.description != oldbranch.description)
+                    updates = updates + "\nDescription is Changed";
+
+
+                if (branch.districtId.name != oldbranch.districtId.name)
+                    updates = updates + "\nDistrict is Changed to" +oldbranch.districtId.name + " -> " +branch.districtId.name;
+
+
+            }
+
+            return updates;
+
+        }
+
+        function btnUpdateMC() {
+            var errors = getErrors();
+            if (errors == "") {
+                var updates = getUpdates();
+                if (updates == "") window.alert("Nothing Updated!");
+                else {
+
+                    var option = window.confirm("\n\nAre your sure to update followings ! \n\n" + updates);
+                    if(option==true) {
+                        var response = httpRequest("/branches","PUT",branch);
+                        if(response=="0"){
+                            toast("<strong>Success !</strong> Updated Successfully","success");
+                            loadForm();
+                            loadSearchedTable();
+
+                        }
+                        else window.alert("Failed to Update as \n\n"+response);
+                    }
+
+
+                }
+            }
+            else
+                window.alert("You have following errors in your form\n\n"+getErrors());
+        }
+
+        function btnDeleteMC() {
+
+
+            var option = window.confirm("\n\nAre your sure to delete following ! \n\n" +
+                "Number : " +branch.number+ "\nName : " +branch.name);
+
+            if(option==true) {
+                var response = httpRequest("/branches","DELETE",branch);
+                if(response=="0"){
+                    toast("<strong>Success !</strong> Deleted Successfully","success");
+                    loadForm();
+                    loadSearchedTable();
+
+                }
+                else window.alert("Failed to Delete as \n\n"+response);
+            }
+
+        }
+
+
+        //Search Functions
+
+        function loadSearchedTable(){
+
+            var name = txtSearchName.value.trim();
+            var disct = cmbSearchDistrict.value.trim();
+
+            var districtid="";
+            if(disct!="Select District")
+            {  districtid = JSON.parse(disct).id;
+                cmbSearchDistrict.style.background = active; }
+
+            if(name!=""){  txtSearchName.style.background = active; }
+
+            var query ="&name=&districtid=";
+
+            if(name!="" ||  districtid!="" )
+                query = "&name=" + name + "&districtid=" + districtid;
+
+            //window.alert(query);
+            loadTable(activepage, cmbPageSize.value, query);
+
+
+        }
+
+        function btnSearchMC(){
+            activepage=1;
+            loadSearchedTable();
+
+        }
+
+        function btnSearchClearMC(){
+            loadView();
+        }
+
+        // scroll to ID---------------------------------
+        $("a[href^='#']").click(function(e) {
+            e.preventDefault();
+
+            var position = $($(this).attr("href")).offset().top;
+
+            $("body, html").animate({
+                scrollTop: position
+            } /* speed */ );
+        });
+        // -----------------------------------------------
+
+
+
+
+    </script>
+    <style>
+        body {overflow-x: hidden; }
+        div .panel-heading {
+            text-decoration: none;
+            background-color:#818181;
+            color: whitesmoke;
+            border-radius: 2%;
+        }
+    </style>
+
+</head>
+<body>
+
+<div class="container-fluid">
+            <div class="panel" id="branc">
+                <div class="panel-heading">
+                    <button class="btn btn-xs ui"> <a href="#branc"><h4>Add District Office</h4></a></button>
+                    <button class="btn btn-xs "> <a href="#branchview"><h4>View District Office</h4></a></button>
+                    <h3 style=" float: left; text-align: center; margin: 20px; color: white">
+                        District Office Management</h3>
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal" onsubmit="return false" id="branchform" >
+                        <legend class="text-muted">Branch Info</legend>
+                        <div class="form-group">
+                            <label class="control-label col-md-4" for="cmbProvince">Province <span style="color:red;font-size:20px">*</span></label>
+                            <div class="col-md-8">
+                                <select class="form-control" id="cmbProvince"></select>
+                            </div>
+                        </div>
+                        <!--<div class="form-group">-->
+                        <!--<label class="control-label col-md-4" for="cmbDistrict">District</label>-->
+                        <!--<div class="col-md-6">-->
+                        <!--<select class="form-control" id="cmbDistrict"></select>-->
+
+                        <!--</div>-->
+                        <!--<div class="col-md-2"><p><a href="district.html"> Add new....</a></p></div>-->
+                        <!--</div>-->
+                        <script>
+                            comboBox('branchform','cmbDistrict','District <span style="color:red;font-size:20px">*</span>',4,'branch','districtId','oldbranch');
+                        </script>
+
+                        <legend>District Office Info</legend>
+                        <script>
+                            // Defining UI-Componnets and Layouts
+                            // Default UI-Componnets and Layouts is coded in "ui.bitproject.earth.lk.js"
+                            textField('branchform','txtNumber','Number <span style="color:red;font-size:20px">*</span>','Enter District Office Number Here','',4,"",'branch','number','oldbranch');
+                            textField('branchform','txtName','Name <span style="color:red;font-size:20px">*</span>','Enter District Office Name Here','',4,"",'branch','name','oldbranch');
+                            textField('branchform','txtDcode','District Code <span style="color:red;font-size:20px">*</span>','Enter District Code Here','',4,"",'branch','dcode','oldbranch');
+                            textField('branchform','txtAddress','Address <span style="color:red;font-size:20px">*</span>','Enter District Office Address Here','',4,"",'branch','address','oldbranch');
+                            textField('branchform','txtManager','District Manager <span style="color:red;font-size:20px">*</span>','Enter District Office Manager Here','',4,"",'branch','districtmanager','oldbranch');
+                            textField('branchform','txtMobile','Mobile No <span style="color:red;font-size:20px">*</span>','Enter Mobile Number Here','',4,"",'branch','mobileno','oldbranch');
+                            textField('branchform','txtLand','Land No ','Enter Land Number Here','',4,"",'branch','landno','oldbranch');
+                            textField('branchform','txtFax','Fax No <span style="color:red;font-size:20px">*</span>','Enter Fax Here','',4,"",'branch','fax','oldbranch');
+                            textField('branchform','txtEmail','Email <span style="color:red;font-size:20px">*</span>','Enter Email Here','',4,"",'branch','email','oldbranch');
+                            textArea('branchform','txtDescription','Decription','Enter Description Here','',4,"",'branch','description','oldbranch');
+
+                            // Custom UI-Componnets and Layouting
+                        </script>
+                        <div class="text-right">
+                            <input class="btn btn-danger btn-sm" type="button" id="btnDelete" value="Delete" style="width: 15%"/>
+                            <input class="btn btn-warning btn-sm" type="button" id="btnUpdate" value="Update" style="width: 15%"/>
+                            <input class="btn btn-success btn-sm" type="button" id="btnAdd" value="Add" style="width: 17%"/>
+                            <input class="btn btn-info btn-sm" type="button" id="btnClear" value="Clear"
+                                   style="width: 15%"/>
+                            <button class="btn btn-primary btn-sm"  id="btnPrintTable" > <span class="glyphicon glyphicon-print"> </span> Print Table  </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+            <div class="col-md-12" id="branchview">
+                <h3>Advance Search of district offices</h3>
+
+                <form class="form-inline" onsubmit="return false">
+                    <div class="form-group form-group-sm">
+                        <input placeholder="Search By Name" class="form-control" type="text" id="txtSearchName"/>
+                    </div>
+                    <div class="form-group form-group-sm">
+                        <select class="form-control" id="cmbSearchDistrict"></select>
+                    </div>
+
+                    <input type="button" class="btn btn-primary btn-sm" value=" Search " id="btnSearch"/>
+                    <input type="button" class="btn btn-warning btn-sm" value="Clear Search" id="btnSearchClear"/>
+                </form>
+                <hr/>
+
+                <h3>List of district offices table</h3>
+                <div class="table-responsive" id="tableParent">
+                    <script>
+                        function getNameColumn(ob) {
+                            return ob.name+"("+ob.number+")";
+                        }
+                        var metadata = [
+                            {name:'Name',search:true,datatype:'text',property:getNameColumn},
+                            {name:'Address',search:true,datatype:'text',property:'address'},
+                            {name:'District Manager',search:true,datatype:'text',property:'districtmanager'},
+                            {name:'Mobile No',search:true,datatype:'text',property:'mobileno'},
+                            {name:'Land No',search:true,datatype:'text',property:'landno'},
+                            {name:'Fax',search:true,datatype:'text',property:'fax'},
+                            {name:'Email',search:true,datatype:'text',property:'email'},
+                            {name:'District',search:true,datatype:'text',property:'districtId.name'},
+                            {name:'Province',search:true,datatype:'text',property:'districtId.provinceId.name'}
+
+                        ];
+
+                        table("tableParent","tblBranch",metadata,[10,15,30,100,500,1000],btnSearchMC);
+                    </script>
+                </div>
+                <ul id="pagination" class="pagination"></ul>
+
+            </div>
+        </div>
+    </div>
+    <div id="err" style="display: none"><h3>Error Log</h3></div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<html>
+<head>
+
+    <link rel="stylesheet" href="../../plugin/bootstrap/css/bootstrap.min.css"/>
+    <script src="../../plugin/jquery/jquery.min.js"></script>
+    <script src="../../plugin/bootstrap/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="../../style/common.css"/>
+    <script src="../../script/common.bitproject.earth.lk.v1.js"></script>
+    <script src="../../script/ui.bitproject.earth.lk.v1.js"></script>
+
+
+    <!--Load the AJAX API-->
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script type="text/javascript">
+
+        window.addEventListener("load", initialize);
+
+        function initialize(){
+ //
+            btnPrintPiechart.addEventListener("click",btnPrintPiechartMC);
+            btnPrintTable.addEventListener("click",btnPrintTableMC);
+            btnPrintAllReport.addEventListener("click",btnPrintAllReportMC);
+
+            colors =
+                ["red","green","blue","orange","yellow","cyan","magenta","gray","gold","purple","red","green","blue","orange","yellow","cyan","magenta","gray","gold","purple","red","green","blue","orange","yellow","cyan","magenta","gray","gold","purple","red","green","blue","orange","yellow","cyan","magenta","gray","gold","purple","red","green","blue","orange","yellow","cyan","magenta","gray","gold","purple","red","green","blue","orange","yellow","cyan","magenta","gray","gold","purple"];
+
+            serverdata=httpRequest("../../reports/loantypeloans","GET");
+            loadReports();
+        }
+
+        function loadReports() {
+            var columns = [{type:"string",name:"Loan Types"},{type:"number",name:"No of Loans"}];
+            drawReportTable('tbl',serverdata,columns);
+            //drawPieChart('pch',serverdata,'loantype','loans','Sample Title',600,400,colors);
+           // drawDonutChart('donut',serverdata,'loantype','loans','Sample Title',600,400,colors);
+            draw3DChart('3d',serverdata,'loantype','loans','Types of Loans',600,600,colors);
+           // drawColumnChart('colch',serverdata,'loantype','loans','Sample Title',600,400,colors);
+            //drawSliceChart('slice',serverdata,'loantype','loans','Sample Title',600,400,colors);
+        }
+
+
+
+
+        function btnPrintTableMC() {
+            // printDiv(divid,width,height,topoffset,image)
+            printDiv("tableview",1200,2000,190,"../../image/NHDA_Logo.jpg");
+        }
+
+        function btnPrintPiechartMC() {
+            printDiv("3dchartview",600,500,190,"../../image/NHDA_Logo.jpg");
+        }
+
+        function btnPrintAllReportMC() {
+            printDiv("allreport",1200,2000,190,"../../image/NHDA_Logo.jpg");
+        }
+
+    </script>
+<style>
+    body{
+        /*background:url('../image/home.jpg');*/
+        overflow-x: hidden;
+        overflow-y: auto;
+        height: 3000px;
+        width: 100%;
+
+    }
+
+    div .panel-heading {
+        text-decoration: none;
+        background-color: #818181;
+        color: whitesmoke;
+        border-radius: 2%;
+    }
+</style>
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid">
+    <div class="row" id="ui">
+        <div class="col-md-12">
+            <div class="panel">
+                <div class="panel-heading">
+                    <h3>Loantype Report</h3>
+                </div>
+
+                <div class="panel-body" >
+
+                    <div class="row">
+
+                        <div class="col-md-12" id="ondemandcriteria">
+                            <form class="form-inline" onsubmit="return false">
+
+
+                                <div class="text-right" style="margin-top: 10px;">
+                                    <button class="btn btn-primary btn-sm"  id="btnPrintTable" > <span class="glyphicon glyphicon-print"> </span> Print Table  </button>
+                                    <button class="btn btn-primary btn-sm"  id="btnPrintPiechart" > <span class="glyphicon glyphicon-print"> </span> Print Piechart  </button>
+                                    <button class="btn btn-primary btn-sm"  id="btnPrintAllReport" > <span class="glyphicon glyphicon-print"> </span> Print All Reports  </button>
+
+                                </div>
+
+                            </form>
+                        </div>
+
+                    </div>
+
+                    <div class="row" style="height: 50px;">
+                    </div>
+
+                    <div class="row" id="allreport">
+                        <div class="row">
+                            <div class="col-md-4 col-md-offset-1" id="tableview"> <h2>No of Loans per Loantype</h2>
+                                <hr/> <div id="tbl"></div>   </div>
+                            <div class="col-md-6" id="3dchartview"><div
+                            id="3d"></div>   </div>
+                        </div>
+                        <!--<div class="row">-->
+                            <!--<div class="col-md-10 col-md-offset-1" id="barchartview"> <h3>Pie Chart</h3> <hr/>-->
+                                <!--<div id="colch"></div> </div>-->
+                        <!--<div class="col-md-6" id="donutchartview"> <h3>Donut-->
+                        <!--Chart</h3><hr/><div-->
+                        <!--id="donut"></div>   </div>-->
+
+                        <!--</div>-->
+                        <!--<div class="row">-->
+                            <!--<div class="col-md-6" id="slicechartview"> <h3>Slice Chart</h3><hr/><div-->
+                                    <!--id="slice"></div>   </div>-->
+                            <!--&lt;!&ndash;<div class="col-md-6" id="piechartview"> <h3>Pie Chart</h3> <hr/>&ndash;&gt;-->
+
+                    </div>
+
+                </div>
+
+                <div class="panel-footer">
+                    <div id="err" style="display: none">
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

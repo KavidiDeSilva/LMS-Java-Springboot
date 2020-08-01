@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!----------------------------------------------------------------------------------->
+    <title>National Housing Development Authority</title>
+    <!----------------------------------------------------------------------------------->
+    <link rel="stylesheet" href="../plugin/bootstrap/css/bootstrap.min.css"/>
+    <script type="text/javascript" src="../plugin/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="../plugin/bootstrap/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="../plugin/font-awesome/css/all.css">
+    <script type="text/javascript" src="../plugin/font-awesome/js/all.js"></script>
+    <!----------------------------------------------------------------------------------->
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">-->
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>-->
+    <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>-->
+  <!---------------------------------------------------------------------------------------------------------->
+    <link rel="icon" type="image/gif" href="../logo-favicon/animated_favicon.gif" />
+    <!--------------------------------------------------------------------------------------->
+    <!--<link rel="stylesheet" href="../style/common.css"/>-->
+    <script src="../script/common.bitproject.earth.lk.v1.js"></script>
+    <script src="../script/ui.bitproject.earth.lk.v1.js"></script>
+
+    <script>
+
+        window.addEventListener("load", initialize);
+
+        function initialize() {
+            spnUsername.innerHTML = " "+session.getObject("user").employeeId.fullname;
+            laodUi("home");
+
+        }
+
+        function laodUi(ui) {
+            frmMainWindow.src = 'http://localhost:8080/ui/' + ui;
+        }
+        function laodUiReport(ui) {
+            frmMainWindow.src = 'http://localhost:8080/ui/report/' + ui;
+        }
+
+        function changePassword() {
+            if (window.confirm("Do you need to change the Password ?")) {
+                cookie.setValue("username", "", 1);
+                cookie.setValue("password", "", 1);
+                session.setObject("user", new Object());
+                window.open("changepassword", "_self");
+            }
+        }
+
+        function logout() {
+            if(window.confirm("Do you need to logout ?")) {
+
+                ajax = new XMLHttpRequest();
+                ajax.open("PUT", "/session", false);
+                // ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                ajax.send();
+                err.innerHTML=err.innerHTML+ajax.responseText;
+                if(ajax.status==200 && ajax.responseText!="") {
+                    responce = ajax.responseText;
+                    cookie.setValue("username", "", 1);
+                    cookie.setValue("password", "", 1);
+                    session.setObject("user", new Object());
+                    window.alert(responce);
+
+                    window.open("login", "_self");
+                }
+                else
+                    window.alert("Failed to logout");
+
+
+            }
+        }
+
+        function resizeIframe(obj) {
+            obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
+        }
+
+
+        $(document).ready(function () {
+            $('ul.nav li.dropdown').hover(function () {
+                $(this).find('.dropdown-menu').stop(true, true).delay(200).fadeIn(10);
+            }, function () {
+                $(this).find('.dropdown-menu').stop(true, true).delay(200).fadeOut(10);
+            });
+        });
+
+
+    </script>
+
+
+    <style>
+        /*body {*/
+            /*-ms-overflow-x: hidden;*/
+            /*overflow-x: hidden;}*/
+        .sidenav {
+            height: 100%;
+            width: 180px;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            background-color: #292b2c;
+            overflow-x: hidden;
+            /*transition: 0.5s;*/
+            padding-top: 15px;
+        }
+
+        .sidenav a {
+            padding: 8px 8px 8px 30px;
+            text-decoration: none;
+            font-size: 15px;
+            color: #818181;
+            display: block;
+            /*transition: 0.3s;*/
+        }
+
+        .sidenav a:hover {
+            color: #343a40;
+        }
+        .sidenav div ul li{
+            background-color: #1a1f29;
+        }
+
+        #main {
+            /*transition: margin-left .5s;*/
+            /*padding: 16px;*/
+            margin-left: 180px;
+        }
+        .navbar{
+            background-color: #292b2c;!important;
+            margin-right: 0px;
+        }
+
+
+        @media screen and (max-height: 450px) {
+            .sidenav {padding-top: 15px; margin-top: 50px;}
+            .sidenav a {font-size: 18px;}
+        }
+
+        /*Scrollbar css*/
+        /* width */
+        ::-webkit-scrollbar {width: 8px;}
+        /* Track */
+        ::-webkit-scrollbar-track {background: #f1f1f1;}
+        /* Handle */
+        ::-webkit-scrollbar-thumb {background: #888;}
+        /* Handle on hover */
+        ::-webkit-scrollbar-thumb:hover {background: #555;}
+
+    </style>
+
+</head>
+<body>
+
+
+
+<div id="mySidenav" class="sidenav"  >
+    <div class="nav nav-pills nav-stacked  ">
+
+        <li style="color: white; padding-right: 10px; padding-left: 10px;margin-bottom: 40px;">
+            <img src='../logo-favicon/favicon-32.png' class="img img-rounded" style="padding-left: 10px; float: left" />
+            <h4 style="float: right"> NHDA Admin</h4>
+        </li>
+        <li></li>
+        <li style="color:#818181; margin: 50px 30px 10px 30px;" ><small> MAIN MENU </small></li>
+
+
+        <li onclick="laodUi('home')"><a href="#"><span class="glyphicon glyphicon-home"></span> Dashboard</a></li>
+
+        <li><a data-toggle="collapse" href="#branchh" aria-expanded="true" aria-controls="branchh"><span
+                class="glyphicon glyphicon-duplicate"></span> District Office <span class="caret"></span></a></li>
+        <div class="collapse" id="branchh">
+            <ul class="nav nav-pills nav-stacked" >
+                <li onclick="laodUi('branch')" ><a href="#"> Add Branch</a></li>
+                <!--<li onclick="laodUi('branches')" ><a href="#"> View all Branch</a></li>-->
+
+            </ul>
+        </div>
+
+        <li onclick="laodUi('client')"><a  href="#" ><span class="glyphicon glyphicon-user"></span>  Borrower</a></li>
+        <li onclick="laodUi('gurantor')"><a  href="#" ><span class="glyphicon glyphicon-user"></span>  Guarantor</a></li>
+        <li onclick="laodUi('property')"><a  href="#" ><span class="glyphicon glyphicon-briefcase"></span> Property</a></li>
+
+
+        <li><a data-toggle="collapse" href="#loan1" aria-expanded="true" aria-controls="loan1"><span
+                class="glyphicon glyphicon-list-alt"></span> Loans <span class="caret"></span></a></li>
+        <div class="collapse" id="loan1">
+            <ul class="nav nav-pills nav-stacked" >
+                <li onclick="laodUi('loan')" ><a href="#"> Add Loans</a></li>
+                <li onclick="laodUi('loantype')"><a href="#"> Add Loan Types</a></li>
+                <li onclick="laodUi('loancategory')"><a href="#"> Add Loan Categories</a></li>
+                <li onclick="laodUi('loancalculator')" ><a href="#"> Loan Calculator</a></li>
+            </ul>
+        </div>
+
+
+        <li onclick="laodUi('loanpayment')"><a  href="#repay" ><span class="glyphicon glyphicon-usd"></span>
+            Loan Payments </a></li>
+
+        <!--<li><a data-toggle="collapse" href="#repay" aria-expanded="true" aria-controls="repay"><span-->
+                <!--class="glyphicon glyphicon-usd"></span> Repayments <span class="caret"></span></a></li>-->
+        <!--<div class="collapse" id="repay">-->
+            <!--<ul class="nav nav-pills nav-stacked" >-->
+                <!--<li  onclick="laodUi('loanpayment')" ><a href="#"> View Repayments</a></li>-->
+                <!--<li  ><a href="#"> Add Bulk Repayments</a></li>-->
+                <!--<li ><a href="#"> Repayments Chart</a></li>-->
+                <!--<li><a href="#"> Loan Recovery Mgt</a></li>-->
+            <!--</ul>-->
+        <!--</div>-->
+
+        <li><a data-toggle="collapse" href="#user" aria-expanded="false" aria-controls="user"><span
+                class="glyphicon glyphicon-user"></span> Employee <span class="caret"></span></a></li>
+        <div class="collapse" id="user">
+            <ul class="nav nav-pills nav-stacked" >
+                <li  onclick="laodUi('employee')"><a href="#"> Add Employee</a></li>
+                <li  onclick="laodUi('user')"><a href="#"> Add User</a></li>
+                <li  onclick="laodUi('previlage')"><a href="#"> Add Privilages</a></li>
+
+            </ul>
+        </div>
+
+        <li onclick="laodUi('reportview')"><a  href="#" ><span class="glyphicon glyphicon-signal"></span> Reports
+        </a></li>
+
+        <!--<li><a data-toggle="collapse" href="#report" aria-expanded="false" aria-controls="report"><span-->
+                <!--class="glyphicon glyphicon-signal"></span> Reports <span class="caret"></span></a></li>-->
+        <!--<div class="collapse" id="report">-->
+            <!--<ul class="nav nav-pills nav-stacked" >-->
+                <!--<li  onclick="laodUiReport('borrowersreport')"><a href="#">Borrowers Report</a></li>-->
+                <!--<li  onclick="laodUiReport('loansreport')"><a href="#">Loans Report</a></li>-->
+                <!--<li  onclick="laodUiReport('borrowersdetailsreport')"><a href="#">Borrowers Details Report</a></li>-->
+                <!--<li  onclick="laodUiReport('branchreport')"><a href="#">BranchesReport</a></li>-->
+                <!--<li><a href="#">Daily Report</a></li>-->
+                <!--<li><a href="#">Monthly Report</a></li>-->
+                <!--<li><a href="#">Annual Report</a></li>-->
+                <!--<li><a href="#">All Entries</a></li>-->
+            <!--</ul>-->
+        <!--</div>-->
+
+
+
+        <!--<li><a data-toggle="collapse" href="#accounting" aria-expanded="true" aria-controls="accounting"><span-->
+                <!--class="glyphicon glyphicon-usd"></span> Accounting <span class="caret"></span></a></li>-->
+        <!--<div class="collapse" id="accounting">-->
+            <!--<ul class="nav nav-pills nav-stacked" >-->
+                <!--<li onclick="laodUi('')" ><a href="#"> Cash flow Accumulated</a></li>-->
+                <!--<li onclick="laodUi('')" ><a href="#"> Cash flow Monthly</a></li>-->
+                <!--<li onclick="laodUi('')" ><a href="#"> Cash flow Projection</a></li>-->
+                <!--<li onclick="laodUi('')" ><a href="#"> Profit/Loss</a></li>-->
+                <!--<li onclick="laodUi('')" ><a href="#"> Balance Sheet</a></li>-->
+                <!--<li onclick="laodUi('')" ><a href="#"> Surcharge Details</a></li>-->
+                <!--<li onclick="laodUi('')" ><a href="#"> Accounting Integration</a></li>-->
+                <!--<li><a href="#"> Loan Recovery Mgt</a></li>-->
+            <!--</ul>-->
+        <!--</div>-->
+
+        <!--<li><a  href="#" class="text-muted" ></a></li>-->
+        <!--&lt;!&ndash;<li><a  href="#" ><span class="glyphicon glyphicon-calendar"></span>  Calender</a></li>&ndash;&gt;-->
+        <!--&lt;!&ndash;<li><a  href="#" ><span class="glyphicon glyphicon-phone-alt"></span>  Messages</a></li>&ndash;&gt;-->
+        <!--<li><a  href="#"></a></li>-->
+        <!--<li onclick="laodUi('faq')"><a><span class="glyphicon glyphicon-alert"></span>  FAQ</a></li>-->
+        <li><a  href="#" class="text-muted" ></a></li>
+        <!--<li><img src='../logo-favicon/favicon-64.png'  class="img img-rounded" style="padding-left: 30px;" /></li>-->
+
+    </div>
+</div>
+
+<div id="main">
+            <!--navbar-fixed-top not included-->
+            <nav class="navbar navbar-inverse  " style="border-radius: 0 !important; margin-bottom: 0px;" >
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <!--<a class="navbar-brand" href="javascript:void(0)"-->
+                           <!--onclick="toggleNav()">-->
+                            <!--<img alt="Brand" src="../logo-favicon/icons8-menu-32.png">-->
+                        <!--</a>-->
+                    </div>
+                    <ul class="nav navbar-nav navbar-right" style="float: right;">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-user"> </span> <span id="spnUsername"> User</span><span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li onclick="laodUi('admin')" ><a href="#"> <i class="fas fa-user-cog"></i> Admin </a></li>
+                                <li onclick="changePassword()"><a href="#"> <i class="fas fa-lock"></i> Change Password </a></li>
+                                <li onclick="logout()"><a href="#"> <span class="glyphicon glyphicon-log-in"> </span> Logout</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+        <div class="row" style="margin: 4px;">
+            <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 ">
+                <form ><input class="btn btn-default"  type="button" value="Back!" onclick="history.back()"></form>
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 ">
+                <form><input class="btn btn-default"  type="button" value="Forward!" onclick="history.forward()"></form>
+            </div>
+            <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
+                    <!--<div class="input-group">-->
+                        <!--<input  type="text" class="form-control" placeholder="Search for...">-->
+                        <!--<span class="input-group-btn">-->
+                            <!--<button class="btn btn-default" type="button">Go!</button>-->
+                        <!--</span>-->
+                    <!--</div>-->
+
+            </div>
+
+        </div>
+
+
+         <iframe id="frmMainWindow" style="width:100%; height:605px; border:0; " frameborder="0"
+                 scrolling="no" onload="resizeIframe(this)">
+         </iframe>
+
+    <div id="err" style="display: none"></div>
+</div>
+
+<!--<script>-->
+    <!--var open=false;-->
+    <!--function toggleNav() {-->
+        <!--if(open==true){-->
+            <!--closeNav();-->
+        <!--} else{-->
+            <!--openNav();-->
+        <!--}-->
+    <!--}-->
+    <!--function openNav() {-->
+        <!--document.getElementById("mySidenav").style.width = "0px";-->
+        <!--document.getElementById("main").style.marginLeft = "0px";-->
+        <!--open=true;-->
+    <!--}-->
+
+    <!--function closeNav() {-->
+        <!--document.getElementById("mySidenav").style.width = "180px";-->
+        <!--document.getElementById("main").style.marginLeft = "180px";-->
+        <!--open=false;-->
+    <!--}-->
+<!--</script>-->
+
+</body>
+</html>

@@ -1,0 +1,83 @@
+Favicon installation
+
+How do I install the favicon pictures to my website?
+1 - Click "Download favicon pictures", download package, unzip it and then open it. All favicon pictures and the xml file browserconfig.xml (extra package) are included in it.
+2 - Upload all favicon files to your web site root folder (usualy where your home page is placed). For example, http://www.yoursite.com/favicon.ico 
+3 - Add HTML tag to your web page after the <head> tag, before the </head> tag:
+
+For standard package (All current versions of major browsers):
+
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="icon" sizes="32x32" href="favicon-32.png" type="image/png">
+<link rel="icon" sizes="64x64" href="favicon-64.png" type="image/png">
+<link rel="icon" sizes="96x96" href="favicon-96.png" type="image/png">
+
+For Extra package (iOS, Android and Internet Explorer 10+):
+
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+<link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="60x60" href="apple-touch-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="76x76" href="apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="apple-touch-icon-144x144.png">
+<link rel="icon" sizes="196x196" href="favicon-196.png" type="image/png">
+<meta name="msapplication-TileImage" content="favicon-144.png">
+<meta name="msapplication-TileColor" content="#FFFFFF">
+
+For Standard + Extra package (All current versions of major browsers, iOS, Android and Internet Explorer 10+):
+
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="icon" sizes="32x32" href="favicon-32.png" type="image/png">
+<link rel="icon" sizes="64x64" href="favicon-64.png" type="image/png">
+<link rel="icon" sizes="96x96" href="favicon-96.png" type="image/png">
+<link rel="icon" sizes="196x196" href="favicon-196.png" type="image/png">
+<link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="60x60" href="apple-touch-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="76x76" href="apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="apple-touch-icon-144x144.png">
+<meta name="msapplication-TileImage" content="favicon-144.png">
+<meta name="msapplication-TileColor" content="#FFFFFF">
+
+Optional : if you would like to display the animated favicon, upload animated_favicon.gif as well and insert the following HTML tags :
+
+<link rel="icon" href="animated_favicon.gif" type="image/gif">
+
+Some interesting resources on the topic :
+
+- Iconography | Android Developers
+- Add to Homescreen, Chrome Developers
+- Configuring Web Applications (Apple)
+- Creating custom tiles for IE11 websites (Microsoft)
+- http://mathiasbynens.be/notes/touch-icons
+
+
+What is favicon ?
+Favicon.ico (short for "Favorites icon"), also known as a page icon, is an icon associated with a particular website or webpage. Browsers that support favicons may display them in the browser's URL bar, next to the site's name in lists of bookmarks, and next to the page's title in a tabbed document interface. Find more technical details at Wikipedia.
+
+Is it necessary to name favorite icon file as "favicon.ico"?
+The use of the "favicon.ico" file name is a default. If you want, you may specify the filename for the favourite icon to be used for each particular page on your website, so in theory you can have different favicons for each page.
+
+
+Why would I use "favicon.ico"?
+If you look around the Internet, you will notice that all professional web sites use it. It gives more customized appearance of your site in visitor browser and it also gives more distinct look of your site in Bookmarks menu by replacing generic browser icon.
+
+How some sites has such strange favicon.ico with different sized images in it?
+Facicon.ico, as any other icon file, does not have to be a single image.
+It is an archive or repository, and can hold several different images, all in one file — simpler images for different colour depths or larger images for placement on the desktop.
+
+
+
+What is that "favicon.ico not found" error that is filling my site error.log?
+Some browsers automatically looks for a favicon.ico file they think you should have whenever someone creates a bookmark or a shortcut to a page on your site. If you surf with Internet Explorer you've probably noticed that some of your bookmarked sites have custom icons while others have the default IE icon. Those custom icons are the favicon.ico that browsers is so diligently searching for. So, having favicon.ico will stop the entries in the error log.
+
+
+
+What browsers support "favicon.ico"?
+All current versions of the major browsers support favicons, including Internet Explorer, Firefox, Mozilla, Netscape, Opera, Safari, etc.
+
+

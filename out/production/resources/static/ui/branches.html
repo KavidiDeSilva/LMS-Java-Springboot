@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!----------------------------------------------------------------------------------->
+    <title>National Housing Development Authority</title>
+    <!----------------------------------------------------------------------------------->
+    <link rel="stylesheet" href="../plugin/bs4/css/bootstrap.min.css">
+    <script type="text/javascript" href="../plugin/jquery/jquery.min.js"></script>
+    <script type="text/javascript" href="../plugin/bs4/js/bootstrap.min.js"></script>
+
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <!------------------------------------------------------------------------------------------>
+    <link rel="icon" type="image/png" href="../logo-favicon/favicon-64.png" />
+    <!------------------------------------------------------------------------->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!--<script src="../script/common.bitproject.earth.lk.js"></script>-->
+    <!--<script src="../script/ui.bitproject.earth.lk.js"></script>-->
+    <script>
+
+        window.addEventListener("load", initialize);
+
+        //Initializing Functions
+
+        function initialize() {
+
+
+            privilages = httpRequest("../privilages?module=BRANCH","GET");
+
+            branchdetails = httpRequest("../allbranches/list","GET");
+
+            //provinces = httpRequest("../provinces/list","GET");
+            //districts = httpRequest("../districts/list","GET");
+
+
+
+            loadView();
+            loadForm();
+
+        }
+
+
+
+        // Binding and Validation Functions for Non-Regex-Based
+        // When Regex-Based default validation is used, programmers do not need to define these functions
+        // Default Validation and Binding is coded in "ui.bitproject.earth.lk.js"
+
+        function cmbProvinceCH() {
+            cmbProvince.style.background=valid;
+            cmbDistrict.style.background=initial;
+            cmbDistrict.disabled="";
+            var districts = httpRequest("../districts/listbyprovince?provinceId="+ JSON.parse(cmbProvince.value).id, "GET");
+            fillCombo(cmbDistrict,"Select District",districts,"name","");
+
+            if(oldbranch !=null && oldbranch.districtId.name != JSON.parse(cmbProvince.value).name){
+                cmbProvince.style.background=updated;
+                cmbDistrict.style.background=initial;
+            }
+            else{
+                cmbProvince.style.background=valid;
+            }
+        }
+
+
+
+        function fillForm(brnch,rowno){
+            activerowno = rowno;
+            var filling;
+            if(oldbranch==null){
+                filling=true;
+            }else{
+
+                if(getErrors()==''&&getUpdates()==''){
+                    filling=true;
+                }else{
+                    filling = window.confirm("Form has Some Errors or Update Values. " +
+                        "Are you sure to discard that changes ?");
+                }
+            }
+
+            if(filling) {
+                $("#myModal").modal()
+                clearSelection(tblBranch);
+                selectRow(tblBranch,activerowno,active);
+
+                branch = JSON.parse(JSON.stringify(brnch));
+                oldbranch = JSON.parse(JSON.stringify(brnch));
+
+                txtNumber.value = branch.number;
+                txtName.value = branch.name;
+                txtAddress.value = branch.address;
+                txtManager.value = branch.districtmanager;
+                txtLand.value = branch.landno;
+                txtMobile.value = branch.mobileno;
+                txtFax.value = branch.fax;
+                txtEmail.value = branch.email;
+                txtDescription.value = branch.description;
+
+                // fillCombo(cmbDistrict, "District", districts, "name", branch.districtId.name);
+                fillCombo(cmbProvince,"Select Province",provinces,"name",branch.districtId.provinceId.name);
+
+                districts = httpRequest("../districts/listbyprovince?provinceId=" + JSON.parse(cmbProvince.value).id, "GET");
+                fillCombo(cmbDistrict, "Select District", districts, "name", branch.districtId.name);
+                cmbDistrict.disabled = "";
+
+            }
+
+        }
+
+
+
+    </script>
+
+    <style type="text/css">
+ /*div{border: dotted;}*/
+        body{
+            /*background:url('../image/home.jpg');*/
+            background-size: 100% 100%;
+            overflow-x: auto;
+        }
+
+        .card-body-icon {
+            position: absolute;
+            z-index: 0;
+            top: -25px;
+            right: -25px;
+            font-size: 5rem;
+            -webkit-transform: rotate(15deg);
+            -ms-transform: rotate(15deg);
+            transform: rotate(15deg); }
+
+        .o-hidden {
+            overflow: hidden !important; }
+
+        .z-1 {
+            z-index: 1; }
+    </style>
+
+
+
+
+</head>
+<body>
+
+<div class="container-fluid">
+<div class="row">
+    <div class="col-md-12">
+        <h4>Dashboard <small class="text-muted"> All District Offices</small></h4>
+        <hr>
+    </div>
+</div>
+    <div class="row">
+        <div class="col-md-12">
+            <!-- Button to Open the Modal -->
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+                Open modal
+            </button>
+
+            <!-- The Modal -->
+            <div class="modal fade" id="myModal">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                            <h4 class="modal-title">------- District</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                            <h4>Province : ---------</h4>
+                            <h4>District : ---------</h4>
+                            <h4>D.S Division : ---------</h4>
+                            <h4>G.N Division : ---------</h4>
+                            <h4>District Office Number : ---ob.number------</h4>
+                            <h4>District Office Name : ----ob.name-----</h4>
+                            <h4>Address : -----ob.address----</h4>
+                            <h4>Mobile No : ---------</h4>
+
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr/>
+
+    <!-- Icon Cards-->
+    <div class="row">
+        <div class="col-xl-3 col-md-3 col-sm-6 mb-4">
+            <div class="card sm text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                       <span class="fa-stack">
+                        <!-- The icon that will wrap the number -->
+                        <span class="fa fa-fw fa-stack-2x"></span>
+                           <!-- a strong element with the custom content, in this case a number -->
+                        <strong class="fa-stack-1x">1</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Ampara</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="#" data-toggle="modal" data-target="#myModal">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-3 col-sm-6 mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                       <span class="fa-stack">
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                        <strong class="fa-stack-1x">2</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Anuradhapura</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="client.html">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                        <span class="fa-stack">
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                        <strong class="fa-stack-1x">3</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Badulla</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="#">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-3 col-sm-6 mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                       <span class="fa-stack">
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                        <strong class="fa-stack-1x">4</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Batticaloa</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="employee.html">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- Icon Cards-->
+    <div class="row" >
+        <div class="col-xl-3 col-md-3 col-sm-6  mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                       <span class="fa-stack">
+                        <!-- The icon that will wrap the number -->
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                           <!-- a strong element with the custom content, in this case a number -->
+                        <strong class="fa-stack-1x">5</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Colombo</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="#">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-3 col-sm-6 mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                       <span class="fa-stack">
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                        <strong class="fa-stack-1x">6</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Colombo (North)</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="client.html">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-3 col-sm-6 mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                        <span class="fa-stack">
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                        <strong class="fa-stack-1x">7</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Colombo (South)</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="#">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-3 col-sm-6 mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                       <span class="fa-stack">
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                        <strong class="fa-stack-1x">8</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Galle</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="employee.html">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- Icon Cards-->
+    <div class="row">
+        <div class="col-xl-3 col-md-3 col-sm-6  mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                       <span class="fa-stack">
+                        <!-- The icon that will wrap the number -->
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                           <!-- a strong element with the custom content, in this case a number -->
+                        <strong class="fa-stack-1x">9</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Gampaha</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="#">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-3 col-sm-6 mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                       <span class="fa-stack">
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                        <strong class="fa-stack-1x">10</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Hambantota</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="client.html">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-3 col-sm-6 mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                        <span class="fa-stack">
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                        <strong class="fa-stack-1x">11</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Jaffna</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="#">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-3 col-sm-6 mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                       <span class="fa-stack">
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                        <strong class="fa-stack-1x">12</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Kalutara</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="employee.html">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- Icon Cards-->
+    <div class="row">
+        <div class="col-xl-3 col-md-3 col-sm-6  mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                       <span class="fa-stack">
+                        <!-- The icon that will wrap the number -->
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                           <!-- a strong element with the custom content, in this case a number -->
+                        <strong class="fa-stack-1x">13</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Kandy</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="#">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-3 col-sm-6 mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                       <span class="fa-stack">
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                        <strong class="fa-stack-1x">14</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Kegalle</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="client.html">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-3 col-sm-6 mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                        <span class="fa-stack">
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                        <strong class="fa-stack-1x">15</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Kilinochi</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="#">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-3 col-sm-6 mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                       <span class="fa-stack">
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                        <strong class="fa-stack-1x">16</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Kurunegala</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="employee.html">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- Icon Cards-->
+    <div class="row">
+        <div class="col-xl-3 col-md-3 col-sm-6  mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                       <span class="fa-stack">
+                        <!-- The icon that will wrap the number -->
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                           <!-- a strong element with the custom content, in this case a number -->
+                        <strong class="fa-stack-1x">17</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Mannar</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="#">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-3 col-sm-6 mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                       <span class="fa-stack">
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                        <strong class="fa-stack-1x">18</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Matale</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="client.html">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-3 col-sm-6 mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                        <span class="fa-stack">
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                        <strong class="fa-stack-1x">19</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Matara</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="#">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-3 col-sm-6 mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                       <span class="fa-stack">
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                        <strong class="fa-stack-1x">20</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Monaragala</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="employee.html">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- Icon Cards-->
+    <div class="row">
+        <div class="col-xl-3 col-md-3 col-sm-6  mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                       <span class="fa-stack">
+                        <!-- The icon that will wrap the number -->
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                           <!-- a strong element with the custom content, in this case a number -->
+                        <strong class="fa-stack-1x">21</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Mullaitivu</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="#">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-3 col-sm-6 mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                       <span class="fa-stack">
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                        <strong class="fa-stack-1x">22</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>NuwaraEliya</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="client.html">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-3 col-sm-6 mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                        <span class="fa-stack">
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                        <strong class="fa-stack-1x">23</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Polonnaruwa</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="#">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-3 col-sm-6 mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                       <span class="fa-stack">
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                        <strong class="fa-stack-1x">24</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Puttalam</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="employee.html">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- Icon Cards-->
+    <div class="row">
+        <div class="col-xl-3 col-md-3 col-sm-6  mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                       <span class="fa-stack">
+                        <!-- The icon that will wrap the number -->
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                           <!-- a strong element with the custom content, in this case a number -->
+                        <strong class="fa-stack-1x">25</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Ratnapura</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="#">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-3 col-sm-6 mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                       <span class="fa-stack">
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                        <strong class="fa-stack-1x">26</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Trincomalee</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="client.html">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-3 col-sm-6 mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                        <span class="fa-stack">
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                        <strong class="fa-stack-1x">27</strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Vavuniya</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="#">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-3 col-sm-6 mb-4">
+            <div class="card text-dark bg-light o-hidden h-100">
+                <div class="card-body">
+                    <div class="card-body-icon">
+                        <span class="fa-stack">
+                        <span class="fa fa-fw  fa-stack-2x"></span>
+                        <strong class="fa-stack-1x"><i class="fa fa-home"></i> </strong>
+                        </span>
+                    </div>
+                    <div class="mr-5"><h3>Head Office</h3></div>
+                </div>
+                <a class="card-footer text-dark clearfix small z-1" href="#">
+                    <span class="float-left">View Details</span>
+                    <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div id="err" style="display: none"><h3>Error Log</h3></div>
+
+</div>
+
+
+
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<html>
+<head>
+<title>Loans Report</title>
+    <link rel="stylesheet" href="../../plugin/bootstrap/css/bootstrap.min.css"/>
+    <script src="../../plugin/jquery/jquery.min.js"></script>
+    <script src="../../plugin/bootstrap/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="../../style/common.css"/>
+    <script src="../../script/common.bitproject.earth.lk.v1.js"></script>
+    <script src="../../script/ui.bitproject.earth.lk.v1.js"></script>
+
+
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+
+        window.addEventListener("load", initialize);
+
+        function initialize(){
+           btnGenarateReport.addEventListener("click",btnGenarateReportMC);
+           btnClear.addEventListener("click",btnClearMC);
+            // btnPrintPiechart.addEventListener("click",btnPrintPiechartMC);
+            btnPrintTable.addEventListener("click",btnPrintTableMC);
+            btnPrintAllReport.addEventListener("click",btnPrintAllReportMC);
+
+             colors =
+                 ["red","green","blue","orange","yellow","cyan","magenta","gray","gold","purple","red","green","blue","orange","yellow","cyan","magenta","gray","gold","purple","red","green","blue","orange","yellow","cyan","magenta","gray","gold","purple","red","green","blue","orange","yellow","cyan","magenta","gray","gold","purple","red","green","blue","orange","yellow","cyan","magenta","gray","gold","purple"];
+
+            serverdata=httpRequest("../../reports/loandetails","GET");
+            loadReports();
+        }
+
+        function loadReports() {
+            var columns =
+                [{type:"string",name:"Borrower's Loan No"},
+
+                    {type:"currency",name:"Principal Amount"},
+                    {type:"currency",name:"Total Payment Amount"},
+                    {type:"currency",name:"Balance"},
+                    {type:"number",name:"No of Payments"}];
+            drawReportTable('tbl',serverdata,columns);
+            drawColumnChart('colch',serverdata,'borrower_loan_no','no_repayments',' No of Payments',600,600,colors);
+            fillCombo(cmbLoanno,"Select Borrower Loan No ",serverdata,"borrower_loan_no","");
+            $('#cmbLoanno').select2();
+
+        }
+
+        function btnGenarateReportMC(){
+
+            var loanid = JSON.parse(cmbLoanno.value).borrower_loan_no;
+            if(loanid!="" ) {
+                serverdata = httpRequest("../../reports/loansdetails?name=" + loanid, "GET");
+                //serverdata = httpRequest("../../reports/borrowerrepayments?clientid=" + JSON.parse(cmbLoanno.value).borrower_loan_no, "GET");
+                loadReports();
+            }
+
+        }
+
+        function btnClearMC() {
+            serverdata=httpRequest("../../reports/loandetails","GET");
+            cmbLoanno.value="";
+            loadReports();
+        }
+
+
+        function btnPrintTableMC() {
+            printDiv("tableview",1200,6000,360,"../../image/natinalhda.png");
+        }
+        function btnPrintAllReportMC() {
+            printDiv("allreport",1200,1000,360,"../../image/natinalhda.png");
+        }
+
+
+    </script>
+    <style>
+        body{
+            /*background:url('../image/home.jpg');*/
+            overflow-x: hidden;
+            overflow-y: auto;
+            height: 2000px;
+            width: 100%;
+
+        }
+        div .panel-heading {
+            text-decoration: none;
+            background-color:#818181;
+            color: whitesmoke;
+            border-radius: 2%;
+        }
+    </style>
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid">
+    <div class="row" id="ui">
+        <div class="col-md-12">
+            <div class="panel">
+                <div class="panel-heading">
+                    <h3>Loans Details Report</h3>
+                </div>
+
+                <div class="panel-body" >
+
+                    <div class="row">
+
+                        <div class="col-md-12" id="ondemandcriteria">
+                            <form class="form-inline" onsubmit="return false">
+                                <div class="form-group form-group-sm">
+                                    <select class="form-control" id="cmbLoanno"></select>
+                                </div>
+
+                                <input type="button" class="btn btn-success btn-sm" value="Genarate Report" id="btnGenarateReport"/>
+                                <input type="button" class="btn btn-warning btn-sm" value="Clear" id="btnClear"/>
+
+
+                                <div class="text-right" style="margin-top: 10px;">
+                                    <button class="btn btn-primary btn-sm"  id="btnPrintTable" > <span class="glyphicon glyphicon-print"> </span> Print Table  </button>
+                                    <button class="btn btn-primary btn-sm"  id="btnPrintAllReport" > <span class="glyphicon glyphicon-print"> </span> Print All Reports  </button>
+                                </div>
+
+                            </form>
+                        </div>
+
+                    </div>
+
+                    <div class="row" style="height: 50px;">
+                    </div>
+
+                    <div class="row" id="allreport">
+
+                        <div class="col-md-12" id="tableview"> <h3>Loans Details Report</h3> <hr/> <div id="tbl"></div>
+                        </div>
+
+                        <div class="col-md-12" id="barchartview"> <h3>Loans Details Bar Chart</h3> <hr/>
+                            <div id="colch"></div> </div>
+
+                    </div>
+
+                </div>
+
+                <div class="panel-footer">
+                    <div id="err"  style="display: none" >
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>
