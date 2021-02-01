@@ -4,4 +4,4 @@ borrower details, guarantor details, property details, loan due details, employe
 (admins, agents) and loan repayment details and the user management.
 
 
-Animated Prototype Figma : https://www.figma.com/proto/ZGf9wXUGfnFWls1f3RiirN/Final-Year-Project-LMS?node-id=1%3A2&viewport=72%2C276%2C0.10926087945699692&frame-preset-name=Desktop&scaling=scale-down
+Animated Prototype Figma : https://www.figma.com/proto/qV2wrtcVGAg4B5e2DY9KsQ/Final-Year-Project-LMS?node-id=1%3A2&viewport=-1288%2C356%2C0.2848471701145172&scaling=scale-down
