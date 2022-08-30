@@ -4,8 +4,6 @@ borrower details, guarantor details, property details, loan due details, employe
 (admins, agents) and loan repayment details and the user management.
 
 
-Animated Prototype of the System using Figma : https://www.figma.com/proto/qV2wrtcVGAg4B5e2DY9KsQ/Final-Year-Project-LMS?node-id=123%3A654&viewport=-1376%2C259%2C0.25767573714256287&scaling=scale-down
-
 
 1. Import database into MySQL server (Please Refer System Manual)
 	i. Copy and Paste SQL file into MySQL bin folder
